@@ -69,10 +69,12 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
     }, [activeTab, room?.hostQQId]);
 
     const fetchHostPlaylists = async () => {
-        if (!room?.hostQQId) return;
+        if (!room?.hostQQId || !room?.id) return;
         setLoading(true);
         try {
-            const res = await fetch(`/api/qqmusic/user/songlist?id=${encodeURIComponent(room.hostQQId)}`);
+            const res = await fetch(
+                `/api/qqmusic/user/songlist?id=${encodeURIComponent(room.hostQQId)}&roomId=${encodeURIComponent(room.id)}`
+            );
             const data = await res.json();
             if (data.list) setPlaylists(data.list);
             else if (Array.isArray(data)) setPlaylists(data);

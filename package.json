@@ -13,17 +13,18 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "axios": "^1.13.6",
+    "cross-env": "^10.1.0",
     "express": "^5.2.1",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",
+    "puppeteer-core": "^24.7.1",
     "qq-music-api": "^1.1.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "tsx": "^4.21.0",
-    "zustand": "^5.0.11",
-    "cross-env": "^10.1.0"
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
