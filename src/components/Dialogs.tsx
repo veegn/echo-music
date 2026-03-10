@@ -80,7 +80,7 @@ export const WelcomeDialog: React.FC<{ isOpen: boolean; onClose: () => void; ini
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
                 <UserCircle className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-xl font-bold mb-2 text-center">{userName ? '修改昵称 ✏️' : '欢迎来到 IYC音乐 🎵'}</h2>
+            <h2 className="text-xl font-bold mb-2 text-center">{userName ? '修改昵称 ✏️' : '欢迎来到 Echo Music 🎵'}</h2>
             <form onSubmit={handleSubmit} className="text-center">
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="输入您的昵称..." autoFocus required className="input-dark w-full text-center mb-4" />
                 <div className="flex gap-3">

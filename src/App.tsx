@@ -14,7 +14,7 @@ const LobbyHeader: React.FC<{ userName: string; onEditName: () => void; onCreate
         <Music className="w-6 h-6 text-white" />
       </div>
       <div className="flex flex-col">
-        <h1 className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 leading-tight">IYC音乐大厅</h1>
+        <h1 className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 leading-tight">Echo Music</h1>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">大厅</span>
           <span className="text-xs font-medium text-zinc-500">一起来听歌</span>
@@ -176,9 +176,9 @@ export default function App() {
       const singerStr = typeof room.currentSong.singer === 'string' ? room.currentSong.singer : '未知歌手';
       document.title = `▶ 正在播放: ${room.currentSong.songname} - ${singerStr}`;
     } else if (room) {
-      document.title = `${room.name} - IYC音乐`;
+      document.title = `${room.name} - Echo Music`;
     } else {
-      document.title = 'IYC音乐大厅 - 一起来听歌';
+      document.title = 'Echo Music - 一起来听歌';
     }
   }, [room?.currentSong, room?.name]);
 
