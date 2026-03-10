@@ -1,124 +1,88 @@
-# casebuy音乐播放 - 开发文档与使用说明
+# Echo Music - 多人实时同步听歌房
 
-## 项目简介
+<p align="center">
+  <img src="https://img.shields.io/badge/Echo%20Music-v3.0.0-emerald?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react" alt="React">
+  <img src="https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite" alt="Vite">
+  <img src="https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind">
+</p>
 
-`casebuy音乐播放` 是一个基于 React、Vite 和 Express 构建的实时多人在线音乐播放室应用。它允许用户创建或加入音乐房间，共同点播歌曲、实时同步播放进度，并支持聊天互动。应用集成了 QQ 音乐的非官方 API（`qq-music-api`），支持搜索歌曲、获取播放链接以及房主 VIP 推荐音乐的自动播放。
+## 🌟 项目简介
 
-## 核心功能
+`Echo Music` 是一个极致简约、质感考究的实时多人在线音乐播放室。它不仅让音乐得以共享，更让听众在同一个节拍下产生共鸣。
 
-1. **房间管理**：用户可以创建带有密码保护的房间，或加入已有的公开房间。
-2. **实时同步**：通过 Socket.io 实现房间内所有用户的播放状态（当前歌曲、播放进度、播放/暂停状态）实时同步。
-3. **点歌系统**：用户可以搜索 QQ 音乐的歌曲并添加到房间的播放队列中。
-4. **房主权限**：
-   - 房主可以跳过当前歌曲。
-   - 房主可以重新排序播放队列中的歌曲。
-   - 房主可以从队列中删除歌曲。
-   - 房主可以设置 QQ 音乐的 Cookie，以便播放 VIP 歌曲。
-5. **智能推荐**：当播放队列为空且房主已设置 Cookie 时，系统会自动从房主的 QQ 音乐个性推荐中随机挑选歌曲进行播放。
-6. **实时聊天**：房间内的用户可以进行实时文本聊天，系统也会发送加入/离开房间的系统消息。
+基于 **React 19**、**Vite 7** 和 **Express** 构建，通过 **Socket.io** 实现毫米级的播放同步。无论相隔多远，只要进入同一个房间，你们听到的节奏就是完全一致的。
 
-## 技术栈
+## ✨ 核心特性
 
-- **前端**：
-  - React 18
-  - Vite (构建工具)
-  - Tailwind CSS (样式)
-  - Zustand (状态管理)
-  - Framer Motion (动画)
-  - Lucide React (图标)
-  - Socket.io-client (实时通信)
-- **后端**：
-  - Node.js
-  - Express (Web 框架)
-  - Socket.io (WebSocket 服务器)
-  - qq-music-api (QQ 音乐接口代理)
+- 🎵 **极致同步**：利用 WebSocket 技术，实现多端播放进度、状态（播放/暂停/切歌）的强实时同步。
+- 🎨 **高级美学**：沉浸式毛玻璃（Glassmorphism）视觉设计，配合动感的背景光晕与流畅的 Framer Motion 动画。
+- 📂 **智能队列**：支持点播、切歌、队列重排，更有房主专享的“猜你喜欢”电台自动填充，让音乐永不停歇。
+- 💬 **互动社交**：内置实时聊天气泡、用户加入/离开动态提醒。
+- 🔑 **VIP 互助**：房主连接 QQ 音乐 VIP Cookie 后，全房间用户即可共享播放 VIP 音乐及无损音质。
+- 🐳 **云端部署**：提供精简化的 Dockerfile 支持，配合 GitHub Actions 实现全自动 CI/CD 构建与推送。
 
-## 项目结构
+## 🛠️ 技术架构
 
+### 前端 (Frontend)
+- **React 19**：使用最新的 React 特性，渲染性能更强。
+- **Zustand**：极简的状态管理方案。
+- **Tailwind CSS 4**：下一代 CSS 框架，支持更强大的样式定义。
+- **Framer Motion**：丝滑的交互与入场动画。
+- **Lucide React**：清爽的图标系统。
+
+### 后端 (Backend)
+- **Node.js + Express**：轻量高效的后端处理。
+- **Socket.io**：提供稳定的全双工通信环境。
+- **qq-music-api**：深度集成的 QQ 音乐数据支持。
+- **TSX**：直接运行 TypeScript 代码，开发体验极佳。
+
+## 📁 项目结构
+
+```text
+echo-music/
+├── server/                 # 后端逻辑层
+│   ├── services/           # 业务逻辑 (房间管理、QQ音乐通讯)
+│   ├── routes/             # API 路由
+│   ├── socket/             # WebSocket 事件处理
+│   └── index.ts            # 入口文件
+├── src/                    # 前端源代码
+│   ├── components/         # 模块化组件 (MusicPanel, ChatBox, Dialogs 等)
+│   ├── store.ts            # 全局状态 (Zustand)
+│   ├── App.tsx             # 应用主入口
+│   └── index.css           # 设计系统与全局样式
+├── .github/workflows/      # GitHub Actions 自动化脚本
+└── Dockerfile              # 容器化构建配置
 ```
-/
-├── server.ts          # 后端 Express 和 Socket.io 服务器入口
-├── src/
-│   ├── App.tsx        # 前端主应用组件，包含房间列表、播放器、聊天室等 UI
-│   ├── store.ts       # Zustand 状态管理，包含 Socket.io 客户端逻辑
-│   ├── main.tsx       # React 挂载入口
-│   └── index.css      # 全局样式及 Tailwind 配置
-├── package.json       # 项目依赖和脚本
-└── vite.config.ts     # Vite 配置文件
-```
 
-## 使用说明
+## 🚀 快速开始
 
-### 1. 启动应用
-
-在开发环境中，应用会自动启动。
-如果需要手动启动，请运行：
+### 1. 本地开发
 ```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器 (自动运行后端及 Vite 预览)
 npm run dev
 ```
 
-### 2. 创建或加入房间
+### 2. 生产环境部署
+你可以使用 Docker 以最精简的方式部署：
+```bash
+# 构建镜像
+docker build -t echo-music .
 
-- **设置昵称**：在首页输入您的昵称。
-- **创建房间**：点击“创建房间”，输入房间名称（可选填密码），点击确认即可创建并进入房间。创建者将自动成为该房间的**房主**。
-- **加入房间**：在房间列表中点击想要加入的房间。如果有密码，需要输入正确的密码。
+# 运行镜像
+docker run -d -p 3000:3000 -v ./storage:/app/server/storage echo-music
+```
 
-### 3. 播放音乐与点歌
+## 🔑 获取 Cookie 说明
 
-- **搜索歌曲**：在右侧的搜索框中输入歌曲名或歌手名，按回车进行搜索。
-- **添加歌曲**：在搜索结果中点击歌曲右侧的“+”按钮，即可将歌曲添加到播放队列。
-- **播放控制**：
-  - 房主可以点击播放器下方的“下一首”按钮跳过当前歌曲。
-  - 播放进度会自动在所有房间成员之间同步。
+为了开启 VIP 音乐支持与电台推荐功能：
+1. 在浏览器登录 [QQ 音乐网页版](https://y.qq.com/)。
+2. `F12` 打开控制台 -> `Network`。
+3. 刷新页面，找到任意请求，在 `Request Headers` 中复制完整的 `cookie` 字符串。
+4. 在 Echo Music 房间内，房主点击“连接 VIP”并粘贴即可。
 
-### 4. 房主专属功能
-
-- **连接 VIP**：房主点击右上角的“连接 QQ 音乐 VIP”按钮，输入在浏览器中获取的 QQ 音乐 Cookie。连接成功后，按钮会变为绿色“VIP 已连接”。这允许房间播放 VIP 专属歌曲，并启用自动推荐功能。
-- **队列管理**：在右侧的“播放队列”中，房主将鼠标悬停在歌曲上，会出现操作按钮：
-  - ⬆️ 向上移动歌曲
-  - ⬇️ 向下移动歌曲
-  - 🗑️ 从队列中删除歌曲
-- **自动推荐**：当队列播放完毕且已连接 VIP 时，系统会自动播放推荐歌曲。
-
-### 5. 获取 QQ 音乐 Cookie 的方法
-
-1. 在电脑浏览器中打开并登录 [QQ 音乐网页版 (y.qq.com)](https://y.qq.com/)。
-2. 按 `F12` 打开开发者工具，切换到 `Network` (网络) 选项卡。
-3. 刷新页面，在网络请求列表中随便点击一个请求（例如 `fcg_...` 或 `musicu.fcg`）。
-4. 在请求的 `Headers` (标头) 面板中，找到 `Request Headers` (请求标头) 下的 `cookie` 字段。
-5. 复制 `cookie` 字段后面的所有内容（一长串字符串），粘贴到应用中的 VIP 连接输入框内。
-
-## 开发指南与代码注释
-
-### 后端 (`server.ts`)
-
-后端主要负责管理房间状态、代理 QQ 音乐 API 请求以及处理 WebSocket 事件。
-
-- **状态管理**：使用 `Map` 对象 `rooms` 在内存中存储所有房间的状态。
-- **API 代理**：通过 Express 路由（如 `/api/qqmusic/search`）代理前端请求到 `qq-music-api`，避免前端直接跨域请求。特别是在获取播放链接 (`/song/url`) 和推荐歌单 (`/recommend/playlist/u`) 时，会动态注入房主的 Cookie。
-- **Socket.io 事件**：
-  - `join_room`: 处理用户加入房间，广播更新后的房间状态。
-  - `add_song`: 处理点歌请求，如果当前无歌播放则立即播放。
-  - `skip_song`: 房主跳过歌曲。
-  - `reorder_queue` / `remove_song`: 房主管理队列。
-  - `sync_player`: 房主同步播放进度给其他用户。
-  - `playNextSong` (函数): 核心播放逻辑。当队列有歌时播放下一首；当队列为空且有 Cookie 时，调用推荐接口随机选歌播放。
-
-### 前端状态管理 (`src/store.ts`)
-
-使用 Zustand 创建全局状态，并封装了 Socket.io 的客户端逻辑。
-
-- `joinRoom`: 连接 Socket 服务器并加入指定房间。
-- 监听 `room_state` 事件来更新本地的房间状态。
-- 监听 `player_sync` 事件来同步播放进度（仅非房主生效）。
-- 提供 `addSong`, `skipSong`, `reorderQueue`, `removeSong` 等方法向服务器发送操作指令。
-
-### 前端 UI (`src/App.tsx`)
-
-- **`App` 组件**：负责路由（首页列表 vs 房间内视图）和创建/加入房间的逻辑。
-- **`Player` 组件**：核心播放器。
-  - 包含一个隐藏的 `<audio>` 元素用于实际播放。
-  - 监听 `<audio>` 的 `onTimeUpdate` 事件，如果是房主，则通过 Socket 广播当前进度。
-  - 如果是非房主，则根据接收到的同步时间调整本地 `<audio>` 的进度。
-- **`QueuePanel` 组件**：显示播放队列，并根据 `isHost` 属性决定是否渲染排序和删除按钮。
-- **`SearchPanel` 组件**：调用后端的搜索 API 并展示结果，提供添加歌曲的按钮。
+## 📄 开源协议
+本项目采用 MIT 协议。
