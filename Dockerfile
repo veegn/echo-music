@@ -32,9 +32,10 @@ COPY --from=builder /app/package*.json ./
 # 仅安装生产环境依赖
 RUN npm install --omit=dev
 
-# 复制后端代码和构建好的前端资源
+# 复制文件
 COPY --from=builder /app/server ./server
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # 暴露端口 (默认 3000)
 EXPOSE 3000
