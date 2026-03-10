@@ -13,10 +13,23 @@ import path from "path";
 
 const TAG = "RoomService";
 
-// ----- Cookie 持久化存储 -----
-const COOKIES_FILE = path.join(process.cwd(), '.qq_cookies.json');
+// ----- 持久化存储路径 -----
+const STORAGE_DIR = path.join(process.cwd(), 'server', 'storage');
+const COOKIES_FILE = path.join(STORAGE_DIR, 'cookies.json');
+const ROOMS_FILE = path.join(STORAGE_DIR, 'rooms.json');
+
+// 保证存储目录存在
+if (!fs.existsSync(STORAGE_DIR)) {
+    try {
+        fs.mkdirSync(STORAGE_DIR, { recursive: true });
+    } catch (e) {
+        logError(TAG, "创建存储目录失败", e as Error);
+    }
+}
+
 let persistentCookies: Record<string, string> = {};
 
+// 加载持久化 Cookie
 try {
     if (fs.existsSync(COOKIES_FILE)) {
         persistentCookies = JSON.parse(fs.readFileSync(COOKIES_FILE, 'utf-8'));
@@ -33,8 +46,18 @@ function savePersistentCookies() {
     }
 }
 
-/** 内存中的房间存储 */
+/** 内存中的房间存储 (带初始化加载) */
 const rooms = new Map<string, Room>();
+
+
+export function saveRooms() {
+    try {
+        const obj = Object.fromEntries(rooms);
+        fs.writeFileSync(ROOMS_FILE, JSON.stringify(obj, null, 2));
+    } catch (e) {
+        logError(TAG, "保存房间数据失败", e as Error);
+    }
+}
 
 /**
  * 生成 8 位随机房间 ID（比之前 6 位碰撞概率更低）
@@ -88,6 +111,8 @@ export function createRoom(name: string, password: string, hostName: string): { 
         chat: [],
     };
     rooms.set(id, room);
+    saveRooms(); // 持久化新房间
+    scheduleRoomDestruction(id); // 刚创建时也是空房，如果房主不进入也应该5分钟后清理
     logInfo(TAG, "房间已创建", { roomId: id, roomName: name, host: hostName });
     return { id, existing: false };
 }
@@ -99,9 +124,52 @@ export function getRoom(roomId: string): Room | undefined {
 export function deleteRoom(roomId: string): void {
     const room = rooms.get(roomId);
     if (room) {
-        logInfo(TAG, "房间已销毁（空房自动清理）", { roomId, roomName: room.name });
+        logInfo(TAG, "房间已销毁（超过5分钟空房或被手动清理）", { roomId, roomName: room.name });
         rooms.delete(roomId);
+        cancelRoomDestruction(roomId); // 确保定时器被清理
+        saveRooms(); // 移除持久化
     }
+}
+
+// ----- 房间销毁定时任务 -----
+const destructionTimers = new Map<string, NodeJS.Timeout>();
+
+export function scheduleRoomDestruction(roomId: string, limitMs: number = 5 * 60 * 1000): void {
+    if (destructionTimers.has(roomId)) {
+        clearTimeout(destructionTimers.get(roomId)!);
+    }
+    const timer = setTimeout(() => {
+        logInfo(TAG, `空房间超过 ${limitMs / 60000} 分钟无人进入，执行自动清理`, { roomId });
+        deleteRoom(roomId);
+        destructionTimers.delete(roomId);
+    }, limitMs);
+    destructionTimers.set(roomId, timer);
+}
+
+export function cancelRoomDestruction(roomId: string): void {
+    if (destructionTimers.has(roomId)) {
+        clearTimeout(destructionTimers.get(roomId)!);
+        destructionTimers.delete(roomId);
+        logInfo(TAG, `房间已有用户加入，已取消自动销毁倒计时`, { roomId });
+    }
+}
+
+// ----- 房间初始化加载 -----
+try {
+    if (fs.existsSync(ROOMS_FILE)) {
+        const data = JSON.parse(fs.readFileSync(ROOMS_FILE, 'utf-8'));
+        Object.entries(data).forEach(([id, room]: [string, any]) => {
+            rooms.set(id, {
+                ...room,
+                users: [],
+                isPlaying: false,
+            });
+            scheduleRoomDestruction(id);
+        });
+        logInfo(TAG, `已从持久化存储加载 ${rooms.size} 个房间`);
+    }
+} catch (e) {
+    logError(TAG, "加载持久化房间失败", e as Error);
 }
 
 export function listPublicRooms(): PublicRoomInfo[] {
@@ -139,6 +207,7 @@ export function getSafeRoomState(room: Room): SafeRoomState {
         currentTime: room.currentTime,
         hasCookie: !!room.hostCookie,
         hostQQId: room.hostQQId,
+        chat: room.chat,
     };
 }
 
@@ -156,6 +225,7 @@ export function setRoomCookie(room: Room, cookie: string): void {
         delete persistentCookies[room.hostName];
     }
     savePersistentCookies();
+    saveRooms(); // 同步更新房间持久化中的 cookie
 
     logInfo(TAG, "房间 Cookie 已更新并持久化", {
         roomId: room.id,
@@ -166,7 +236,7 @@ export function setRoomCookie(room: Room, cookie: string): void {
 
 // ----- 播放控制 -----
 
-export async function playNextSong(room: Room, roomId: string, io: Server): Promise<void> {
+export async function playNextSong(room: Room, roomId: string, io: Server, isAuto = false): Promise<void> {
     if (room.queue.length > 0) {
         room.currentSong = room.queue.shift()!;
         room.currentTime = 0;
@@ -177,7 +247,23 @@ export async function playNextSong(room: Room, roomId: string, io: Server): Prom
             singer: room.currentSong.singer,
             requestedBy: room.currentSong.requestedBy,
             remainingQueue: room.queue.length,
+            isAuto
         });
+
+        saveRooms(); // 持久化更新
+        io.to(roomId).emit("room_state", getSafeRoomState(room));
+
+        // 如果不是自动播放下一曲，则提示正在播放
+        if (!isAuto) {
+            const msg = {
+                id: Date.now(),
+                type: "system" as const,
+                text: `正在播放: ${room.currentSong.songname} - ${room.currentSong.singer}`
+            };
+            room.chat.push(msg);
+            if (room.chat.length > 100) room.chat.shift();
+            io.to(roomId).emit("chat_message", msg);
+        }
     } else {
         // 队列为空，尝试自动推荐
         if (room.hostCookie) {
@@ -192,6 +278,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server): Prom
                         songName: autoSong.songname,
                         singer: autoSong.singer,
                     });
+                    saveRooms(); // 持久化自动推荐
                     io.to(roomId).emit("room_state", getSafeRoomState(room));
                     return;
                 }
@@ -203,57 +290,45 @@ export async function playNextSong(room: Room, roomId: string, io: Server): Prom
         room.currentSong = null;
         room.isPlaying = false;
         room.currentTime = 0;
+        saveRooms(); // 持久化清空
         logInfo(TAG, "播放队列已清空", { roomId });
     }
     io.to(roomId).emit("room_state", getSafeRoomState(room));
 }
 
 /**
- * 从推荐歌单中随机获取一首歌
+ * 自动播放猜你喜欢电台
  */
 async function fetchRecommendedSong(room: Room): Promise<Song | null> {
-    const uin = qqMusicService.extractUin(room.hostCookie!);
-    let songlistId = '';
+    try {
+        logInfo(TAG, "尝试获取电台自动推荐", { roomId: room.id });
+        // 尝试获取“猜你喜欢”电台 (id: 99)
+        let result: any = await qqMusicService.getRadioSongs('99', room.hostCookie);
 
-    // 优先使用用户自己的歌单
-    if (uin) {
-        try {
-            const userDetail: any = await qqMusicService.getUserDetail(uin);
-            if (userDetail?.mymusic?.length > 0) {
-                songlistId = userDetail.mymusic[0].id;
-            } else {
-                const userPlaylists: any = await qqMusicService.getUserSonglist(uin);
-                if (userPlaylists?.list?.length > 0) {
-                    songlistId = userPlaylists.list[0].tid;
-                }
-            }
-        } catch (e) {
-            logError(TAG, "获取用户歌单失败，将使用推荐歌单", e, { uin });
+        // 如果猜你喜欢为空或授权失败（未登录时为空），回退到“热歌”电台 (id: 199)
+        if (!result || !result.tracks || result.tracks.length === 0) {
+            logWarn(TAG, "猜你喜欢电台为空，回退到热歌电台", { roomId: room.id });
+            result = await qqMusicService.getRadioSongs('199', room.hostCookie);
         }
+
+        if (result && result.tracks && result.tracks.length > 0) {
+            // 从电台中随机挑选一首
+            const randomSong = result.tracks[Math.floor(Math.random() * result.tracks.length)];
+
+            return {
+                id: Date.now().toString(),
+                songmid: randomSong.mid,
+                songname: randomSong.title || randomSong.name,
+                singer: formatSinger(randomSong.singer),
+                albumname: randomSong.album?.title || randomSong.album?.name || '未知专辑',
+                albummid: randomSong.album?.mid || '',
+                album: { mid: randomSong.album?.mid },
+                requestedBy: '电台推荐 📻',
+            };
+        }
+    } catch (e) {
+        logError(TAG, "获取电台自动推荐失败", e, { roomId: room.id });
     }
 
-    // 回退到推荐歌单
-    if (!songlistId) {
-        const result: any = await qqMusicService.getRecommendPlaylist(room.hostCookie);
-        if (result?.list?.length > 0) {
-            const randomPlaylist = result.list[Math.floor(Math.random() * result.list.length)];
-            songlistId = randomPlaylist.content_id;
-        }
-    }
-
-    if (!songlistId) return null;
-
-    const playlistResult: any = await qqMusicService.getSonglistDetail(songlistId, room.hostCookie);
-    if (!playlistResult?.songlist?.length) return null;
-
-    const randomSong = playlistResult.songlist[Math.floor(Math.random() * playlistResult.songlist.length)];
-    return {
-        id: Date.now().toString(),
-        songmid: randomSong.songmid,
-        songname: randomSong.songname,
-        singer: formatSinger(randomSong.singer),
-        albumname: randomSong.albumname,
-        albummid: randomSong.albummid,
-        requestedBy: '自动推荐',
-    };
+    return null;
 }

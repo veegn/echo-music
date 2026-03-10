@@ -14,6 +14,11 @@ export interface Song {
     singer: string;         // 统一为格式化后的字符串
     albumname: string;
     albummid: string;
+    album?: {
+        mid?: string;
+        pmid?: string;
+        id?: number;
+    };
     requestedBy: string;
 }
 
@@ -37,6 +42,7 @@ export interface Room {
     isPlaying: boolean;
     currentTime: number;
     chat: ChatMessage[];
+    lastSkipTime?: number;
 }
 
 /** 发送给客户端的安全房间状态（不包含密码和 cookie 原文） */
@@ -51,6 +57,7 @@ export interface SafeRoomState {
     currentTime: number;
     hasCookie: boolean;
     hostQQId: string;
+    chat: ChatMessage[];
 }
 
 /** 房间列表中展示的公开信息 */

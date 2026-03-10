@@ -129,4 +129,73 @@ router.get("/songlist", async (req, res) => {
     }
 });
 
+/** GET /api/qqmusic/radio/categories — 获取所有电台 */
+router.get("/radio/categories", async (req, res) => {
+    try {
+        const result = await qqMusicService.getRadioCategories();
+        res.json(result);
+    } catch (err: any) {
+        logError(TAG, "获取电台分类失败", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/** GET /api/qqmusic/radio/songs — 获取某个电台的歌曲列表 */
+router.get("/radio/songs", async (req, res) => {
+    try {
+        const { id, roomId } = req.query;
+        if (!id) return res.status(400).json({ error: "电台 ID 不能为空" });
+        const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+        const cookie = room?.hostCookie ?? null;
+        const result = await qqMusicService.getRadioSongs(id as string, cookie);
+        res.json(result);
+    } catch (err: any) {
+        logError(TAG, "获取电台歌曲失败", err, { radioId: req.query.id });
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/** GET /api/qqmusic/search/hot — 获取搜索热词 (可选) */
+router.get("/hot", async (req, res) => {
+    try {
+        const result = await qqMusicService.getHotSearch();
+        res.json(result);
+    } catch (err: any) {
+        logError(TAG, "获取热词失败", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 export default router;
+
+/**
+ * ============================
+ * 扫码登录专用接口
+ * ============================
+ */
+
+/** GET /api/qqmusic/qrcode — 获取登录二维码 */
+router.get("/qrcode", async (req, res) => {
+    try {
+        const result = await qqMusicService.getLoginQrCode();
+        res.json({ success: true, ...result });
+    } catch (err: any) {
+        logError(TAG, "请求二维码接口失败", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+/** GET /api/qqmusic/qrcode/status — 轮询二维码状态 */
+router.get("/qrcode/status", async (req, res) => {
+    try {
+        const { qrsig } = req.query;
+        if (!qrsig) {
+            return res.status(400).json({ success: false, message: "缺少 qrsig 参数" });
+        }
+        const result = await qqMusicService.checkQrStatus(qrsig as string);
+        res.json({ success: true, ...result });
+    } catch (err: any) {
+        logError(TAG, "检查二维码状态失败", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});

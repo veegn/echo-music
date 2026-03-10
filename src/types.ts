@@ -14,6 +14,11 @@ export interface Song {
     singer: string | { name: string }[];
     albumname: string;
     albummid: string;
+    album?: {
+        mid?: string;
+        pmid?: string;
+        id?: number;
+    };
     requestedBy: string;
 }
 
@@ -35,6 +40,7 @@ export interface RoomState {
     currentTime: number;
     hasCookie: boolean;
     hostQQId: string;
+    chat: ChatMessage[];
 }
 
 export interface LyricLine {

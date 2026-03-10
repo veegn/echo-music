@@ -6,13 +6,13 @@
   "scripts": {
     "dev": "tsx server/index.ts",
     "build": "vite build",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
+    "start": "cross-env NODE_ENV=production tsx server/index.ts",
+    "deploy": "npm run build && npm run start",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.2.1",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@heroicons/react": "^2.2.0",
+    "axios": "^1.13.6",
     "express": "^5.2.1",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",
@@ -21,14 +21,16 @@
     "react-dom": "^19.2.4",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
-    "vite": "^7.3.1",
+    "tsx": "^4.21.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.5",
+    "@vitejs/plugin-react": "^5.1.4",
+    "cross-env": "^10.1.0",
     "tailwindcss": "^4.2.1",
-    "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "vite": "^7.3.1"
   }

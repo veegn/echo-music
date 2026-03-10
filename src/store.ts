@@ -1,48 +1,16 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-
-interface User {
-  id: string;
-  name: string;
-}
-
-interface Song {
-  id: string;
-  songmid: string;
-  songname: string;
-  singer: string | { name: string }[];
-  albumname: string;
-  albummid: string;
-  requestedBy: string;
-}
-
-interface ChatMessage {
-  id: number;
-  type: 'system' | 'user';
-  userName?: string;
-  text: string;
-}
-
-interface RoomState {
-  id: string;
-  name: string;
-  hostName: string;
-  users: User[];
-  queue: Song[];
-  currentSong: Song | null;
-  isPlaying: boolean;
-  currentTime: number;
-  hasCookie: boolean;
-  hostQQId: string;
-}
+import { RoomState, ChatMessage, User, Song } from './types';
 
 interface AppState {
   socket: Socket | null;
-  connectionState: 'connecting' | 'connected' | 'disconnected';
+  connectionState: 'connected' | 'connecting' | 'disconnected';
   userName: string;
   room: RoomState | null;
   chat: ChatMessage[];
-  toast: { message: string; type: 'success' | 'error' | 'info'; id: number } | null;
+  toast: { message: string, type: 'success' | 'error' | 'info', id: number } | null;
+
+  // Actions
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   clearToast: () => void;
   setUserName: (name: string) => void;
@@ -50,11 +18,13 @@ interface AppState {
   leaveRoom: () => void;
   sendMessage: (text: string) => void;
   addSong: (song: any) => void;
-  skipSong: () => void;
+  skipSong: (isAuto?: boolean) => void;
   reorderQueue: (oldIndex: number, newIndex: number) => void;
   removeSong: (index: number) => void;
   setCookie: (cookie: string) => void;
   syncPlayer: (currentTime: number, isPlaying: boolean) => void;
+  playSongs: (songs: any[]) => void;
+  clearQueue: () => void;
 }
 
 const STORAGE_KEY = 'casebuy_music_username';
@@ -67,9 +37,12 @@ export const useStore = create<AppState>((set, get) => ({
   chat: [],
   toast: null,
   showToast: (message, type = 'info') => {
-    set({ toast: { message, type, id: Date.now() } });
+    const id = Date.now();
+    set({ toast: { message, type, id } });
     setTimeout(() => {
-      set((state) => (state.toast?.id === get().toast?.id ? { toast: null } : state));
+      if (get().toast?.id === id) {
+        set({ toast: null });
+      }
     }, 3000); // 3 seconds expiry
   },
   clearToast: () => set({ toast: null }),
@@ -97,7 +70,7 @@ export const useStore = create<AppState>((set, get) => ({
       });
 
       socket.on('room_state', (state: RoomState) => {
-        set({ room: state });
+        set({ room: state, chat: state.chat || [] });
         if (!resolved) {
           window.history.pushState({}, '', '?room=' + state.id);
           resolved = true;
@@ -106,7 +79,10 @@ export const useStore = create<AppState>((set, get) => ({
       });
 
       socket.on('chat_message', (msg: ChatMessage) => {
-        set((state) => ({ chat: [...state.chat, msg] }));
+        set((state) => {
+          if (state.chat.some(c => c.id === msg.id)) return state;
+          return { chat: [...state.chat, msg] };
+        });
       });
 
       socket.on('player_sync', ({ currentTime, isPlaying }) => {
@@ -143,8 +119,8 @@ export const useStore = create<AppState>((set, get) => ({
   addSong: (song) => {
     get().socket?.emit('add_song', song);
   },
-  skipSong: () => {
-    get().socket?.emit('skip_song');
+  skipSong: (isAuto) => {
+    get().socket?.emit('skip_song', isAuto);
   },
   reorderQueue: (oldIndex, newIndex) => {
     get().socket?.emit('reorder_queue', { oldIndex, newIndex });
@@ -164,5 +140,11 @@ export const useStore = create<AppState>((set, get) => ({
       }
       return state;
     });
+  },
+  playSongs: (songs) => {
+    get().socket?.emit('play_songs', songs);
+  },
+  clearQueue: () => {
+    get().socket?.emit('clear_queue');
   },
 }));

@@ -1,1 +1,83 @@
 @import "tailwindcss";
+
+@theme {
+  --color-emerald-500: #10b981;
+  --color-emerald-400: #34d399;
+  --color-zinc-950: #09090b;
+  --color-zinc-900: #18181b;
+  --color-zinc-800: #27272a;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-600: #52525b;
+  --color-zinc-500: #71717a;
+  --color-zinc-400: #a1a1aa;
+  --color-zinc-300: #d4d4d8;
+  --color-zinc-200: #e4e4e7;
+  --color-zinc-100: #f4f4f5;
+}
+
+@layer components {
+
+  /* --- Glass Panels --- */
+  .glass-panel {
+    @apply bg-zinc-950/60 backdrop-blur-2xl border border-zinc-800/60;
+  }
+
+  .glass-card {
+    @apply bg-zinc-900/40 backdrop-blur-3xl border border-zinc-800/50 shadow-2xl;
+  }
+
+  /* --- Buttons --- */
+  .btn-primary {
+    @apply bg-emerald-500 text-zinc-950 font-bold rounded-2xl transition-all active:scale-95 hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:active:scale-100;
+  }
+
+  .btn-secondary {
+    @apply bg-zinc-800 text-zinc-300 font-medium rounded-xl border border-zinc-700/30 transition-all hover:bg-zinc-700 hover:text-white active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply text-zinc-400 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-xl transition-all;
+  }
+
+  /* --- Inputs --- */
+  .input-dark {
+    @apply bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50 placeholder:text-zinc-600;
+  }
+
+  /* --- Lists & Items --- */
+  .list-item-hover {
+    @apply bg-zinc-900/40 hover:bg-zinc-800/60 rounded-xl border border-transparent hover:border-zinc-700/50 transition-all cursor-pointer;
+  }
+}
+
+/* ===== Custom Scrollbar Styling ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
