@@ -61,7 +61,7 @@ process.on('uncaughtException', (err) => {
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    logError(TAG, "Unhandled Rejection", { reason });
+    logError(TAG, "Unhandled Rejection", reason);
 });
 
 startServer().catch(err => {

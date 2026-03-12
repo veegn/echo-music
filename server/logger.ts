@@ -24,8 +24,31 @@ export function logWarn(tag: string, message: string, meta?: Record<string, unkn
 
 /** 错误日志 */
 export function logError(tag: string, message: string, error?: unknown, meta?: Record<string, unknown>): void {
-    const errMsg = error instanceof Error ? error.message : String(error ?? '');
-    console.error(`[${getTimestamp()}] [ERROR] [${tag}] ${message} | ${errMsg}${formatMeta(meta)}`);
+    let errMsg = '';
+    if (error instanceof Error) {
+        errMsg = error.stack || error.message;
+    } else if (error !== undefined && error !== null) {
+        if (typeof error === 'object') {
+            const anyErr = error as any;
+            if (anyErr.stack) errMsg = String(anyErr.stack);
+            else if (anyErr.message) errMsg = String(anyErr.message);
+            else {
+                try {
+                    errMsg = JSON.stringify(error);
+                } catch {
+                    errMsg = String(error);
+                }
+            }
+        } else {
+            errMsg = String(error);
+        }
+    }
+
+    if (errMsg) {
+        console.error(`[${getTimestamp()}] [ERROR] [${tag}] ${message}${formatMeta(meta)} |\n${errMsg}`);
+    } else {
+        console.error(`[${getTimestamp()}] [ERROR] [${tag}] ${message}${formatMeta(meta)}`);
+    }
 }
 
 export default { logInfo, logWarn, logError };
