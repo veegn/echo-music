@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@sansenjian/qq-music-api": "^2.2.7",
     "axios": "^1.13.6",
     "cross-env": "^10.1.0",
     "express": "^5.2.1",
