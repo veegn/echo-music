@@ -10,3 +10,4 @@ server/storage/
 .qq_cookies.json
 .vscode/
 .codex/
+package-lock.json

@@ -51,4 +51,11 @@ export function logError(tag: string, message: string, error?: unknown, meta?: R
     }
 }
 
-export default { logInfo, logWarn, logError };
+/** 调试日志 */
+export function logDebug(tag: string, message: string, meta?: Record<string, unknown>): void {
+    if (process.env.NODE_ENV !== 'production') {
+        console.debug(`[${getTimestamp()}] [DEBUG] [${tag}] ${message}${formatMeta(meta)}`);
+    }
+}
+
+export default { logInfo, logWarn, logError, logDebug };

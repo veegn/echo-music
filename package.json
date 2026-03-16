@@ -1,39 +1,41 @@
 {
-  "name": "echo-music",
-  "private": true,
-  "version": "3.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "tsx server/index.ts",
-    "build": "vite build",
-    "start": "cross-env NODE_ENV=production tsx server/index.ts",
-    "deploy": "npm run build && npm run start",
-    "lint": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "@sansenjian/qq-music-api": "^2.2.7",
-    "axios": "^1.13.6",
-    "cross-env": "^10.1.0",
-    "express": "^5.2.1",
-    "framer-motion": "^12.35.1",
-    "lucide-react": "^0.577.0",
-    "puppeteer-core": "^24.7.1",
-    "qq-music-api": "^1.1.2",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3",
-    "tsx": "^4.21.0",
-    "zustand": "^5.0.11"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.2.1",
-    "@types/express": "^5.0.6",
-    "@types/node": "^25.3.5",
-    "@vitejs/plugin-react": "^5.1.4",
-    "tailwindcss": "^4.2.1",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1"
-  }
+    "name": "echo-music",
+    "private": true,
+    "version": "3.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "tsx server/index.ts",
+        "build": "vite build",
+        "start": "cross-env NODE_ENV=production tsx server/index.ts",
+        "deploy": "npm run build \u0026\u0026 npm run start",
+        "lint": "tsc --noEmit",
+        "test:integration": "node scripts/integration-test.cjs",
+        "test:integration:qqmusic": "node scripts/qqmusic-integration-test.cjs"
+    },
+    "dependencies": {
+        "@heroicons/react": "^2.2.0",
+        "@sansenjian/qq-music-api": "file:server/qq-music-api",
+        "axios": "^1.13.6",
+        "chalk": "^4.1.2",
+        "cross-env": "^10.1.0",
+        "express": "^5.2.1",
+        "framer-motion": "^12.35.1",
+        "lucide-react": "^0.577.0",
+        "puppeteer-core": "^24.7.1",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4",
+        "socket.io": "^4.8.3",
+        "socket.io-client": "^4.8.3",
+        "tsx": "^4.21.0",
+        "zustand": "^5.0.11"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.2.1",
+        "@types/express": "^5.0.6",
+        "@types/node": "^25.3.5",
+        "@vitejs/plugin-react": "^5.1.4",
+        "tailwindcss": "^4.2.1",
+        "typescript": "~5.9.3",
+        "vite": "^7.3.1"
+    }
 }

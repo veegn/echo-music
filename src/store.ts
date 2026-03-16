@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-import { RoomState, ChatMessage, User, Song } from './types';
+import { ChatMessage, RoomState } from './types';
 
 interface AppState {
   socket: Socket | null;
@@ -8,12 +8,11 @@ interface AppState {
   userName: string;
   room: RoomState | null;
   chat: ChatMessage[];
-  toast: { message: string, type: 'success' | 'error' | 'info', id: number } | null;
-
-  // Actions
+  toast: { message: string; type: 'success' | 'error' | 'info'; id: number } | null;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   clearToast: () => void;
   setUserName: (name: string) => void;
+  setRoomState: (room: RoomState | null) => void;
   joinRoom: (roomId: string, password?: string) => Promise<void>;
   leaveRoom: () => void;
   sendMessage: (text: string) => void;
@@ -21,18 +20,18 @@ interface AppState {
   skipSong: (isAuto?: boolean) => void;
   reorderQueue: (oldIndex: number, newIndex: number) => void;
   removeSong: (index: number) => void;
-  setCookie: (cookie: string) => void;
+  setCookie: (cookie: string) => Promise<void>;
   syncPlayer: (currentTime: number, isPlaying: boolean) => void;
   playSongs: (songs: any[]) => void;
   clearQueue: () => void;
 }
 
-const STORAGE_KEY = 'casebuy_music_username';
+const USER_NAME_KEY = 'echo_music_username';
 
 export const useStore = create<AppState>((set, get) => ({
   socket: null,
   connectionState: 'disconnected',
-  userName: localStorage.getItem(STORAGE_KEY) || '',
+  userName: localStorage.getItem(USER_NAME_KEY) || '',
   room: null,
   chat: [],
   toast: null,
@@ -43,17 +42,17 @@ export const useStore = create<AppState>((set, get) => ({
       if (get().toast?.id === id) {
         set({ toast: null });
       }
-    }, 3000); // 3 seconds expiry
+    }, 3000);
   },
   clearToast: () => set({ toast: null }),
   setUserName: (name) => {
-    localStorage.setItem(STORAGE_KEY, name);
+    localStorage.setItem(USER_NAME_KEY, name);
     set({ userName: name });
   },
+  setRoomState: (room) => set({ room }),
   joinRoom: (roomId, password) => {
     return new Promise((resolve, reject) => {
       const socket = io('/', { transports: ['websocket'] });
-
       let resolved = false;
 
       socket.on('connect', () => {
@@ -80,15 +79,17 @@ export const useStore = create<AppState>((set, get) => ({
 
       socket.on('chat_message', (msg: ChatMessage) => {
         set((state) => {
-          if (state.chat.some(c => c.id === msg.id)) return state;
+          if (state.chat.some((item) => item.id === msg.id)) return state;
           return { chat: [...state.chat, msg] };
         });
       });
 
-      socket.on('player_sync', ({ currentTime, isPlaying }) => {
+      socket.on('player_sync', ({ currentTime, isPlaying, syncedAt }: { currentTime: number; isPlaying: boolean; syncedAt?: number }) => {
+        const lagSeconds = syncedAt ? (Date.now() - syncedAt) / 1000 : 0;
+        const compensatedTime = isPlaying ? currentTime + lagSeconds : currentTime;
         set((state) => {
           if (state.room) {
-            return { room: { ...state.room, currentTime, isPlaying } };
+            return { room: { ...state.room, currentTime: compensatedTime, isPlaying } };
           }
           return state;
         });
@@ -129,11 +130,25 @@ export const useStore = create<AppState>((set, get) => ({
     get().socket?.emit('remove_song', index);
   },
   setCookie: (cookie) => {
-    get().socket?.emit('set_cookie', cookie);
+    return new Promise((resolve, reject) => {
+      const socket = get().socket;
+      if (!socket) {
+        reject(new Error('Socket not connected'));
+        return;
+      }
+
+      socket.emit('set_cookie', cookie, (response?: { success?: boolean; error?: string }) => {
+        if (response?.success) {
+          resolve();
+          return;
+        }
+
+        reject(new Error(response?.error || 'Failed to save cookie'));
+      });
+    });
   },
   syncPlayer: (currentTime, isPlaying) => {
     get().socket?.emit('sync_player', { currentTime, isPlaying });
-    // Optimistically update the UI locally for the host avoiding round-trip delay
     set((state) => {
       if (state.room) {
         return { room: { ...state.room, currentTime, isPlaying } };

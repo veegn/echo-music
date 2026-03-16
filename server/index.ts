@@ -8,7 +8,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 
 import roomRoutes from "./routes/room.routes.js";
-import qqMusicRoutes from "./routes/qqmusic.routes.js";
+import createQQMusicRouter from "./routes/qqmusic.routes.js";
 import { registerSocketHandlers } from "./socket/room.handler.js";
 import { logInfo, logError } from "./logger.js";
 
@@ -23,7 +23,7 @@ app.use(express.json());
 
 // ----- 注册路由 -----
 app.use("/api/rooms", roomRoutes);
-app.use("/api/qqmusic", qqMusicRoutes);
+app.use("/api/qqmusic", createQQMusicRouter(io));
 
 // ----- 注册 Socket 处理器 -----
 registerSocketHandlers(io);

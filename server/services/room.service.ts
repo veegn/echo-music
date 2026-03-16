@@ -7,7 +7,9 @@ import fs from "fs";
 import path from "path";
 
 const TAG = "RoomService";
-const STORAGE_DIR = path.join(process.cwd(), "server", "storage");
+const STORAGE_DIR = process.env.ECHO_MUSIC_STORAGE_DIR
+    ? path.resolve(process.env.ECHO_MUSIC_STORAGE_DIR)
+    : path.join(process.cwd(), 'server', 'storage');
 const ROOMS_FILE = path.join(STORAGE_DIR, "rooms.json");
 
 if (!fs.existsSync(STORAGE_DIR)) {
@@ -22,18 +24,9 @@ const rooms = new Map<string, Room>();
 
 export function saveRooms() {
     try {
-        const obj = Object.fromEntries(
-            Array.from(rooms.entries()).map(([id, room]) => [
-                id,
-                {
-                    ...room,
-                    // Never persist host cookies on disk.
-                    hostCookie: null,
-                    hostQQId: "",
-                },
-            ])
-        );
+        const obj = Object.fromEntries(Array.from(rooms.entries()));
         fs.writeFileSync(ROOMS_FILE, JSON.stringify(obj, null, 2));
+        logInfo(TAG, "Rooms saved to disk", { count: rooms.size, filePath: ROOMS_FILE });
     } catch (e) {
         logError(TAG, "Failed to save rooms", e as Error);
     }
@@ -131,10 +124,12 @@ try {
                 ...room,
                 users: [],
                 isPlaying: false,
-                hostCookie: null,
-                hostQQId: "",
+                hostCookie: room.hostCookie || null,
+                hostQQId: room.hostQQId || "",
             });
-            scheduleRoomDestruction(id);
+            // ✅ 修复⑤：重启后给房间 60 分钟宽限期等待用户重连，而不是默认的 5 分钟
+            // 一旦有用户加入，cancelRoomDestruction 会取消此定时器，断开时再以 5 分钟重置
+            scheduleRoomDestruction(id, 60 * 60 * 1000);
         });
         logInfo(TAG, "Rooms loaded from storage", { count: rooms.size });
     }
@@ -192,6 +187,10 @@ export function setRoomCookie(room: Room, cookie: string): void {
         qqId: room.hostQQId || "(cleared)",
         hasCookie: !!room.hostCookie,
     });
+}
+
+export async function verifyRoomCookie(cookie: string): Promise<{ success: boolean; message?: string }> {
+    return qqMusicService.verifyCookie(cookie);
 }
 
 export async function playNextSong(room: Room, roomId: string, io: Server, isAuto = false): Promise<void> {
@@ -258,14 +257,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
 
 async function fetchRecommendedSong(room: Room): Promise<Song | null> {
     try {
-        logInfo(TAG, "Fetching radio recommendations", { roomId: room.id });
-
-        let result: any = await qqMusicService.getRadioSongs("99", room.hostCookie);
-
-        if (!result || !result.tracks || result.tracks.length === 0) {
-            logWarn(TAG, "Preferred radio empty, fallback to hot radio", { roomId: room.id });
-            result = await qqMusicService.getRadioSongs("199", room.hostCookie);
-        }
+        let result: any = await qqMusicService.getRadioSongs(room.hostCookie);
 
         if (result && result.tracks && result.tracks.length > 0) {
             const randomSong = result.tracks[Math.floor(Math.random() * result.tracks.length)];
@@ -280,7 +272,7 @@ async function fetchRecommendedSong(room: Room): Promise<Song | null> {
                 requestedBy: "Radio",
             };
         }
-    } catch (e) {
+    } catch (e: any) {
         logError(TAG, "Failed to fetch recommended song", e, { roomId: room.id });
     }
 
