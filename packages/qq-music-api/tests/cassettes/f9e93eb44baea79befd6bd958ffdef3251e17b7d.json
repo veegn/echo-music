@@ -1,0 +1,564 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg",
+    "params": {
+      "format": "json",
+      "needNewCode": 1,
+      "outCharset": "utf-8",
+      "platform": "h5"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "access-control-allow-credentials": "true",
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-security-policy": "script-src https: *.qq.com *.sinajs.cn *.gtimg.cn *.url.cn *.tenpay.com *.qpic.cn *.qpimg.cn *.idqqimg.com *.gtimg.com *.soso.com *.jd.com 'unsafe-inline' 'unsafe-eval'; report-uri https://stat.y.qq.com/monitor/report_csp",
+      "content-type": "application/x-javascript;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:56:04 GMT",
+      "server": "nginx",
+      "transfer-encoding": "chunked",
+      "uuid": "697414667",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "topList": [
+          {
+            "id": 4,
+            "listenCount": 7953220,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000001jCuDG3Lr9gZ.jpg",
+            "songList": [
+              {
+                "singername": "汪苏泷",
+                "songname": "问你一个人类梦寐以求的深奥问题"
+              },
+              {
+                "singername": "吴青峰/李宇春",
+                "songname": "春雨里"
+              },
+              {
+                "singername": "黄子弘凡",
+                "songname": "青火 (Lars ver.)"
+              }
+            ],
+            "topTitle": "巅峰榜·流行指数",
+            "type": 0
+          },
+          {
+            "id": 26,
+            "listenCount": 19500000,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002kVkzS4CHKL4.jpg",
+            "songList": [
+              {
+                "singername": "Dizzy Dizzo (蔡诗芸)",
+                "songname": "雨过后的风景"
+              },
+              {
+                "singername": "周深",
+                "songname": "修星星的人"
+              },
+              {
+                "singername": "李荣浩",
+                "songname": "恋人"
+              }
+            ],
+            "topTitle": "巅峰榜·热歌",
+            "type": 0
+          },
+          {
+            "id": 78,
+            "listenCount": 416052,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000004fL2P635Fipr.jpg",
+            "songList": [
+              {
+                "singername": "张云雷",
+                "songname": "探清水河"
+              },
+              {
+                "singername": "额尔古纳乐队",
+                "songname": "鸿雁"
+              },
+              {
+                "singername": "宝石Gem",
+                "songname": "山歌"
+              }
+            ],
+            "topTitle": "国乐榜",
+            "type": 0
+          },
+          {
+            "id": 27,
+            "listenCount": 309860,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000000Nwrlu3qLyhP.jpg",
+            "songList": [
+              {
+                "singername": "颜安",
+                "songname": "造谎的人"
+              },
+              {
+                "singername": "Hearts2Hearts",
+                "songname": "RUDE!"
+              },
+              {
+                "singername": "张紫宁",
+                "songname": "一念"
+              }
+            ],
+            "topTitle": "巅峰榜·新歌",
+            "type": 0
+          },
+          {
+            "id": 62,
+            "listenCount": 18633712,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002eAhtQ4Wl0cX.jpg",
+            "songList": [
+              {
+                "singername": "周深",
+                "songname": "修星星的人"
+              },
+              {
+                "singername": "Tl",
+                "songname": "一生清贫怎敢入繁华 (女版)"
+              },
+              {
+                "singername": "张玮",
+                "songname": "春秋配 (Live)"
+              }
+            ],
+            "topTitle": "飙升榜",
+            "type": 0
+          },
+          {
+            "id": 58,
+            "listenCount": 1972830,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000004Gd6hk27a43K.jpg",
+            "songList": [
+              {
+                "singername": "功夫胖KUNGFU-PEN/GAI周延",
+                "songname": "山歌王"
+              },
+              {
+                "singername": "功夫胖KUNGFU-PEN/GAI周延",
+                "songname": "玉兰"
+              },
+              {
+                "singername": "功夫胖KUNGFU-PEN",
+                "songname": "烟圈"
+              }
+            ],
+            "topTitle": "说唱榜",
+            "type": 0
+          },
+          {
+            "id": 57,
+            "listenCount": 1403255,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003ymofT2wEyNl.jpg",
+            "songList": [
+              {
+                "singername": "Hearts2Hearts",
+                "songname": "RUDE!"
+              },
+              {
+                "singername": "鹭卓",
+                "songname": "流星坠入云海"
+              },
+              {
+                "singername": "YENA (崔叡娜)",
+                "songname": "캐치 캐치 (Catch Catch)"
+              }
+            ],
+            "topTitle": "电音榜",
+            "type": 0
+          },
+          {
+            "id": 28,
+            "listenCount": 3106500,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000000qfdIA1q3dWe.jpg",
+            "songList": [
+              {
+                "singername": "老韩很哇塞",
+                "songname": "玉芬啊玉芬你让彪哥好伤心"
+              },
+              {
+                "singername": "于冬然",
+                "songname": "是你没选我啊 (是我没等你吗)"
+              },
+              {
+                "singername": "励明",
+                "songname": "没人心疼我的伤（我没人撑腰没人帮）"
+              }
+            ],
+            "topTitle": "巅峰榜·网络歌曲",
+            "type": 0
+          },
+          {
+            "id": 5,
+            "listenCount": 1409345,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002QVhh441fNex.jpg",
+            "songList": [
+              {
+                "singername": "汪苏泷",
+                "songname": "问你一个人类梦寐以求的深奥问题"
+              },
+              {
+                "singername": "黄子弘凡",
+                "songname": "青火 (Lars ver.)"
+              },
+              {
+                "singername": "张紫宁/李鑫一",
+                "songname": "一念"
+              }
+            ],
+            "topTitle": "巅峰榜·内地",
+            "type": 0
+          },
+          {
+            "id": 3,
+            "listenCount": 1930000,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003akCqe0JCU4Q.jpg",
+            "songList": [
+              {
+                "singername": "Charlie Puth/宇多田光 (宇多田ヒカル)",
+                "songname": "Home (feat. Hikaru Utada)"
+              },
+              {
+                "singername": "Harry Styles",
+                "songname": "American Girls"
+              },
+              {
+                "singername": "Alan Walker/Emyrson Flora",
+                "songname": "Monster"
+              }
+            ],
+            "topTitle": "巅峰榜·欧美",
+            "type": 0
+          },
+          {
+            "id": 59,
+            "listenCount": 916685,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002TMKmc1ps4T7.jpg",
+            "songList": [
+              {
+                "singername": "周慧敏/刘敏涛/梁咏琪/秦海璐/薛凯琪/张钧甯/姜妍/热依扎/刘惜君/希林娜依高",
+                "songname": "歌曲：立春"
+              },
+              {
+                "singername": "陈小春",
+                "songname": "街角的晚风"
+              },
+              {
+                "singername": "薛凯琪",
+                "songname": "立春"
+              }
+            ],
+            "topTitle": "香港地区榜",
+            "type": 0
+          },
+          {
+            "id": 16,
+            "listenCount": 1817220,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002xoNDb3xadyx.jpg",
+            "songList": [
+              {
+                "singername": "Hearts2Hearts",
+                "songname": "RUDE!"
+              },
+              {
+                "singername": "YENA (崔叡娜)",
+                "songname": "캐치 캐치 (Catch Catch)"
+              },
+              {
+                "singername": "HOSHI (호시)",
+                "songname": "아기자기 (Baby, Honey)"
+              }
+            ],
+            "topTitle": "巅峰榜·韩国",
+            "type": 0
+          },
+          {
+            "id": 60,
+            "listenCount": 4539160,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M0000035TDkk3kvPqR.jpg",
+            "songList": [
+              {
+                "singername": "周杰伦",
+                "songname": "晴天"
+              },
+              {
+                "singername": "陈粒",
+                "songname": "小半"
+              },
+              {
+                "singername": "薛之谦",
+                "songname": "演员"
+              }
+            ],
+            "topTitle": "抖音热歌榜",
+            "type": 0
+          },
+          {
+            "id": 29,
+            "listenCount": 517199,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002gaRNz1OXP01.jpg",
+            "songList": [
+              {
+                "singername": "张紫宁/李鑫一",
+                "songname": "一念"
+              },
+              {
+                "singername": "周深",
+                "songname": "修星星的人"
+              },
+              {
+                "singername": "郁可唯",
+                "songname": "清清如我"
+              }
+            ],
+            "topTitle": "巅峰榜·影视金曲",
+            "type": 0
+          },
+          {
+            "id": 17,
+            "listenCount": 526960,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003WVRT230zVng.jpg",
+            "songList": [
+              {
+                "singername": "悠太",
+                "songname": "PLAY BACK TV size (Theme Song of \"KAMEN RIDER ZEZTZ\")"
+              },
+              {
+                "singername": "&TEAM",
+                "songname": "Sakura-iro Yell"
+              },
+              {
+                "singername": "米津玄師 (よねづ けんし)/宇多田光 (宇多田ヒカル)",
+                "songname": "JANE DOE"
+              }
+            ],
+            "topTitle": "巅峰榜·日本",
+            "type": 0
+          },
+          {
+            "id": 201,
+            "listenCount": 1450225,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003HWPfC0UAdMT.jpg",
+            "songList": [
+              {
+                "singername": "蔡徐坤",
+                "songname": "Colder"
+              },
+              {
+                "singername": "林俊杰",
+                "songname": "我对缘分小心翼翼 (《逐玉》影视剧主题曲)"
+              },
+              {
+                "singername": "周深",
+                "songname": "修星星的人 (电影《挽救计划》中文主题曲)"
+              }
+            ],
+            "topTitle": "巅峰榜·MV",
+            "type": 0
+          },
+          {
+            "id": 36,
+            "listenCount": 515017,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000004f8Rqf3CF6nb.jpg",
+            "songList": [
+              {
+                "singername": "徐佳莹",
+                "songname": "一样的月光"
+              },
+              {
+                "singername": "闻人听書_",
+                "songname": "一笑江湖 (DJ弹鼓版)"
+              },
+              {
+                "singername": "郭静",
+                "songname": "爱情讯息"
+              }
+            ],
+            "topTitle": "巅峰榜·K歌金曲",
+            "type": 0
+          },
+          {
+            "id": 61,
+            "listenCount": 163653,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000002qoyaD3H58M0.jpg",
+            "songList": [
+              {
+                "singername": "王力宏",
+                "songname": "「最好的地方」演唱会主题曲"
+              },
+              {
+                "singername": "吴青峰/李宇春",
+                "songname": "春雨里"
+              },
+              {
+                "singername": "林俊杰",
+                "songname": "我对缘分小心翼翼"
+              }
+            ],
+            "topTitle": "台湾地区榜",
+            "type": 0
+          },
+          {
+            "id": 63,
+            "listenCount": 9648220,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M0000007hAM3391JvS.jpg",
+            "songList": [
+              {
+                "singername": "璐爷",
+                "songname": "大天蓬 (x77版)"
+              },
+              {
+                "singername": "像冷冰",
+                "songname": "别辜负眼前季节 (空灵鼓)"
+              },
+              {
+                "singername": "DJ阿智",
+                "songname": "我讨厌坏天气 (DJ阿智版)"
+              }
+            ],
+            "topTitle": "DJ舞曲榜",
+            "type": 0
+          },
+          {
+            "id": 64,
+            "listenCount": 623105,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000000yvkFD0Gn9v9.jpg",
+            "songList": [
+              {
+                "singername": "周慧敏/刘敏涛/梁咏琪/秦海璐/薛凯琪/张钧甯/姜妍/热依扎/刘惜君/希林娜依高",
+                "songname": "歌曲：立春"
+              },
+              {
+                "singername": "王安宇/黄子弘凡/范丞丞/胡先煦",
+                "songname": "歌曲：快乐小马"
+              },
+              {
+                "singername": "李健",
+                "songname": "歌曲：人间共鸣"
+              }
+            ],
+            "topTitle": "综艺新歌榜",
+            "type": 0
+          },
+          {
+            "id": 65,
+            "listenCount": 1910000,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003n67vL2K36kx.jpg",
+            "songList": [
+              {
+                "singername": "张远",
+                "songname": "木已成舟"
+              },
+              {
+                "singername": "周深",
+                "songname": "吉量"
+              },
+              {
+                "singername": "周深深",
+                "songname": "清风上南枝（梦中相思）"
+              }
+            ],
+            "topTitle": "国风热歌榜",
+            "type": 0
+          },
+          {
+            "id": 67,
+            "listenCount": 3049800,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000000NkRQY2dwINm.jpg",
+            "songList": [
+              {
+                "singername": "王睿卓/加木",
+                "songname": "茶花开了，该回家了"
+              },
+              {
+                "singername": "林俊杰",
+                "songname": "我对缘分小心翼翼"
+              },
+              {
+                "singername": "Darren Hayes",
+                "songname": "Creepin' up on You"
+              }
+            ],
+            "topTitle": "听歌识曲榜",
+            "type": 0
+          },
+          {
+            "id": 72,
+            "listenCount": 106512,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000001uEmyI0yFIci.jpg",
+            "songList": [
+              {
+                "singername": "米津玄師 (よねづ けんし)/宇多田光 (宇多田ヒカル)",
+                "songname": "JANE DOE"
+              },
+              {
+                "singername": "刘宇宁",
+                "songname": "纵马踏歌行"
+              },
+              {
+                "singername": "King Gnu (キング・ヌー)",
+                "songname": "AIZO"
+              }
+            ],
+            "topTitle": "动漫音乐榜",
+            "type": 0
+          },
+          {
+            "id": 73,
+            "listenCount": 262736,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003tTykF3umJcY.jpg",
+            "songList": [
+              {
+                "singername": "I-D无限觉醒/DNFU地下城与勇士/R.E.D",
+                "songname": "Pick Your Poison无限觉醒"
+              },
+              {
+                "singername": "ALLDAY PROJECT",
+                "songname": "I DON'T BARGAIN"
+              },
+              {
+                "singername": "鸣潮先约电台/jixwang/Tarokiki/Emi Evans",
+                "songname": "远航星的告别"
+              }
+            ],
+            "topTitle": "游戏音乐榜",
+            "type": 0
+          },
+          {
+            "id": 75,
+            "listenCount": 256834,
+            "picUrl": "http://y.gtimg.cn/music/photo_new/T003R300x300M000003elu3T3FE0OJ.jpg",
+            "songList": [
+              {
+                "singername": "QQ音乐儿童官方频道/晚安妈妈/阅耳亲子故事/独角兽剧场",
+                "songname": "晚安妈妈睡前故事大全|每日更新"
+              },
+              {
+                "singername": "儿歌多多",
+                "songname": "儿歌多多幼儿园歌曲大全|启蒙儿歌|早教音乐"
+              },
+              {
+                "singername": "萌鹿剧场/骨头-萌鹿剧场",
+                "songname": "道士不好惹|全网点击50亿|古井观传奇|风水秘术|精品多人有声剧"
+              }
+            ],
+            "topTitle": "有声榜",
+            "type": 0
+          }
+        ]
+      },
+      "default": 0,
+      "message": "",
+      "subcode": 0
+    }
+  }
+}

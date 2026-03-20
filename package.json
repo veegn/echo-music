@@ -1,39 +1,61 @@
 {
-  "name": "echo-music",
-  "private": true,
-  "version": "3.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "tsx server/index.ts",
-    "build": "vite build",
-    "start": "cross-env NODE_ENV=production tsx server/index.ts",
-    "deploy": "npm run build && npm run start",
-    "lint": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "@sansenjian/qq-music-api": "^2.2.7",
-    "axios": "^1.13.6",
-    "cross-env": "^10.1.0",
-    "express": "^5.2.1",
-    "framer-motion": "^12.35.1",
-    "lucide-react": "^0.577.0",
-    "puppeteer-core": "^24.7.1",
-    "qq-music-api": "^1.1.2",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3",
-    "tsx": "^4.21.0",
-    "zustand": "^5.0.11"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.2.1",
-    "@types/express": "^5.0.6",
-    "@types/node": "^25.3.5",
-    "@vitejs/plugin-react": "^5.1.4",
-    "tailwindcss": "^4.2.1",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1"
-  }
+    "name": "echo-music",
+    "private": true,
+    "version": "3.0.0",
+    "type": "module",
+    "workspaces": [
+        "packages/qq-music-api"
+    ],
+    "scripts": {
+        "build:qqmusic-api": "npm run --workspace qq-music-api build",
+        "build:web": "vite build",
+        "predev": "npm run build:qqmusic-api",
+        "dev": "tsx server/index.ts",
+        "prebuild:web": "npm run build:qqmusic-api",
+        "build": "npm run build:web",
+        "prestart": "npm run build:qqmusic-api",
+        "start": "cross-env NODE_ENV=production tsx server/index.ts",
+        "deploy": "npm run build && npm run start",
+        "lint": "tsc --noEmit",
+        "lint:qqmusic-api": "npm run --workspace qq-music-api lint",
+        "lint:all": "npm run lint && npm run lint:qqmusic-api",
+        "pretest:integration": "npm run build:qqmusic-api",
+        "pretest:integration:qqmusic": "npm run build:qqmusic-api",
+        "pretest:integration:qqmusic:real": "npm run build:qqmusic-api",
+        "record:qqmusic-api:fixtures": "cross-env QQMUSIC_API_HTTP_MODE=record QQMUSIC_API_HTTP_FIXTURE_DIR=packages/qq-music-api/tests/cassettes npm run --workspace qq-music-api record:fixtures",
+        "test:qqmusic-api": "npm run --workspace qq-music-api test",
+        "test:qqmusic-api:replay": "cross-env QQMUSIC_API_HTTP_MODE=replay QQMUSIC_API_HTTP_FIXTURE_DIR=packages/qq-music-api/tests/cassettes npm run --workspace qq-music-api test:replay",
+        "test:qqmusic-api:integration": "npm run --workspace qq-music-api test:integration",
+        "test:integration": "node scripts/integration-test.cjs",
+        "test:integration:qqmusic": "node scripts/qqmusic-integration-test.cjs",
+        "test:integration:qqmusic:real": "node scripts/qqmusic-integration-test.cjs",
+        "test:all": "npm run test:qqmusic-api && npm run test:integration && npm run test:integration:qqmusic",
+        "test": "npm run test:all"
+    },
+    "dependencies": {
+        "@heroicons/react": "^2.2.0",
+        "qq-music-api": "file:packages/qq-music-api",
+        "axios": "^1.13.6",
+        "chalk": "^4.1.2",
+        "cross-env": "^10.1.0",
+        "express": "^5.2.1",
+        "framer-motion": "^12.35.1",
+        "lucide-react": "^0.577.0",
+        "puppeteer-core": "^24.7.1",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4",
+        "socket.io": "^4.8.3",
+        "socket.io-client": "^4.8.3",
+        "tsx": "^4.21.0",
+        "zustand": "^5.0.11"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.2.1",
+        "@types/express": "^5.0.6",
+        "@types/node": "^25.3.5",
+        "@vitejs/plugin-react": "^5.1.4",
+        "tailwindcss": "^4.2.1",
+        "typescript": "~5.9.3",
+        "vite": "^7.3.1"
+    }
 }

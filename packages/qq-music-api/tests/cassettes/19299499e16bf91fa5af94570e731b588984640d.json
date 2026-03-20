@@ -1,0 +1,1300 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/mv/fcgi-bin/getmv_by_tag",
+    "params": {
+      "cmd": "shoubo",
+      "format": "json",
+      "lan": "all",
+      "outCharset": "GB2312"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "access-control-allow-credentials": "true",
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-type": "application/x-javascript;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:54:09 GMT",
+      "server": "nginx",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "lan": "all",
+        "mvlist": [
+          {
+            "listennum": 866370,
+            "mv_id": 1851831,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "朱雀 (舞蹈版)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M104001KerGj3hBp5k.jpg",
+            "pub_date": "2021-09-13",
+            "publictime": "2021-9-13",
+            "singer_id": 4553007,
+            "singer_mid": "0039JTTG0s4SCv",
+            "singer_name": "时代少年团",
+            "singerid": 4553007,
+            "singermid": "0039JTTG0s4SCv",
+            "singername": "时代少年团",
+            "singers": [
+              {
+                "id": 4553007,
+                "mid": "0039JTTG0s4SCv",
+                "name": "时代少年团"
+              }
+            ],
+            "vid": "d0040igj7eo"
+          },
+          {
+            "listennum": 6875150,
+            "mv_id": 1850669,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "赤伶 (2021交响乐版)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101000Jx0Qm07kscX.jpg",
+            "pub_date": "2021-09-12",
+            "publictime": "2021-9-12",
+            "singer_id": 19329,
+            "singer_mid": "000Qm9wO1bcM6J",
+            "singer_name": "李玉刚",
+            "singerid": 19329,
+            "singermid": "000Qm9wO1bcM6J",
+            "singername": "李玉刚",
+            "singers": [
+              {
+                "id": 19329,
+                "mid": "000Qm9wO1bcM6J",
+                "name": "李玉刚"
+              },
+              {
+                "id": 8248069,
+                "mid": "001knl7D3HZ0Gi",
+                "name": "国风新语"
+              }
+            ],
+            "vid": "i0040x0jcbj"
+          },
+          {
+            "listennum": 485942,
+            "mv_id": 1851419,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "牵一双手 (《关于我妈的一切》电影主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M103004SwvcA1SeOiW.jpg",
+            "pub_date": "2021-09-13",
+            "publictime": "2021-9-13",
+            "singer_id": 1518533,
+            "singer_mid": "000PJRig3WnHYX",
+            "singer_name": "硬糖少女303希林娜依·高",
+            "singerid": 1518533,
+            "singermid": "000PJRig3WnHYX",
+            "singername": "希林娜依高",
+            "singers": [
+              {
+                "id": 1518533,
+                "mid": "000PJRig3WnHYX",
+                "name": "希林娜依高"
+              }
+            ],
+            "vid": "g0040in16f8"
+          },
+          {
+            "listennum": 159847,
+            "mv_id": 1851610,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "天空里潜水的鱼",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101000dDbvK14flrX.jpg",
+            "pub_date": "2021-09-13",
+            "publictime": "2021-9-13",
+            "singer_id": 3674853,
+            "singer_mid": "000g9xLC4IG29J",
+            "singer_name": "七穗",
+            "singerid": 3674853,
+            "singermid": "000g9xLC4IG29J",
+            "singername": "七穗",
+            "singers": [
+              {
+                "id": 3674853,
+                "mid": "000g9xLC4IG29J",
+                "name": "七穗"
+              }
+            ],
+            "vid": "j0040smoy4k"
+          },
+          {
+            "listennum": 946241,
+            "mv_id": 1849877,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "I Want...",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1020040PSVi1tlIm3.jpg",
+            "pub_date": "2021-09-10",
+            "publictime": "2021-9-10",
+            "singer_id": 143,
+            "singer_mid": "003Nz2So3XXYek",
+            "singer_name": "陈奕迅",
+            "singerid": 143,
+            "singermid": "003Nz2So3XXYek",
+            "singername": "陈奕迅",
+            "singers": [
+              {
+                "id": 143,
+                "mid": "003Nz2So3XXYek",
+                "name": "陈奕迅"
+              },
+              {
+                "id": 15876,
+                "mid": "000yXzax0KgQvA",
+                "name": "Renée Fleming"
+              },
+              {
+                "id": 8524,
+                "mid": "001A2KKg0I4LmF",
+                "name": "郎朗"
+              }
+            ],
+            "vid": "w00404hlylo"
+          },
+          {
+            "listennum": 119346,
+            "mv_id": 1850559,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "奇异博士",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1010034V1db0hsBQP.jpg",
+            "pub_date": "2021-09-10",
+            "publictime": "2021-9-10",
+            "singer_id": 178,
+            "singer_mid": "000BAMFw3wRg0B",
+            "singer_name": "吴克群",
+            "singerid": 178,
+            "singermid": "000BAMFw3wRg0B",
+            "singername": "吴克群",
+            "singers": [
+              {
+                "id": 178,
+                "mid": "000BAMFw3wRg0B",
+                "name": "吴克群"
+              }
+            ],
+            "vid": "c0040c6kik6"
+          },
+          {
+            "listennum": 14121009,
+            "mv_id": 1850583,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "朱雀",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001eKEbe3egKNH.jpg",
+            "pub_date": "2021-09-09",
+            "publictime": "2021-9-9",
+            "singer_id": 4553007,
+            "singer_mid": "0039JTTG0s4SCv",
+            "singer_name": "时代少年团",
+            "singerid": 4553007,
+            "singermid": "0039JTTG0s4SCv",
+            "singername": "时代少年团",
+            "singers": [
+              {
+                "id": 4553007,
+                "mid": "0039JTTG0s4SCv",
+                "name": "时代少年团"
+              }
+            ],
+            "vid": "j004014ocis"
+          },
+          {
+            "listennum": 123723,
+            "mv_id": 1848374,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "放过自己好吗",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001uXoi34Vd62g.jpg",
+            "pub_date": "2021-09-08",
+            "publictime": "2021-9-8",
+            "singer_id": 62490,
+            "singer_mid": "003qTNq628d2QP",
+            "singer_name": "吴莫愁",
+            "singerid": 62490,
+            "singermid": "003qTNq628d2QP",
+            "singername": "吴莫愁",
+            "singers": [
+              {
+                "id": 62490,
+                "mid": "003qTNq628d2QP",
+                "name": "吴莫愁"
+              }
+            ],
+            "vid": "u00409718r5"
+          },
+          {
+            "listennum": 371067,
+            "mv_id": 1848006,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "染色体",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001QFRBz0EXzfl.jpg",
+            "pub_date": "2021-09-07",
+            "publictime": "2021-9-7",
+            "singer_id": 6499,
+            "singer_mid": "002azErJ0UcDN6",
+            "singer_name": "张杰",
+            "singerid": 6499,
+            "singermid": "002azErJ0UcDN6",
+            "singername": "张杰",
+            "singers": [
+              {
+                "id": 6499,
+                "mid": "002azErJ0UcDN6",
+                "name": "张杰"
+              }
+            ],
+            "vid": "m00409rbb5x"
+          },
+          {
+            "listennum": 78914,
+            "mv_id": 1847876,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "晨霭",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101000xYRa13rt8P2.jpg",
+            "pub_date": "2021-09-07",
+            "publictime": "2021-9-7",
+            "singer_id": 12303,
+            "singer_mid": "002RWWeo3IkUaj",
+            "singer_name": "阿兰",
+            "singerid": 12303,
+            "singermid": "002RWWeo3IkUaj",
+            "singername": "阿兰",
+            "singers": [
+              {
+                "id": 12303,
+                "mid": "002RWWeo3IkUaj",
+                "name": "阿兰"
+              }
+            ],
+            "vid": "f0040z44u48"
+          },
+          {
+            "listennum": 90429,
+            "mv_id": 1847455,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "向世界微笑",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1010024RCIp2C1PcC.jpg",
+            "pub_date": "2021-09-06",
+            "publictime": "2021-9-6",
+            "singer_id": 3528600,
+            "singer_mid": "002m2X4e1b4lUO",
+            "singer_name": "李雪琴",
+            "singerid": 3528600,
+            "singermid": "002m2X4e1b4lUO",
+            "singername": "李雪琴",
+            "singers": [
+              {
+                "id": 3528600,
+                "mid": "002m2X4e1b4lUO",
+                "name": "李雪琴"
+              }
+            ],
+            "vid": "q0040cm1uru"
+          },
+          {
+            "listennum": 72028,
+            "mv_id": 1847259,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "一块做好事 (古乐版)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000003cUuGg2YJhAu.jpg",
+            "pub_date": "2021-09-06",
+            "publictime": "2021-9-6",
+            "singer_id": 1442788,
+            "singer_mid": "003TMmq00YLMon",
+            "singer_name": "河南博物院华夏古乐团",
+            "singerid": 1442788,
+            "singermid": "003TMmq00YLMon",
+            "singername": "河南博物院华夏古乐团",
+            "singers": [
+              {
+                "id": 1442788,
+                "mid": "003TMmq00YLMon",
+                "name": "河南博物院华夏古乐团"
+              }
+            ],
+            "vid": "r0040vfuqnm"
+          },
+          {
+            "listennum": 161450,
+            "mv_id": 1847168,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "唯有长夜知",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000001lmE7g0D98ZB.jpg",
+            "pub_date": "2021-09-06",
+            "publictime": "2021-9-6",
+            "singer_id": 48605,
+            "singer_mid": "001xunhv4L0KC2",
+            "singer_name": "安九",
+            "singerid": 48605,
+            "singermid": "001xunhv4L0KC2",
+            "singername": "安九",
+            "singers": [
+              {
+                "id": 48605,
+                "mid": "001xunhv4L0KC2",
+                "name": "安九"
+              },
+              {
+                "id": 36239,
+                "mid": "001AkuJH2G5OJJ",
+                "name": "河图"
+              },
+              {
+                "id": 6713272,
+                "mid": "0031VGMz2XIqCG",
+                "name": "李建衡"
+              }
+            ],
+            "vid": "f0040ahlckp"
+          },
+          {
+            "listennum": 64354,
+            "mv_id": 1846440,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "最好的结局 10th anniv. (［人生就是用来XX的］2021线上生日趴 Live session )",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102002xNBDA3AMkQH.jpg",
+            "pub_date": "2021-09-03",
+            "publictime": "2021-9-3",
+            "singer_id": 9279,
+            "singer_mid": "000juBNR0AkBdc",
+            "singer_name": "八三夭乐团",
+            "singerid": 9279,
+            "singermid": "000juBNR0AkBdc",
+            "singername": "八三夭乐团",
+            "singers": [
+              {
+                "id": 9279,
+                "mid": "000juBNR0AkBdc",
+                "name": "八三夭乐团"
+              }
+            ],
+            "vid": "t00404agsnh"
+          },
+          {
+            "listennum": 888524,
+            "mv_id": 1846277,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "新生 (英雄联盟十周年神凰行者皮肤主题曲MV)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101004ZcmAc4fPr2D.jpg",
+            "pub_date": "2021-09-03",
+            "publictime": "2021-9-3",
+            "singer_id": 948064,
+            "singer_mid": "0000RHdG1ukDqy",
+            "singer_name": "英雄联盟",
+            "singerid": 948064,
+            "singermid": "0000RHdG1ukDqy",
+            "singername": "英雄联盟",
+            "singers": [
+              {
+                "id": 948064,
+                "mid": "0000RHdG1ukDqy",
+                "name": "英雄联盟"
+              }
+            ],
+            "vid": "m0040ypsuyq"
+          },
+          {
+            "listennum": 59732,
+            "mv_id": 1846408,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "我讨厌台北的天气",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102003nyVh932z1FI.jpg",
+            "pub_date": "2021-09-03",
+            "publictime": "2021-9-3",
+            "singer_id": 9234983,
+            "singer_mid": "000VSb8f22toNe",
+            "singer_name": "林昱君",
+            "singerid": 9234983,
+            "singermid": "000VSb8f22toNe",
+            "singername": "林昱君",
+            "singers": [
+              {
+                "id": 9234983,
+                "mid": "000VSb8f22toNe",
+                "name": "林昱君"
+              }
+            ],
+            "vid": "q0040w7e6io"
+          },
+          {
+            "listennum": 214301,
+            "mv_id": 1846395,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "转轮 (动画版) (《狐妖小红娘·月红2》动画主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000002Q5In02ApULE.jpg",
+            "pub_date": "2021-09-03",
+            "publictime": "2021-9-3",
+            "singer_id": 1182082,
+            "singer_mid": "001a01682xKOpb",
+            "singer_name": "匀子",
+            "singerid": 1182082,
+            "singermid": "001a01682xKOpb",
+            "singername": "匀子",
+            "singers": [
+              {
+                "id": 1182082,
+                "mid": "001a01682xKOpb",
+                "name": "匀子"
+              }
+            ],
+            "vid": "c0040ni8o0t"
+          },
+          {
+            "listennum": 902091,
+            "mv_id": 1845664,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "一块做好事",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102001WeWnl3Ek8Pd.jpg",
+            "pub_date": "2021-09-02",
+            "publictime": "2021-9-2",
+            "singer_id": 5829,
+            "singer_mid": "0021sRlK1Ge1aY",
+            "singer_name": "凤凰传奇",
+            "singerid": 5829,
+            "singermid": "0021sRlK1Ge1aY",
+            "singername": "凤凰传奇",
+            "singers": [
+              {
+                "id": 5829,
+                "mid": "0021sRlK1Ge1aY",
+                "name": "凤凰传奇"
+              }
+            ],
+            "vid": "a0040erhk2p"
+          },
+          {
+            "listennum": 76370,
+            "mv_id": 1844503,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "ART",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001jCqST2gn4hM.jpg",
+            "pub_date": "2021-09-02",
+            "publictime": "2021-9-2",
+            "singer_id": 7554386,
+            "singer_mid": "0008qPan0At4Xn",
+            "singer_name": "AY姚安娜",
+            "singerid": 7554386,
+            "singermid": "0008qPan0At4Xn",
+            "singername": "姚安娜",
+            "singers": [
+              {
+                "id": 7554386,
+                "mid": "0008qPan0At4Xn",
+                "name": "姚安娜"
+              }
+            ],
+            "vid": "y0040otglnd"
+          },
+          {
+            "listennum": 971541,
+            "mv_id": 1845638,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "最可爱的人 (《长津湖》电影宣传主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1010006bDTF1dei7v.jpg",
+            "pub_date": "2021-09-01",
+            "publictime": "2021-9-1",
+            "singer_id": 4607,
+            "singer_mid": "000aw4WC2EQYTv",
+            "singer_name": "张靓颖",
+            "singerid": 4607,
+            "singermid": "000aw4WC2EQYTv",
+            "singername": "张靓颖",
+            "singers": [
+              {
+                "id": 4607,
+                "mid": "000aw4WC2EQYTv",
+                "name": "张靓颖"
+              }
+            ],
+            "vid": "s0040zsov85"
+          },
+          {
+            "listennum": 5964709,
+            "mv_id": 1844260,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "看呐看",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101003ghpiY3JkYbj.jpg",
+            "pub_date": "2021-08-31",
+            "publictime": "2021-8-31",
+            "singer_id": 6499,
+            "singer_mid": "002azErJ0UcDN6",
+            "singer_name": "张杰",
+            "singerid": 6499,
+            "singermid": "002azErJ0UcDN6",
+            "singername": "张杰",
+            "singers": [
+              {
+                "id": 6499,
+                "mid": "002azErJ0UcDN6",
+                "name": "张杰"
+              }
+            ],
+            "vid": "s0040ewrv7d"
+          },
+          {
+            "listennum": 194556,
+            "mv_id": 1844249,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "拾光 (《舍我其谁》电视剧片尾曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000002kWTD64Tq3Qv.jpg",
+            "pub_date": "2021-08-31",
+            "publictime": "2021-8-31",
+            "singer_id": 8105,
+            "singer_mid": "001orhmd37wwf2",
+            "singer_name": "萨顶顶",
+            "singerid": 8105,
+            "singermid": "001orhmd37wwf2",
+            "singername": "萨顶顶",
+            "singers": [
+              {
+                "id": 8105,
+                "mid": "001orhmd37wwf2",
+                "name": "萨顶顶"
+              }
+            ],
+            "vid": "z0040mb4nh5"
+          },
+          {
+            "listennum": 55892,
+            "mv_id": 1842291,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "阮厝阿嫂爱唱歌",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1020038IsLm14hXRJ.jpg",
+            "pub_date": "2021-08-31",
+            "publictime": "2021-8-31",
+            "singer_id": 561,
+            "singer_mid": "001pxv2v4Olrcg",
+            "singer_name": "五条人",
+            "singerid": 561,
+            "singermid": "001pxv2v4Olrcg",
+            "singername": "五条人",
+            "singers": [
+              {
+                "id": 561,
+                "mid": "001pxv2v4Olrcg",
+                "name": "五条人"
+              }
+            ],
+            "vid": "f0040ensfv6"
+          },
+          {
+            "listennum": 67924,
+            "mv_id": 1843463,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "风的诱惑 (甜宠版)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101003ltCw02p2hio.jpg",
+            "pub_date": "2021-08-29",
+            "publictime": "2021-8-29",
+            "singer_id": 4355,
+            "singer_mid": "003MDXPR3tcGSm",
+            "singer_name": "金莎",
+            "singerid": 4355,
+            "singermid": "003MDXPR3tcGSm",
+            "singername": "金莎",
+            "singers": [
+              {
+                "id": 4355,
+                "mid": "003MDXPR3tcGSm",
+                "name": "金莎"
+              }
+            ],
+            "vid": "y0040dyf3yi"
+          },
+          {
+            "listennum": 152951,
+            "mv_id": 1843191,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "夏日口袋 (舞蹈版)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101000yfpDy2IjX98.jpg",
+            "pub_date": "2021-08-28",
+            "publictime": "2021-8-28",
+            "singer_id": 8751254,
+            "singer_mid": "0044zf2S0jF0Ap",
+            "singer_name": "光合少年",
+            "singerid": 8751254,
+            "singermid": "0044zf2S0jF0Ap",
+            "singername": "光合少年",
+            "singers": [
+              {
+                "id": 8751254,
+                "mid": "0044zf2S0jF0Ap",
+                "name": "光合少年"
+              }
+            ],
+            "vid": "x0040i2m0br"
+          },
+          {
+            "listennum": 6696128,
+            "mv_id": 1843354,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "洄（By Now）",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M103001Gvu711hokKo.jpg",
+            "pub_date": "2021-08-28",
+            "publictime": "2021-8-28",
+            "singer_id": 161301,
+            "singer_mid": "000IBYF50SRnXP",
+            "singer_name": "王源",
+            "singerid": 161301,
+            "singermid": "000IBYF50SRnXP",
+            "singername": "王源",
+            "singers": [
+              {
+                "id": 161301,
+                "mid": "000IBYF50SRnXP",
+                "name": "王源"
+              },
+              {
+                "id": 2127442,
+                "mid": "002TFdK51hZYV9",
+                "name": "JelloRio李佳隆"
+              }
+            ],
+            "vid": "f00403pmrr0"
+          },
+          {
+            "listennum": 192429,
+            "mv_id": 1842287,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "恋恋 feat. SNH48_7SENSES",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102000vXmaU3TQxzi.jpg",
+            "pub_date": "2021-08-27",
+            "publictime": "2021-8-27",
+            "singer_id": 245,
+            "singer_mid": "0010PLKl2Wgolz",
+            "singer_name": "F.I.R.飞儿乐团",
+            "singerid": 245,
+            "singermid": "0010PLKl2Wgolz",
+            "singername": "F.I.R.飞儿乐团",
+            "singers": [
+              {
+                "id": 245,
+                "mid": "0010PLKl2Wgolz",
+                "name": "F.I.R.飞儿乐团"
+              },
+              {
+                "id": 1446104,
+                "mid": "002fBw6S48m6GD",
+                "name": "7SENSES"
+              }
+            ],
+            "vid": "i0040k3ksrk"
+          },
+          {
+            "listennum": 263007,
+            "mv_id": 1842919,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "万象长安 (《剑网3》十二周年纪念MV)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000002pUKUN0D2Sjl.jpg",
+            "pub_date": "2021-08-28",
+            "publictime": "2021-8-28",
+            "singer_id": 3692498,
+            "singer_mid": "000N69tJ1qmL78",
+            "singer_name": "剑网3",
+            "singerid": 3692498,
+            "singermid": "000N69tJ1qmL78",
+            "singername": "剑网3",
+            "singers": [
+              {
+                "id": 3692498,
+                "mid": "000N69tJ1qmL78",
+                "name": "剑网3"
+              },
+              {
+                "id": 5829,
+                "mid": "0021sRlK1Ge1aY",
+                "name": "凤凰传奇"
+              },
+              {
+                "id": 8248069,
+                "mid": "001knl7D3HZ0Gi",
+                "name": "国风新语"
+              }
+            ],
+            "vid": "r0040pphwp7"
+          },
+          {
+            "listennum": 78342,
+            "mv_id": 1842109,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "已读不回94我",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101000gKOJb4VfSPi.jpg",
+            "pub_date": "2021-08-28",
+            "publictime": "2021-8-28",
+            "singer_id": 13203,
+            "singer_mid": "004bsIDK0awMOv",
+            "singer_name": "萧敬腾",
+            "singerid": 13203,
+            "singermid": "004bsIDK0awMOv",
+            "singername": "萧敬腾",
+            "singers": [
+              {
+                "id": 13203,
+                "mid": "004bsIDK0awMOv",
+                "name": "萧敬腾"
+              }
+            ],
+            "vid": "e0040i2o6yx"
+          },
+          {
+            "listennum": 247765,
+            "mv_id": 1842793,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "时间的B面 (Live)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000003FAA4D1PEYEI.jpg",
+            "pub_date": "2021-08-27",
+            "publictime": "2021-8-27",
+            "singer_id": 5034,
+            "singer_mid": "003VWf5147Vr5U",
+            "singer_name": "崔健",
+            "singerid": 5034,
+            "singermid": "003VWf5147Vr5U",
+            "singername": "崔健",
+            "singers": [
+              {
+                "id": 5034,
+                "mid": "003VWf5147Vr5U",
+                "name": "崔健"
+              }
+            ],
+            "vid": "m0040pmq0as"
+          },
+          {
+            "listennum": 35202,
+            "mv_id": 1842228,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "马克",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001QhIx54U286C.jpg",
+            "pub_date": "2021-08-27",
+            "publictime": "2021-8-27",
+            "singer_id": 5594351,
+            "singer_mid": "003zmWv51WHLQY",
+            "singer_name": "王一桥",
+            "singerid": 5594351,
+            "singermid": "003zmWv51WHLQY",
+            "singername": "一桥BLAIR",
+            "singers": [
+              {
+                "id": 5594351,
+                "mid": "003zmWv51WHLQY",
+                "name": "一桥BLAIR"
+              }
+            ],
+            "vid": "p0040zcpwyc"
+          },
+          {
+            "listennum": 246247,
+            "mv_id": 1842268,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "定心 (《周生如故》影视剧插曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102000GCCA31v3EoO.jpg",
+            "pub_date": "2021-08-27",
+            "publictime": "2021-8-27",
+            "singer_id": 2696301,
+            "singer_mid": "0010ZEtk1CMl32",
+            "singer_name": "郑云龙",
+            "singerid": 2696301,
+            "singermid": "0010ZEtk1CMl32",
+            "singername": "郑云龙",
+            "singers": [
+              {
+                "id": 2696301,
+                "mid": "0010ZEtk1CMl32",
+                "name": "郑云龙"
+              }
+            ],
+            "vid": "f0040l0h6hy"
+          },
+          {
+            "listennum": 432165,
+            "mv_id": 1840651,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "然后我们成了想成为的人",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101003VcciC0Sp2Ai.jpg",
+            "pub_date": "2021-08-24",
+            "publictime": "2021-8-24",
+            "singer_id": 6499,
+            "singer_mid": "002azErJ0UcDN6",
+            "singer_name": "张杰",
+            "singerid": 6499,
+            "singermid": "002azErJ0UcDN6",
+            "singername": "张杰",
+            "singers": [
+              {
+                "id": 6499,
+                "mid": "002azErJ0UcDN6",
+                "name": "张杰"
+              }
+            ],
+            "vid": "p0040c3iwuh"
+          },
+          {
+            "listennum": 116214,
+            "mv_id": 1840546,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "魔鬼辣",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101004Rgy5k0pSDW9.jpg",
+            "pub_date": "2021-08-24",
+            "publictime": "2021-8-24",
+            "singer_id": 940748,
+            "singer_mid": "004WgCsE3KBddt",
+            "singer_name": "陈粒",
+            "singerid": 940748,
+            "singermid": "004WgCsE3KBddt",
+            "singername": "陈粒",
+            "singers": [
+              {
+                "id": 940748,
+                "mid": "004WgCsE3KBddt",
+                "name": "陈粒"
+              }
+            ],
+            "vid": "e0040jxux3u"
+          },
+          {
+            "listennum": 8734104,
+            "mv_id": 1840650,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "无双的王者 (王者荣耀年度电竞主题曲 暨 2021世界冠军杯主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001hRzL50zg8Os.jpg",
+            "pub_date": "2021-08-24",
+            "publictime": "2021-8-24",
+            "singer_id": 13948,
+            "singer_mid": "001fNHEf1SFEFN",
+            "singer_name": "G.E.M. 邓紫棋",
+            "singerid": 13948,
+            "singermid": "001fNHEf1SFEFN",
+            "singername": "G.E.M. 邓紫棋",
+            "singers": [
+              {
+                "id": 13948,
+                "mid": "001fNHEf1SFEFN",
+                "name": "G.E.M. 邓紫棋"
+              },
+              {
+                "id": 1339126,
+                "mid": "002KASw53FQbTK",
+                "name": "王者荣耀"
+              }
+            ],
+            "vid": "y0040xh5dhn"
+          },
+          {
+            "listennum": 155781,
+            "mv_id": 1839990,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "易燃易爆炸",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001Gcio23F358e.jpg",
+            "pub_date": "2021-08-23",
+            "publictime": "2021-8-23",
+            "singer_id": 5979,
+            "singer_mid": "000we89k1hzBcA",
+            "singer_name": "谭维维",
+            "singerid": 5979,
+            "singermid": "000we89k1hzBcA",
+            "singername": "谭维维",
+            "singers": [
+              {
+                "id": 5979,
+                "mid": "000we89k1hzBcA",
+                "name": "谭维维"
+              }
+            ],
+            "vid": "g0040f351z3"
+          },
+          {
+            "listennum": 306870,
+            "mv_id": 1840059,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "3189",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101002etWE93EGn5z.jpg",
+            "pub_date": "2021-08-23",
+            "publictime": "2021-8-23",
+            "singer_id": 1199153,
+            "singer_mid": "003JE8jQ46n049",
+            "singer_name": "焦迈奇",
+            "singerid": 1199153,
+            "singermid": "003JE8jQ46n049",
+            "singername": "焦迈奇",
+            "singers": [
+              {
+                "id": 1199153,
+                "mid": "003JE8jQ46n049",
+                "name": "焦迈奇"
+              }
+            ],
+            "vid": "f00402f866u"
+          },
+          {
+            "listennum": 31626,
+            "mv_id": 1839219,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "“废”人李泉",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000002MIiAh3OLe6R.jpg",
+            "pub_date": "2021-08-21",
+            "publictime": "2021-8-21",
+            "singer_id": 4734,
+            "singer_mid": "001xY0Nb0ZgaBz",
+            "singer_name": "李泉",
+            "singerid": 4734,
+            "singermid": "001xY0Nb0ZgaBz",
+            "singername": "李泉",
+            "singers": [
+              {
+                "id": 4734,
+                "mid": "001xY0Nb0ZgaBz",
+                "name": "李泉"
+              }
+            ],
+            "vid": "y0040bgxqc5"
+          },
+          {
+            "listennum": 138226,
+            "mv_id": 1839203,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "再见，少年 (《再见，少年》电影同名主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101003KO52e2PVrr1.jpg",
+            "pub_date": "2021-08-20",
+            "publictime": "2021-8-20",
+            "singer_id": 44,
+            "singer_mid": "000GGDys0yA0Nk",
+            "singer_name": "梁静茹",
+            "singerid": 44,
+            "singermid": "000GGDys0yA0Nk",
+            "singername": "梁静茹",
+            "singers": [
+              {
+                "id": 44,
+                "mid": "000GGDys0yA0Nk",
+                "name": "梁静茹"
+              }
+            ],
+            "vid": "g0040w8j5tl"
+          },
+          {
+            "listennum": 13375284,
+            "mv_id": 1838774,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "如故 (《周生如故》影视剧主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101002BuRh82kR0Pj.jpg",
+            "pub_date": "2021-08-18",
+            "publictime": "2021-8-18",
+            "singer_id": 199515,
+            "singer_mid": "0003ZpE43ypssl",
+            "singer_name": "张碧晨",
+            "singerid": 199515,
+            "singermid": "0003ZpE43ypssl",
+            "singername": "张碧晨",
+            "singers": [
+              {
+                "id": 199515,
+                "mid": "0003ZpE43ypssl",
+                "name": "张碧晨"
+              }
+            ],
+            "vid": "h00407ydx7s"
+          },
+          {
+            "listennum": 65815,
+            "mv_id": 1839169,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "Drive You Home (Acoustic)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000001JiCnF1PZAD1.jpg",
+            "pub_date": "2021-08-20",
+            "publictime": "2021-8-20",
+            "singer_id": 179603,
+            "singer_mid": "00216fJA496xQG",
+            "singer_name": "王嘉尔",
+            "singerid": 179603,
+            "singermid": "00216fJA496xQG",
+            "singername": "王嘉尔",
+            "singers": [
+              {
+                "id": 179603,
+                "mid": "00216fJA496xQG",
+                "name": "王嘉尔"
+              },
+              {
+                "id": 4062490,
+                "mid": "004C3eA329zvt0",
+                "name": "Internet Money"
+              }
+            ],
+            "vid": "w0040e5r28d"
+          },
+          {
+            "listennum": 131030,
+            "mv_id": 1839345,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "飞狗 (Live)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M000000KxQdr3mbviR.jpg",
+            "pub_date": "2021-08-20",
+            "publictime": "2021-8-20",
+            "singer_id": 5034,
+            "singer_mid": "003VWf5147Vr5U",
+            "singer_name": "崔健",
+            "singerid": 5034,
+            "singermid": "003VWf5147Vr5U",
+            "singername": "崔健",
+            "singers": [
+              {
+                "id": 5034,
+                "mid": "003VWf5147Vr5U",
+                "name": "崔健"
+              }
+            ],
+            "vid": "h0040tie2vj"
+          },
+          {
+            "listennum": 253099,
+            "mv_id": 1839326,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "MOVE UP",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101004D21fa1ZMOUj.jpg",
+            "pub_date": "2021-08-20",
+            "publictime": "2021-8-20",
+            "singer_id": 5903126,
+            "singer_mid": "003YziwE1l3NnL",
+            "singer_name": "奥斯卡",
+            "singerid": 5903126,
+            "singermid": "003YziwE1l3NnL",
+            "singername": "奥斯卡OZCARWANG",
+            "singers": [
+              {
+                "id": 5903126,
+                "mid": "003YziwE1l3NnL",
+                "name": "奥斯卡OZCARWANG"
+              }
+            ],
+            "vid": "m00402m3upx"
+          },
+          {
+            "listennum": 880102,
+            "mv_id": 1838673,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "如影如芒 (《新斗罗大陆》手游朱竹清角色曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1010037IVBo2NtKaH.jpg",
+            "pub_date": "2021-08-20",
+            "publictime": "2021-8-20",
+            "singer_id": 966857,
+            "singer_mid": "000eqnyn2yNwx9",
+            "singer_name": "THE9-许佳琪",
+            "singerid": 966857,
+            "singermid": "000eqnyn2yNwx9",
+            "singername": "许佳琪",
+            "singers": [
+              {
+                "id": 966857,
+                "mid": "000eqnyn2yNwx9",
+                "name": "许佳琪"
+              }
+            ],
+            "vid": "n00408yiekn"
+          },
+          {
+            "listennum": 56825,
+            "mv_id": 1839237,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "Tidal Wave 惊涛骇浪 (《PUBG MOBILE》\"海洋之王\"圣装主题曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102003VOiv64Ovqw2.jpg",
+            "pub_date": "2021-08-20",
+            "publictime": "2021-8-20",
+            "singer_id": 1050323,
+            "singer_mid": "002Lx4DD2TVWvz",
+            "singer_name": "Adam Gontier",
+            "singerid": 1050323,
+            "singermid": "002Lx4DD2TVWvz",
+            "singername": "Adam Gontier",
+            "singers": [
+              {
+                "id": 1050323,
+                "mid": "002Lx4DD2TVWvz",
+                "name": "Adam Gontier"
+              }
+            ],
+            "vid": "n0040j9t8og"
+          },
+          {
+            "listennum": 32714,
+            "mv_id": 1837680,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "YOU",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M102003H4w6b1w5wTs.jpg",
+            "pub_date": "2021-08-19",
+            "publictime": "2021-8-19",
+            "singer_id": 2121442,
+            "singer_mid": "003dgCAB3tl8SC",
+            "singer_name": "于斌",
+            "singerid": 2121442,
+            "singermid": "003dgCAB3tl8SC",
+            "singername": "于斌",
+            "singers": [
+              {
+                "id": 2121442,
+                "mid": "003dgCAB3tl8SC",
+                "name": "于斌"
+              }
+            ],
+            "vid": "o0040hy1hex"
+          },
+          {
+            "listennum": 35976,
+            "mv_id": 1838886,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "灯花落 (《天涯明月刀》辉火鳞荧外观合作曲)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M101001iH3Mq35Zgut.jpg",
+            "pub_date": "2021-08-19",
+            "publictime": "2021-8-19",
+            "singer_id": 3134520,
+            "singer_mid": "0022FNaY3GWo7M",
+            "singer_name": "说说Crystal",
+            "singerid": 3134520,
+            "singermid": "0022FNaY3GWo7M",
+            "singername": "说说Crystal",
+            "singers": [
+              {
+                "id": 3134520,
+                "mid": "0022FNaY3GWo7M",
+                "name": "说说Crystal"
+              }
+            ],
+            "vid": "e00402mr7ix"
+          },
+          {
+            "listennum": 170555,
+            "mv_id": 1838824,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "小娟 (化名)",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M0000037pzeZ0epyzn.jpg",
+            "pub_date": "2021-08-19",
+            "publictime": "2021-8-19",
+            "singer_id": 5979,
+            "singer_mid": "000we89k1hzBcA",
+            "singer_name": "谭维维",
+            "singerid": 5979,
+            "singermid": "000we89k1hzBcA",
+            "singername": "谭维维",
+            "singers": [
+              {
+                "id": 5979,
+                "mid": "000we89k1hzBcA",
+                "name": "谭维维"
+              }
+            ],
+            "vid": "v0040yo9sgj"
+          },
+          {
+            "listennum": 8568334,
+            "mv_id": 1838457,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "HOME（归）",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1010022WT4e3WOFFU.jpg",
+            "pub_date": "2021-08-18",
+            "publictime": "2021-8-18",
+            "singer_id": 161301,
+            "singer_mid": "000IBYF50SRnXP",
+            "singer_name": "王源",
+            "singerid": 161301,
+            "singermid": "000IBYF50SRnXP",
+            "singername": "王源",
+            "singers": [
+              {
+                "id": 161301,
+                "mid": "000IBYF50SRnXP",
+                "name": "王源"
+              },
+              {
+                "id": 162702,
+                "mid": "004HidEP3pkcji",
+                "name": "HENRY刘宪华"
+              }
+            ],
+            "vid": "f0040qe2lkf"
+          },
+          {
+            "listennum": 7754530,
+            "mv_id": 1838250,
+            "mvdesc": "",
+            "mvscore": 0,
+            "mvtitle": "威神V(WayV)-TEN&YANGYANG_《Low Low》_MV",
+            "picurl": "http://y.gtimg.cn/music/photo_new/T015R640x360M1010003U5G13Qp77q.jpg",
+            "pub_date": "2021-08-17",
+            "publictime": "2021-8-17",
+            "singer_id": 2866371,
+            "singer_mid": "001oeTXB0NqmTj",
+            "singer_name": "威神V",
+            "singerid": 2866371,
+            "singermid": "001oeTXB0NqmTj",
+            "singername": "威神V(WayV)",
+            "singers": [
+              {
+                "id": 2866371,
+                "mid": "001oeTXB0NqmTj",
+                "name": "威神V(WayV)"
+              }
+            ],
+            "vid": "r0040yximtf"
+          }
+        ],
+        "name": "",
+        "sum": 50
+      },
+      "default": 0,
+      "message": "",
+      "subcode": 0
+    }
+  }
+}

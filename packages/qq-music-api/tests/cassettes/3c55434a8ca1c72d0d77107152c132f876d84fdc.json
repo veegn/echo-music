@@ -1,0 +1,73 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg",
+    "params": {
+      "categoryId": "1",
+      "ein": 4,
+      "format": "json",
+      "g_tk": 1124214810,
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "loginUin": "0",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "picmid": 1,
+      "platform": "yqq.json",
+      "sin": 0,
+      "sortId": 5
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "access-control-allow-credentials": "true",
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-length": "569",
+      "content-type": "application/x-javascript;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:54:08 GMT",
+      "server": "nginx",
+      "uuid": "2340788747"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "categoryId": 1,
+        "ein": 4,
+        "list": [
+          {
+            "commit_time": "2017-10-19",
+            "createtime": "2017-10-19",
+            "creator": {
+              "avatarUrl": "",
+              "encrypt_uin": "oKns7ioiNeoA7v**",
+              "followflag": 0,
+              "isVip": 2,
+              "name": "念葳蕊",
+              "qq": 1067338325,
+              "type": 2
+            },
+            "dissid": "2385305829",
+            "dissname": "从你离开以后，我再也不敢轻易去听这首歌",
+            "imgurl": "http://p.qpic.cn/music_cover/jXFicBvicUcfIWSoCNT1OrbPpkYex1nwvenQTgo4TjtBdfzRMH6IibmWQ/600?n=1",
+            "introduction": "",
+            "listennum": 25291734,
+            "score": 0,
+            "version": 0
+          }
+        ],
+        "sin": 0,
+        "sortId": 5,
+        "sum": 1,
+        "uin": 0
+      },
+      "default": 0,
+      "message": "",
+      "subcode": 0
+    }
+  }
+}

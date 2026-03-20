@@ -1,88 +1,154 @@
-# Echo Music - 多人实时同步听歌房
+# Echo Music
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Echo%20Music-v3.0.0-emerald?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react" alt="React">
-  <img src="https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite" alt="Vite">
-  <img src="https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind">
-</p>
+Echo Music 是一个多人实时同步听歌房间应用，前端基于 React + Vite，后端基于 Express + Socket.IO，并集成 QQ 音乐相关能力。
 
-## 🌟 项目简介
+## 功能概览
 
-`Echo Music` 是一个极致简约、质感考究的实时多人在线音乐播放室。它不仅让音乐得以共享，更让听众在同一个节拍下产生共鸣。
+- 多人房间与实时状态同步
+- 点歌队列、自动播放下一首
+- QQ 音乐搜索、歌单、电台、歌词、播放链接
+- 房主 Cookie 绑定与房间级鉴权
+- `qq-music-api` 子项目独立维护、独立测试
 
-基于 **React 19**、**Vite 7** 和 **Express** 构建，通过 **Socket.io** 实现毫米级的播放同步。无论相隔多远，只要进入同一个房间，你们听到的节奏就是完全一致的。
-
-## ✨ 核心特性
-
-- 🎵 **极致同步**：利用 WebSocket 技术，实现多端播放进度、状态（播放/暂停/切歌）的强实时同步。
-- 🎨 **高级美学**：沉浸式毛玻璃（Glassmorphism）视觉设计，配合动感的背景光晕与流畅的 Framer Motion 动画。
-- 📂 **智能队列**：支持点播、切歌、队列重排，更有房主专享的“猜你喜欢”电台自动填充，让音乐永不停歇。
-- 💬 **互动社交**：内置实时聊天气泡、用户加入/离开动态提醒。
-- 🔑 **VIP 互助**：房主连接 QQ 音乐 VIP Cookie 后，全房间用户即可共享播放 VIP 音乐及无损音质。
-- 🐳 **云端部署**：提供精简化的 Dockerfile 支持，配合 GitHub Actions 实现全自动 CI/CD 构建与推送。
-
-## 🛠️ 技术架构
-
-### 前端 (Frontend)
-- **React 19**：使用最新的 React 特性，渲染性能更强。
-- **Zustand**：极简的状态管理方案。
-- **Tailwind CSS 4**：下一代 CSS 框架，支持更强大的样式定义。
-- **Framer Motion**：丝滑的交互与入场动画。
-- **Lucide React**：清爽的图标系统。
-
-### 后端 (Backend)
-- **Node.js + Express**：轻量高效的后端处理。
-- **Socket.io**：提供稳定的全双工通信环境。
-- **qq-music-api**：深度集成的 QQ 音乐数据支持。
-- **TSX**：直接运行 TypeScript 代码，开发体验极佳。
-
-## 📁 项目结构
+## 项目结构
 
 ```text
 echo-music/
-├── server/                 # 后端逻辑层
-│   ├── services/           # 业务逻辑 (房间管理、QQ音乐通讯)
-│   ├── routes/             # API 路由
-│   ├── socket/             # WebSocket 事件处理
-│   └── index.ts            # 入口文件
-├── src/                    # 前端源代码
-│   ├── components/         # 模块化组件 (MusicPanel, ChatBox, Dialogs 等)
-│   ├── store.ts            # 全局状态 (Zustand)
-│   ├── App.tsx             # 应用主入口
-│   └── index.css           # 设计系统与全局样式
-├── .github/workflows/      # GitHub Actions 自动化脚本
-└── Dockerfile              # 容器化构建配置
+├─ server/                     # 主服务端代码
+│  ├─ routes/                  # HTTP 路由
+│  ├─ services/                # 业务服务
+│  └─ socket/                  # Socket 事件处理
+├─ packages/
+│  └─ qq-music-api/            # 独立 workspace 子项目，负责 QQ 音乐 API 适配
+├─ src/                        # 前端代码
+├─ scripts/                    # 项目级脚本
+├─ Dockerfile
+└─ package.json
 ```
 
-## 🚀 快速开始
+## Workspace 说明
 
-### 1. 本地开发
+仓库采用 workspace 方式管理：
+
+- 根项目 `echo-music` 负责前端、主服务端和整体运行脚本
+- 子项目 [packages/qq-music-api](/D:/dev/echo-music/packages/qq-music-api) 负责 QQ 音乐 API 封装、测试和构建
+- 根项目通过本地 workspace 依赖使用 `qq-music-api`
+
+## 本地开发
+
+### 环境要求
+
+- Node.js 20+
+- npm 10+
+
+### 安装依赖
+
 ```bash
-# 安装依赖
 npm install
+```
 
-# 启动开发服务器 (自动运行后端及 Vite 预览)
+### 启动开发环境
+
+```bash
 npm run dev
 ```
 
-### 2. 生产环境部署
-你可以使用 Docker 以最精简的方式部署：
-```bash
-# 构建镜像
-docker build -t echo-music .
+默认访问地址：
 
-# 运行镜像
-docker run -d -p 3000:3000 -v ./storage:/app/server/storage echo-music
+- `http://localhost:3000`
+
+## Docker 一键部署
+
+推荐直接使用预构建镜像：
+
+```bash
+docker pull ghcr.io/veegn/echo-music:latest
+docker run -d \
+  --name echo-music \
+  -p 3000:3000 \
+  -v echo-music-data:/app/server/storage \
+  ghcr.io/veegn/echo-music:latest
 ```
 
-## 🔑 获取 Cookie 说明
+启动后访问：
 
-为了开启 VIP 音乐支持与电台推荐功能：
-1. 在浏览器登录 [QQ 音乐网页版](https://y.qq.com/)。
-2. `F12` 打开控制台 -> `Network`。
-3. 刷新页面，找到任意请求，在 `Request Headers` 中复制完整的 `cookie` 字符串。
-4. 在 Echo Music 房间内，房主点击“连接 VIP”并粘贴即可。
+- `http://localhost:3000`
 
-## 📄 开源协议
-本项目采用 MIT 协议。
+### Docker Compose 示例
+
+```yaml
+services:
+  echo-music:
+    image: ghcr.io/veegn/echo-music:latest
+    container_name: echo-music
+    ports:
+      - "3000:3000"
+    volumes:
+      - echo-music-data:/app/server/storage
+    restart: unless-stopped
+
+volumes:
+  echo-music-data:
+```
+
+### 持久化说明
+
+房间信息默认写入容器内的 `/app/server/storage`。  
+如果需要保留房间和 Cookie 元数据，请挂载该目录。
+
+## 常用命令
+
+### 根项目
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run lint:all
+npm run test
+npm run test:qqmusic-api
+npm run test:qqmusic-api:replay
+npm run test:integration
+npm run test:integration:qqmusic
+npm run test:integration:qqmusic:real
+npm run record:qqmusic-api:fixtures
+```
+
+### `packages/qq-music-api`
+
+```bash
+cd packages/qq-music-api
+npm run lint
+npm run test
+npm run test:unit
+npm run test:integration
+npm run test:replay
+npm run record:fixtures
+```
+
+## 测试说明
+
+项目当前测试分为三层：
+
+- 单元测试：参数校验、路由映射、响应归一化
+- 录制回放测试：优先覆盖公开 QQ 音乐接口，避免测试直接依赖实时外网
+- 真实 Cookie 冒烟测试：覆盖需要登录态的业务接口
+
+真实 Cookie 冒烟依赖以下环境变量：
+
+- `QQMUSIC_REAL_COOKIE`
+- `QQMUSIC_REAL_UIN`
+
+录制回放测试使用的夹具位于：
+
+- [packages/qq-music-api/tests/cassettes](/D:/dev/echo-music/packages/qq-music-api/tests/cassettes)
+
+## 子项目边界
+
+[packages/qq-music-api](/D:/dev/echo-music/packages/qq-music-api) 的职责：
+
+- 提供统一的 `QQMusicApi.api(...)` 调用入口
+- 维护 `musicu.fcg`、歌手、歌单、搜索、排行榜、电台等适配逻辑
+- 管理自身的测试、TypeScript 配置和录制回放夹具
+
+主项目应通过包入口或服务层调用它，不建议把主业务逻辑继续直接塞进该目录。

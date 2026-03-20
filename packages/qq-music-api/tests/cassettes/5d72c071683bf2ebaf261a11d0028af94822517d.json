@@ -1,0 +1,112 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://u.y.qq.com/cgi-bin/musicu.fcg",
+    "params": {
+      "data": "{\"comm\":{\"g_tk\":1124214810,\"loginUin\":\"0\",\"hostUin\":0,\"inCharset\":\"utf8\",\"outCharset\":\"utf-8\",\"notice\":0,\"platform\":\"yqq.json\",\"needNewCode\":0,\"ct\":24,\"cv\":0},\"mv_tag\":{\"module\":\"MvService.MvInfoProServer\",\"method\":\"GetAllocTag\",\"param\":{}},\"mv_list\":{\"module\":\"MvService.MvInfoProServer\",\"method\":\"GetAllocMvInfo\",\"param\":{\"start\":0,\"limit\":5,\"version_id\":\"7\",\"area_id\":\"15\",\"order\":1}}}",
+      "format": "json",
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json"
+    },
+    "headers": {
+      "content-type": "application/x-www-form-urlencoded"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh, sh",
+      "connection": "keep-alive",
+      "content-length": "275",
+      "content-type": "text/plain; charset=utf-8;",
+      "date": "Fri, 20 Mar 2026 02:56:04 GMT",
+      "server": "qm",
+      "u-location": "194193616_196389525_195519071",
+      "u-traceid": "036801607c763e93",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "mv_list": {
+        "code": 0,
+        "data": {
+          "list": [],
+          "total": 0
+        }
+      },
+      "mv_tag": {
+        "code": 0,
+        "data": {
+          "area": [
+            {
+              "id": 15,
+              "name": "全部"
+            },
+            {
+              "id": 16,
+              "name": "内地"
+            },
+            {
+              "id": 17,
+              "name": "港台"
+            },
+            {
+              "id": 18,
+              "name": "欧美"
+            },
+            {
+              "id": 19,
+              "name": "韩国"
+            },
+            {
+              "id": 20,
+              "name": "日本"
+            }
+          ],
+          "version": [
+            {
+              "id": 7,
+              "name": "全部"
+            },
+            {
+              "id": 8,
+              "name": "MV"
+            },
+            {
+              "id": 9,
+              "name": "现场"
+            },
+            {
+              "id": 10,
+              "name": "翻唱"
+            },
+            {
+              "id": 11,
+              "name": "舞蹈"
+            },
+            {
+              "id": 12,
+              "name": "影视"
+            },
+            {
+              "id": 13,
+              "name": "综艺"
+            },
+            {
+              "id": 14,
+              "name": "儿歌"
+            }
+          ]
+        }
+      },
+      "start_ts": 1773975364769,
+      "traceid": "036801607c763e93",
+      "ts": 1773975364774
+    }
+  }
+}

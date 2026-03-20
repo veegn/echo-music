@@ -1,4 +1,4 @@
-﻿// src/components/MusicPanel.tsx
+// src/components/MusicPanel.tsx
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Compass, Radio, ChevronRight, X, Loader2, ArrowUp, ArrowDown, Trash2, Plus, ListMusic } from 'lucide-react';
@@ -13,22 +13,127 @@ function formatSinger(singer: unknown): string {
     return '未知歌手';
 }
 
-type TabType = 'discovery' | 'radio' | 'search';
+/** 活跃的内容面板类型（搜索通过 query 控制，不计入 Tab） */
+type TabType = 'discovery' | 'radio';
+
+
+function firstArray<T = any>(...candidates: any[]): T[] {
+    for (const candidate of candidates) {
+        if (Array.isArray(candidate)) return candidate;
+    }
+    return [];
+}
+
+function extractPlaylistEntries(payload: any): any[] {
+    return firstArray(
+        payload?.list,
+        payload?.data?.list,
+        payload?.data?.response?.data?.playlists,
+        payload?.data?.data?.playlists,
+        payload?.response?.data?.playlists,
+        payload
+    );
+}
+
+function normalizePlaylistEntry(entry: any) {
+    const subtitle = String(entry?.subtitle || '');
+    const subtitleMatch = subtitle.match(/\d+/);
+
+    return {
+        ...entry,
+        playlistId: String(entry?.dissid || entry?.tid || entry?.dirid || ''),
+        playlistName: entry?.title || entry?.diss_name || entry?.dissname || '未命名歌单',
+        playlistCover: entry?.picurl || entry?.diss_cover || entry?.imgurl || '',
+        playlistSongCount: Number(entry?.song_cnt || entry?.songnum || subtitleMatch?.[0] || 0),
+    };
+}
+
+function extractRadioStations(payload: any): any[] {
+    return firstArray(
+        payload?.stations,
+        payload?.data?.stations,
+        payload?.data?.data?.data?.groupList?.flatMap((group: any) => group?.radioList || []),
+        payload?.data?.data?.groupList?.flatMap((group: any) => group?.radioList || []),
+        payload?.data?.groupList?.flatMap((group: any) => group?.radioList || [])
+    );
+}
+
+function extractRadioTracks(payload: any): any[] {
+    return firstArray(
+        payload?.tracks,
+        payload?.data?.tracks,
+        payload?.data?.songlist,
+        payload?.songlist,
+        payload?.data?.new_song?.data?.songlist,
+        payload?.data?.data?.tracks,
+        payload?.data?.data?.songlist,
+        payload?.data
+    );
+}
+
+function extractPlaylistSongs(payload: any): any[] {
+    return firstArray(
+        payload?.cdlist?.[0]?.songlist,
+        payload?.data?.cdlist?.[0]?.songlist,
+        payload?.data?.data?.cdlist?.[0]?.songlist,
+        payload?.songlist,
+        payload?.data?.songlist,
+        payload?.data?.data?.songlist,
+        payload?.tracks,
+        payload?.data?.tracks,
+        payload?.data?.data?.tracks
+    );
+}
+
+function normalizeTrack(entry: any) {
+    const singer =
+        entry?.singer ||
+        entry?.ar ||
+        entry?.artists ||
+        entry?.artist ||
+        entry?.singer_name ||
+        entry?.artist_name ||
+        '未知歌手';
+
+    return {
+        ...entry,
+        id: entry?.id || entry?.songid || entry?.songmid || entry?.mid || '',
+        songmid: entry?.songmid || entry?.mid || entry?.strMediaMid || '',
+        songname:
+            entry?.songname ||
+            entry?.name ||
+            entry?.title ||
+            entry?.songTitle ||
+            entry?.songInfo?.name ||
+            entry?.songInfo?.title ||
+            '',
+        singer,
+        albummid:
+            entry?.albummid ||
+            entry?.album?.mid ||
+            entry?.albumMid ||
+            entry?.songInfo?.album?.mid ||
+            '',
+    };
+}
 
 export default function MusicPanel({ isHost }: { isHost: boolean }) {
-    const { room, addSong, playSongs, reorderQueue, removeSong } = useStore();
+    const { room, addSong, playSongs, reorderQueue, removeSong, showToast } = useStore();
 
-    // 搜索状态 (覆盖其他所有 Tab)
+    // 搜索状态
     const [query, setQuery] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
 
     // 独立控制队列界面是否显示
     const [showQueue, setShowQueue] = useState(false);
 
     // 选项卡状态
     const [activeTab, setActiveTab] = useState<TabType>('discovery');
+
+    // ✅ 修复③：拆分为3个独立的 loading 状态，避免搜索/歌单/电台加载状态互相干扰
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [discoveryLoading, setDiscoveryLoading] = useState(false);
+    const [radioLoading, setRadioLoading] = useState(false);
 
     // ============= 搜索相关 =============
     const handleSearch = async (e?: React.FormEvent) => {
@@ -37,7 +142,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
             return;
         }
         setActiveTab('search');
-        setLoading(true);
+        setSearchLoading(true);
         setSearchResults([]);
         try {
             const res = await fetch(`/api/qqmusic/search?key=${encodeURIComponent(query)}&pageNo=1&pageSize=30`);
@@ -47,7 +152,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
         } catch (err) {
             console.error('[MusicPanel] 搜索失败:', err);
         }
-        setLoading(false);
+        setSearchLoading(false);
     };
 
     // 当点击加入队列后，提示点歌成功
@@ -63,72 +168,140 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
     const [playlistSongs, setPlaylistSongs] = useState<any[]>([]);
 
     useEffect(() => {
-        if (activeTab === 'discovery' && room?.hostQQId && playlists.length === 0 && !loading) {
+        if (activeTab === 'discovery' && room?.hostQQId && room?.hasCookie && !discoveryLoading) {
             fetchHostPlaylists();
         }
-    }, [activeTab, room?.hostQQId]);
+    }, [activeTab, room?.hostQQId, room?.hasCookie, room?.id]);
 
     const fetchHostPlaylists = async () => {
         if (!room?.hostQQId || !room?.id) return;
-        setLoading(true);
+        if (!room?.hasCookie) {
+            setPlaylists([]);
+            return;
+        }
+        setDiscoveryLoading(true);
         try {
             const res = await fetch(
                 `/api/qqmusic/user/songlist?id=${encodeURIComponent(room.hostQQId)}&roomId=${encodeURIComponent(room.id)}`
             );
             const data = await res.json();
-            if (data.list) setPlaylists(data.list);
-            else if (Array.isArray(data)) setPlaylists(data);
+            if (!res.ok) {
+                showToast(data?.error || '获取房主歌单失败', 'error');
+                setPlaylists([]);
+            } else {
+                setPlaylists(extractPlaylistEntries(data).map(normalizePlaylistEntry));
+            }
         } catch (err) {
             console.error('[MusicPanel] 获取房主歌单失败:', err);
+            showToast('获取房主歌单失败', 'error');
         }
-        setLoading(false);
+        setDiscoveryLoading(false);
     };
 
     const loadPlaylistSongs = async (tid: string) => {
-        setLoading(true);
+        setDiscoveryLoading(true);
         setPlaylistSongs([]);
         setSelectedPlaylistId(tid);
         try {
             const res = await fetch(`/api/qqmusic/songlist?id=${tid}&roomId=${room?.id}`);
             const data = await res.json();
-            const list = data.songlist || data.data?.songlist || data.tracks || [];
+            const list = extractPlaylistSongs(data).map(normalizeTrack);
             setPlaylistSongs(list);
         } catch (err) {
             console.error('[MusicPanel] 加载歌单详情失败:', err);
             setSelectedPlaylistId(null);
         }
-        setLoading(false);
+        setDiscoveryLoading(false);
     };
 
-    // ============= Radio: 猜你喜欢电台 =============
+    // ============= Radio: 个性电台 =============
     const [radioSongs, setRadioSongs] = useState<any[]>([]);
+    const [radioStations, setRadioStations] = useState<any[]>([]);
+    const [selectedRadioId, setSelectedRadioId] = useState<string>('99');
+    const [selectedRadioName, setSelectedRadioName] = useState<string>('个性电台');
 
     useEffect(() => {
-        if (activeTab === 'radio' && radioSongs.length === 0 && !loading) {
+        if (activeTab === 'radio' && !radioLoading) {
             loadGuessYouLikeRadio();
         }
-    }, [activeTab]);
+    }, [activeTab, room?.id, room?.hasCookie]);
+
+    useEffect(() => {
+        setPlaylists([]);
+        setSelectedPlaylistId(null);
+        setPlaylistSongs([]);
+        setRadioSongs([]);
+        setRadioStations([]);
+        setSelectedRadioId('99');
+        setSelectedRadioName('个性电台');
+    }, [room?.id]);
 
     const loadGuessYouLikeRadio = async () => {
-        setLoading(true);
-        try {
-            // 99 是"猜你喜欢"电台的 ID
-            const res = await fetch(`/api/qqmusic/radio/songs?id=99&roomId=${room?.id}`);
-            const data = await res.json();
-            let list = data.tracks || data.data?.songlist || data.songlist || data.data || [];
+        await loadRadioById('99', '个性电台');
+    };
 
-            const normalizedList = Array.isArray(list) ? list.map((s: any) => ({
+    const loadRadioById = async (radioId: string, radioName: string) => {
+        setRadioLoading(true);
+        setRadioSongs([]);
+        setRadioStations([]);
+        setSelectedRadioId(radioId);
+        setSelectedRadioName(radioName);
+        try {
+            const res = await fetch(`/api/qqmusic/radio/songs?id=${encodeURIComponent(radioId)}&roomId=${room?.id}`);
+            const data = await res.json();
+            const trackList = extractRadioTracks(data);
+            const stationList = extractRadioStations(data);
+
+            const normalizedList = Array.isArray(trackList) ? trackList.map((s: any) => ({
                 ...s,
                 songmid: s.songmid || s.mid,
                 songname: s.songname || s.name || s.title,
                 singer: s.singer || s.singer_name || s.artist_name || '未知歌手'
             })) : [];
             setRadioSongs(normalizedList);
+            setRadioStations(Array.isArray(stationList) ? stationList : []);
+
+            if (!res.ok) {
+                showToast(data?.error || '加载电台失败', 'error');
+            } else if (normalizedList.length === 0 && radioId !== '99') {
+                showToast('当前项目暂不支持直接拉取该电台的曲目列表', 'info');
+            }
         } catch (err) {
-            console.error('[MusicPanel] 加载猜你喜欢电台失败:', err);
+            console.error('[MusicPanel] 加载个性电台失败:', err);
+            showToast('加载电台失败', 'error');
         }
-        setLoading(false);
+        setRadioLoading(false);
     };
+
+    const renderRadioStations = (stations: any[]) => (
+        <div className="grid gap-3">
+            {stations.map((station, index) => (
+                <div
+                    key={[
+                        station.radioId || station.id || 'radio',
+                        station.groupName || 'group',
+                        station.radioName || station.name || 'station',
+                        index,
+                    ].join(':')}
+                    onClick={() => loadRadioById(String(station.radioId || station.id || ''), station.radioName || station.name || '电台')}
+                    className="flex items-center gap-4 bg-zinc-900/60 p-3 rounded-2xl border border-zinc-800/50 hover:bg-zinc-800/80 hover:border-emerald-500/30 transition-all cursor-pointer group"
+                >
+                    <img
+                        src={station.radioImg || 'https://picsum.photos/seed/radio/200/200?blur=4'}
+                        className="w-14 h-14 rounded-xl object-cover shadow-md"
+                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/radio/200/200?blur=4'; }}
+                    />
+                    <div className="flex flex-col flex-1 min-w-0">
+                        <span className="text-sm font-semibold text-zinc-100 truncate group-hover:text-emerald-400 transition-colors">{station.radioName || station.name}</span>
+                        <span className="text-xs text-zinc-500 mt-1 truncate">
+                            {station.groupName || '推荐电台'}
+                        </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-emerald-400 transition-colors shrink-0" />
+                </div>
+            ))}
+        </div>
+    );
 
 
     // ============= 渲染辅助 =============
@@ -256,7 +429,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
                         /* -------- Search Results -------- */
                         <motion.div key="search" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-4">
                             <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">搜索结果</div>
-                            {loading && searchResults.length === 0 ? (
+                            {searchLoading && searchResults.length === 0 ? (
                                 <div className="flex items-center justify-center py-8 text-emerald-400"><Loader2 className="w-6 h-6 animate-spin" /></div>
                             ) : searchResults.length === 0 ? (
                                 <div className="text-center text-sm text-zinc-500 py-8">无结果</div>
@@ -275,7 +448,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
                                     >
                                         <ChevronRight className="w-4 h-4 rotate-180" /> 返回歌单
                                     </button>
-                                    {loading ? (
+                                    {discoveryLoading ? (
                                         <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-emerald-400" /></div>
                                     ) : (
                                         renderTrackList(playlistSongs, 'Playlist', true)
@@ -288,7 +461,11 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
                                         <div className="text-center text-sm text-amber-500/80 py-8 bg-amber-500/5 rounded-xl border border-amber-500/10">
                                             房主尚未绑定 QQ，无法查看歌单
                                         </div>
-                                    ) : loading && playlists.length === 0 ? (
+                                    ) : !room?.hasCookie ? (
+                                        <div className="text-center text-sm text-amber-500/80 py-8 bg-amber-500/5 rounded-xl border border-amber-500/10">
+                                            房主尚未连接 QQMusic Cookie，暂时无法拉取歌单
+                                        </div>
+                                    ) : discoveryLoading && playlists.length === 0 ? (
                                         <div className="flex items-center justify-center py-8 text-emerald-400"><Loader2 className="w-6 h-6 animate-spin" /></div>
                                     ) : playlists.length === 0 ? (
                                         <div className="text-center text-sm text-zinc-500 py-8">当前列表为空</div>
@@ -296,19 +473,19 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
                                         <div className="grid gap-3">
                                             {playlists.map((pl) => (
                                                 <div
-                                                    key={pl.tid || pl.dirid || pl.dissid || Math.random()}
-                                                    onClick={() => loadPlaylistSongs(pl.tid || pl.dirid || pl.dissid)}
+                                                    key={pl.playlistId || Math.random()}
+                                                    onClick={() => loadPlaylistSongs(pl.playlistId)}
                                                     className="flex items-center gap-4 bg-zinc-900/60 hover:bg-zinc-800/80 p-3 rounded-2xl border border-zinc-800/50 hover:border-emerald-500/30 transition-all cursor-pointer group"
                                                 >
                                                     <img
-                                                        src={pl.diss_cover || pl.imgurl || pl.picurl}
+                                                        src={pl.playlistCover}
                                                         className="w-14 h-14 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform"
                                                         onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/music/200/200?blur=4'; }}
                                                     />
                                                     <div className="flex flex-col flex-1 min-w-0">
-                                                        <span className="text-sm font-semibold text-zinc-100 truncate group-hover:text-emerald-400 transition-colors">{pl.diss_name || pl.dissname}</span>
+                                                        <span className="text-sm font-semibold text-zinc-100 truncate group-hover:text-emerald-400 transition-colors">{pl.playlistName}</span>
                                                         <span className="text-xs text-zinc-500 mt-1">
-                                                            {pl.song_cnt || 0} 首歌曲
+                                                            {pl.playlistSongCount || 0} 首歌曲
                                                         </span>
                                                     </div>
                                                     <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
@@ -323,18 +500,32 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
                         /* -------- Radio: Personalized Radio -------- */
                         <motion.div key="radio" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
                             <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-4 flex items-center justify-between">
-                                <span>猜你喜欢</span>
-                                <button
-                                    onClick={loadGuessYouLikeRadio}
-                                    className="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-300 transition-colors"
-                                >
-                                    换一批
-                                </button>
+                                <span>{selectedRadioName}</span>
+                                <div className="flex items-center gap-2">
+                                    {selectedRadioId !== '99' && (
+                                        <button
+                                            onClick={() => loadGuessYouLikeRadio()}
+                                            className="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-300 transition-colors"
+                                        >
+                                            返回电台
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => loadRadioById(selectedRadioId, selectedRadioName)}
+                                        className="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-300 transition-colors"
+                                    >
+                                        换一批
+                                    </button>
+                                </div>
                             </div>
-                            {loading && radioSongs.length === 0 ? (
+                            {radioLoading && radioSongs.length === 0 ? (
                                 <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-emerald-400" /></div>
-                            ) : (
+                            ) : radioSongs.length > 0 ? (
                                 renderTrackList(radioSongs, 'Radio', true)
+                            ) : radioStations.length > 0 ? (
+                                renderRadioStations(radioStations)
+                            ) : (
+                                <div className="text-center text-sm text-zinc-500 py-8">暂无可展示的电台内容</div>
                             )}
                         </motion.div>
                     ) : null}

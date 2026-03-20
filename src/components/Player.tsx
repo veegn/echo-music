@@ -6,13 +6,20 @@ import Lyrics from './Lyrics';
 import { CookieDialog } from './Dialogs';
 
 function formatSinger(singer: unknown): string {
-    if (Array.isArray(singer)) {
-        return singer.map((s: any) => s.name).join(' / ');
-    }
-    if (typeof singer === 'string') {
-        return singer;
-    }
+    if (Array.isArray(singer)) return singer.map((s: any) => s.name).join(' / ');
+    if (typeof singer === 'string') return singer;
     return '';
+}
+
+/** 递归在任意嵌套对象中寻找第一个 http/https URL 字符串 */
+function findFirstHttpUrl(obj: unknown): string | null {
+    if (!obj || typeof obj !== 'object') return null;
+    for (const val of Object.values(obj as Record<string, unknown>)) {
+        if (typeof val === 'string' && val.startsWith('http')) return val;
+        const nested = findFirstHttpUrl(val);
+        if (nested) return nested;
+    }
+    return null;
 }
 
 export default function Player({ isHost }: { isHost: boolean }) {
@@ -45,50 +52,29 @@ export default function Player({ isHost }: { isHost: boolean }) {
 
     const fetchAudioUrl = async (songmid: string) => {
         try {
-            const res = await fetch(`/api/qqmusic/song/url?id=${songmid}&roomId=${room?.id}`);
+            const res  = await fetch(`/api/qqmusic/song/url?id=${songmid}&roomId=${room?.id}`);
             const data = await res.json();
-            let url = '';
+            let url    = '';
 
-            console.log('[Player] API Raw Data:', data);
-
+            // 按优先级尝试从 API 响应中提取播放 URL
             if (typeof data === 'string' && data.startsWith('http')) {
                 url = data;
             } else if (data && typeof data === 'object') {
-                if (data.data) {
-                    if (typeof data.data === 'string' && data.data.startsWith('http')) {
-                        url = data.data;
-                    } else if (Array.isArray(data.data)) {
-                        url = data.data[0];
-                    } else if (typeof data.data === 'object') {
-                        url = data.data[songmid];
-                    }
+                if (typeof data.data === 'string' && data.data.startsWith('http')) {
+                    url = data.data;
+                } else if (Array.isArray(data.data)) {
+                    url = data.data[0];
+                } else if (data.data && typeof data.data === 'object') {
+                    url = data.data[songmid];
                 }
-
-                if (!url) {
-                    url = data[songmid];
-                }
-
-                if (!url) {
-                    const findFirstHttp = (obj: any): string | null => {
-                        for (const key in obj) {
-                            if (typeof obj[key] === 'string' && obj[key].startsWith('http')) return obj[key];
-                            if (typeof obj[key] === 'object' && obj[key] !== null) {
-                                const sub = findFirstHttp(obj[key]);
-                                if (sub) return sub;
-                            }
-                        }
-                        return null;
-                    };
-                    const found = findFirstHttp(data);
-                    if (found) url = found;
-                }
+                if (!url) url = data[songmid];
+                // 兜底：递归查找第一个 http 字符串
+                if (!url) url = findFirstHttpUrl(data) ?? '';
             } else if (Array.isArray(data)) {
                 const first = data[0];
-                if (typeof first === 'string' && first.startsWith('http')) {
-                    url = first;
-                } else if (first && typeof first === 'object') {
-                    url = first.url || first.purl || first[songmid];
-                }
+                url = typeof first === 'string'
+                    ? first
+                    : (first?.url || first?.purl || first?.[songmid] || '');
             }
 
             if (url && typeof url === 'string') {
@@ -97,17 +83,14 @@ export default function Player({ isHost }: { isHost: boolean }) {
 
             if (url && url.length > 10) {
                 setAudioUrl(url);
-                console.log('[Player] 播放链接获取成功:', url.substring(0, 50) + '...');
             } else {
-                let errorMsg = '这首歌曲可能需要 VIP 或版权授权，暂时无法播放。';
-                if (!room?.hasCookie) {
-                    errorMsg = '房主尚未绑定 VIP 账号，无法播放加密或高音质歌曲。';
-                }
+                const errorMsg = room?.hasCookie
+                    ? '这首歌曲可能需要 VIP 或版权授权，暂时无法播放。'
+                    : '房主尚未绑定 VIP 账号，无法播放加密或高音质歌曲。';
                 throw new Error(errorMsg);
             }
             setSongLoading(false);
         } catch (e: any) {
-            console.error('[Player] 播放失败:', e.message);
             showToast(e.message || '播放失败', 'error');
             setSongLoading(false);
             if (isHost) setTimeout(() => skipSong(true), 3000);
@@ -121,7 +104,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
 
         if (isHost && audioRef.current) {
             const now = Date.now();
-            if (now - lastSyncRef.current > 2000) {
+            if (now - lastSyncRef.current > 1000) {
                 syncPlayer(audioRef.current.currentTime, !audioRef.current.paused);
                 lastSyncRef.current = now;
             }
@@ -131,6 +114,10 @@ export default function Player({ isHost }: { isHost: boolean }) {
     const handleLoadedMetadata = () => {
         if (audioRef.current) {
             setDuration(audioRef.current.duration);
+            // 非房主：音频加载完成后立即 seek 到已同步的播放位置，避免从 0 开始
+            if (!isHost && room?.currentTime && room.currentTime > 1) {
+                audioRef.current.currentTime = room.currentTime;
+            }
         }
     };
 
@@ -154,19 +141,13 @@ export default function Player({ isHost }: { isHost: boolean }) {
     useEffect(() => {
         if (!isHost && audioRef.current && room) {
             const diff = Math.abs(audioRef.current.currentTime - room.currentTime);
-            if (diff > 2) {
-                audioRef.current.currentTime = room.currentTime;
-            }
+            // 误差超过 2s 时强制纠偏
+            if (diff > 2) audioRef.current.currentTime = room.currentTime;
+
             if (room.isPlaying && audioRef.current.paused) {
-                audioRef.current
-                    .play()
-                    .then(() => {
-                        setAutoPlayFailed(false);
-                    })
-                    .catch((err) => {
-                        console.error('[Player] 自动播放同步失败:', err);
-                        setAutoPlayFailed(true);
-                    });
+                audioRef.current.play()
+                    .then(() => setAutoPlayFailed(false))
+                    .catch(() => setAutoPlayFailed(true));
             } else if (!room.isPlaying && !audioRef.current.paused) {
                 audioRef.current.pause();
                 setAutoPlayFailed(false);
@@ -177,55 +158,79 @@ export default function Player({ isHost }: { isHost: boolean }) {
     useEffect(() => {
         if (audioRef.current && room?.currentSong && isHost) {
             setSongLoading(true);
-            const playPromise = audioRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        setSongLoading(false);
-                        setAutoPlayFailed(false);
-                    })
-                    .catch((err) => {
-                        setSongLoading(false);
-                        console.error('[Player] 房主自动播放失败:', err);
-                        setAutoPlayFailed(true);
-                        showToast('浏览器拦截了自动播放，请手动点击播放。', 'error');
-                    });
-            }
+            audioRef.current.play()
+                .then(() => {
+                    setSongLoading(false);
+                    setAutoPlayFailed(false);
+                })
+                .catch(() => {
+                    setSongLoading(false);
+                    setAutoPlayFailed(true);
+                    showToast('浏览器拦截了自动播放，请手动点击播放。', 'error');
+                });
         }
     }, [audioUrl, isHost, room?.currentSong]);
 
     return (
-        <div className="w-full h-full relative z-10 flex flex-col items-center justify-center min-h-[500px]">
+        <div className="w-full h-full relative z-10 flex flex-col min-h-0 overflow-hidden">
+            {/* 动态模糊封面背景 */}
+            <div className="absolute -inset-40 pointer-events-none -z-20 overflow-hidden">
+                <AnimatePresence mode="popLayout">
+                    {room?.currentSong && (
+                        <motion.img
+                            key={room.currentSong.songmid}
+                            initial={{ opacity: 0, scale: 1.2 }}
+                            animate={{ opacity: 0.6, scale: room.isPlaying ? 1.5 : 1.2 }}
+                            exit={{ opacity: 0, scale: 1.2 }}
+                            transition={{ 
+                                opacity: { duration: 1.5 },
+                                scale: { duration: 20, ease: 'linear', repeat: Infinity, repeatType: 'reverse' }
+                            }}
+                            src={`https://y.qq.com/music/photo_new/T002R300x300M000${room.currentSong.albummid || room.currentSong.album?.mid}.jpg`}
+                            className="absolute top-0 left-0 w-full h-full object-cover blur-[80px] saturate-[1.2]"
+                            alt=""
+                            referrerPolicy="no-referrer"
+                        />
+                    )}
+                </AnimatePresence>
+                {/* 暗化遮罩和滤色叠加保证不会喧宾夺主 */}
+                <div className="absolute inset-0 bg-zinc-950/60 mix-blend-overlay" />
+                <div className="absolute inset-0 bg-zinc-950/40" />
+            </div>
+
+            {/* 光影氛围层 */}
             <div className={`absolute -inset-40 pointer-events-none -z-10 transition-opacity duration-1000 ${room?.isPlaying ? 'opacity-100' : 'opacity-0'} overflow-hidden`}>
                 <motion.div
                     animate={room?.isPlaying ? {
                         scale: [1, 1.4, 0.9, 1.3, 1],
-                        opacity: [0.4, 0.7, 0.4, 0.8, 0.4],
+                        opacity: [0.1, 0.3, 0.1, 0.4, 0.1],
                         rotate: [0, 90, 180, 270, 360],
                     } : { scale: 1, opacity: 0, rotate: 0 }}
-                    transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute top-1/2 left-1/4 w-[500px] h-[500px] -translate-y-1/2 bg-emerald-500/30 rounded-full mix-blend-screen filter blur-[120px]"
+                    transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute top-1/2 left-1/4 w-[500px] h-[500px] -translate-y-1/2 bg-white/20 rounded-full mix-blend-overlay filter blur-[100px]"
                 />
                 <motion.div
                     animate={room?.isPlaying ? {
                         scale: [1, 1.5, 1, 1.4, 1],
-                        opacity: [0.3, 0.6, 0.3, 0.7, 0.3],
+                        opacity: [0.1, 0.2, 0.1, 0.3, 0.1],
                         rotate: [360, 270, 180, 90, 0],
                     } : { scale: 1, opacity: 0, rotate: 0 }}
-                    transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute top-1/3 left-1/2 w-[600px] h-[600px] -translate-y-1/2 bg-blue-500/20 rounded-full mix-blend-screen filter blur-[150px]"
+                    transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute top-1/3 left-1/2 w-[600px] h-[600px] -translate-y-1/2 bg-white/20 rounded-full mix-blend-overlay filter blur-[120px]"
                 />
                 <motion.div
                     animate={room?.isPlaying ? {
                         scale: [0.8, 1.2, 0.8],
-                        opacity: [0.2, 0.5, 0.2],
+                        opacity: [0.1, 0.2, 0.1],
                     } : { scale: 1, opacity: 0 }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute top-1/2 left-1/2 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 bg-purple-500/20 rounded-full mix-blend-screen filter blur-[100px]"
+                    transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute top-1/2 left-1/2 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 bg-black/30 rounded-full mix-blend-overlay filter blur-[80px]"
                 />
             </div>
 
-            <div className="w-full max-w-5xl flex flex-col items-center gap-8 relative z-10">
+            {/* 内容滚动区 */}
+            <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 sm:p-8 relative z-10 custom-scrollbar">
+                <div className="w-full max-w-5xl flex flex-col items-center gap-8 relative z-10 my-auto py-4">
                 <AnimatePresence>
                     {autoPlayFailed && (
                         <motion.div
@@ -234,12 +239,9 @@ export default function Player({ isHost }: { isHost: boolean }) {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md rounded-3xl cursor-pointer shadow-2xl"
                             onClick={() => {
-                                if (audioRef.current) {
-                                    audioRef.current
-                                        .play()
-                                        .then(() => setAutoPlayFailed(false))
-                                        .catch((e) => console.error('手动恢复播放失败:', e));
-                                }
+                                audioRef.current?.play()
+                                    .then(() => setAutoPlayFailed(false))
+                                    .catch(() => {});
                             }}
                         >
                             <div className="flex flex-col items-center bg-zinc-900/90 border border-emerald-500/50 p-6 rounded-2xl">
@@ -251,7 +253,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
                     )}
                 </AnimatePresence>
 
-                <div className="w-full flex flex-col md:flex-row items-center md:items-stretch bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/50 rounded-3xl overflow-hidden shadow-2xl md:h-[320px]">
+                <div className="w-full flex flex-col-reverse md:flex-row items-center md:items-stretch bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/50 rounded-3xl overflow-hidden shadow-2xl md:h-[320px]">
                     <div className="flex-1 p-6 md:p-8 flex flex-col justify-between w-full h-full">
                         {audioUrl && (
                             <audio
@@ -354,7 +356,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
                     </div>
 
                     <motion.div
-                        className="w-full md:w-72 lg:w-80 h-64 md:h-full shrink-0 bg-zinc-950 relative overflow-hidden flex-none"
+                        className="w-full md:w-72 lg:w-80 aspect-square md:aspect-auto md:h-full shrink-0 bg-zinc-950 relative overflow-hidden flex-none"
                         animate={{ opacity: room?.isPlaying ? 1 : 0.9 }}
                     >
                         {room?.currentSong ? (
@@ -384,6 +386,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
                         <p className="text-zinc-600 text-sm italic">等待播放中...</p>
                     )}
                 </div>
+            </div>
             </div>
 
             <CookieDialog isOpen={showCookieDialog} onClose={() => setShowCookieDialog(false)} />

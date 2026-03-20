@@ -208,7 +208,7 @@ export default function RoomView() {
                     </AnimatePresence>
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 relative min-w-0 z-0 overflow-hidden">
+                <div className="flex-1 flex flex-col relative min-w-0 z-0 overflow-hidden">
                     <Player isHost={isHost} />
                 </div>
             </div>

@@ -1,0 +1,59 @@
+{
+  "request": {
+    "method": "post",
+    "url": "https://u.y.qq.com/cgi-bin/musicu.fcg",
+    "params": {
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json"
+    },
+    "data": {
+      "comm": {
+        "ct": 24,
+        "cv": 0,
+        "hostUin": 0,
+        "inCharset": "utf8",
+        "needNewCode": 0,
+        "notice": 0,
+        "outCharset": "utf-8",
+        "platform": "yqq.json"
+      },
+      "playlist": {
+        "method": "get_tags",
+        "module": "playlist.web_srf",
+        "param": {}
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json",
+      "content-type": "application/x-www-form-urlencoded"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh, sh",
+      "connection": "keep-alive",
+      "content-length": "130",
+      "content-type": "text/plain; charset=utf-8;",
+      "date": "Fri, 20 Mar 2026 02:56:04 GMT",
+      "server": "qm",
+      "u-location": "515757965",
+      "u-traceid": "5e0580b4a79fa0a9"
+    },
+    "data": {
+      "code": 0,
+      "playlist": {
+        "code": 500003,
+        "subcode": 860100005
+      },
+      "start_ts": 1773975364148,
+      "traceid": "5e0580b4a79fa0a9",
+      "ts": 1773975364189
+    }
+  }
+}

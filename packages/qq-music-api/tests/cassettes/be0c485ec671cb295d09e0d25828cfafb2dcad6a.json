@@ -1,0 +1,128 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/mv/fcgi-bin/fcg_singer_mv.fcg",
+    "params": {
+      "begin": 0,
+      "cid": 205360581,
+      "format": "json",
+      "num": "5",
+      "outCharset": "utf-8",
+      "singermid": "0025NhlN2yWrP4"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-length": "1905",
+      "content-type": "application/octet-stream",
+      "date": "Fri, 20 Mar 2026 02:54:08 GMT",
+      "pragma": "no-cache",
+      "server": "nginx"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "list": [
+          {
+            "date": "2013-10-23",
+            "desc": "",
+            "encrypt_uin": "on**",
+            "id": "247083",
+            "index": 1,
+            "listenCount": "64506",
+            "pic": "http://y.gtimg.cn/music/photo_new/T015R640x360M000003bDi894Ub96k.jpg",
+            "score": "0",
+            "singer_id": 4558,
+            "singer_mid": "0025NhlN2yWrP4",
+            "singer_name": "周杰伦",
+            "title": "东风破+兰亭序",
+            "upload_nick": "",
+            "upload_pic": "",
+            "upload_uin": "0",
+            "vid": "o001320lolt"
+          },
+          {
+            "date": "2013-10-08",
+            "desc": "",
+            "encrypt_uin": "on**",
+            "id": "235487",
+            "index": 2,
+            "listenCount": "65246",
+            "pic": "http://y.gtimg.cn/music/photo_new/T015R640x360M000001onuyf25hOkP.jpg",
+            "score": "0",
+            "singer_id": 4558,
+            "singer_mid": "0025NhlN2yWrP4",
+            "singer_name": "周杰伦",
+            "title": "手语 (KTV版)",
+            "upload_nick": "",
+            "upload_pic": "",
+            "upload_uin": "0",
+            "vid": "s0013hughkq"
+          },
+          {
+            "date": "2013-06-18",
+            "desc": "",
+            "encrypt_uin": "on**",
+            "id": "203618",
+            "index": 3,
+            "listenCount": "50981",
+            "pic": "http://y.gtimg.cn/music/photo_new/T015R640x360M0000002kVzL369ko5.jpg",
+            "score": "0",
+            "singer_id": 4558,
+            "singer_mid": "0025NhlN2yWrP4",
+            "singer_name": "周杰伦",
+            "title": "你怎么连话都说不清楚 (KTV版)",
+            "upload_nick": "",
+            "upload_pic": "",
+            "upload_uin": "0",
+            "vid": "o001264yl48"
+          },
+          {
+            "date": "2012-11-07",
+            "desc": "",
+            "encrypt_uin": "on**",
+            "id": "174111",
+            "index": 4,
+            "listenCount": "119977",
+            "pic": "http://y.gtimg.cn/music/photo_new/T015R640x360M000004J5KuQ0I6s1l.jpg",
+            "score": "0",
+            "singer_id": 4558,
+            "singer_mid": "0025NhlN2yWrP4",
+            "singer_name": "周杰伦",
+            "title": "本草纲目 (KTV版)",
+            "upload_nick": "",
+            "upload_pic": "",
+            "upload_uin": "0",
+            "vid": "c0011kj3ete"
+          },
+          {
+            "date": "2012-11-07",
+            "desc": "",
+            "encrypt_uin": "on**",
+            "id": "174109",
+            "index": 5,
+            "listenCount": "115724",
+            "pic": "http://y.gtimg.cn/music/photo_new/T015R640x360M000004Fen3C3d95DL.jpg",
+            "score": "0",
+            "singer_id": 4558,
+            "singer_mid": "0025NhlN2yWrP4",
+            "singer_name": "周杰伦",
+            "title": "我落泪情绪零碎 (KTV版)",
+            "upload_nick": "",
+            "upload_pic": "",
+            "upload_uin": "0",
+            "vid": "t0011nqo3nb"
+          }
+        ],
+        "total": 808
+      },
+      "message": "succ",
+      "subcode": 0
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/rsc/fcgi-bin/fcg_order_singer_getnum.fcg",
+    "params": {
+      "format": "json",
+      "outCharset": "utf-8",
+      "singermid": "0025NhlN2yWrP4",
+      "utf8": 1
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh",
+      "cache-control": "max-age=0",
+      "connection": "keep-alive",
+      "content-length": "47",
+      "content-type": "text/html;charset=gb2312",
+      "date": "Fri, 20 Mar 2026 02:56:03 GMT",
+      "expires": "Fri, 20 Mar 2026 02:56:03 GMT",
+      "server": "nginx"
+    },
+    "data": {
+      "code": -2,
+      "msg": "refer is wrong",
+      "subcode": -2
+    }
+  }
+}
