@@ -1,0 +1,112 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://u.y.qq.com/cgi-bin/musicu.fcg",
+    "params": {
+      "data": "{\"comm\":{\"g_tk\":1124214810,\"loginUin\":\"0\",\"hostUin\":0,\"inCharset\":\"utf8\",\"outCharset\":\"utf-8\",\"notice\":0,\"platform\":\"yqq.json\",\"needNewCode\":0,\"ct\":24,\"cv\":0},\"singer\":{\"method\":\"GetAlbumList\",\"param\":{\"sort\":5,\"singermid\":\"0025NhlN2yWrP4\",\"begin\":0,\"num\":5},\"module\":\"music.musichallAlbum.AlbumListServer\"}}",
+      "format": "json",
+      "g_tk": 1124214810,
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "loginUin": "0",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json",
+      "singermid": "0025NhlN2yWrP4"
+    },
+    "headers": {
+      "content-type": "application/x-www-form-urlencoded"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh, sh",
+      "connection": "keep-alive",
+      "content-length": "554",
+      "content-type": "text/plain; charset=utf-8;",
+      "date": "Fri, 20 Mar 2026 02:54:07 GMT",
+      "server": "qm",
+      "u-location": "506034627_513826035",
+      "u-traceid": "21cb1abf9e14a6dc",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "singer": {
+        "code": 0,
+        "data": {
+          "albumList": [
+            {
+              "albumID": 87495226,
+              "albumMid": "0041WVfh2vtlJE",
+              "albumName": "太阳之子",
+              "albumTranName": "",
+              "albumType": "录音室专辑",
+              "pmid": "0041WVfh2vtlJE_1",
+              "publishDate": "",
+              "singerName": "周杰伦",
+              "tags": null,
+              "totalNum": 0
+            },
+            {
+              "albumID": 79852715,
+              "albumMid": "004Bux530GytNj",
+              "albumName": "恒星不忘 Forever Forever",
+              "albumTranName": "",
+              "albumType": "Single",
+              "pmid": "004Bux530GytNj_2",
+              "publishDate": "2025-12-05",
+              "singerName": "周杰伦/言承旭/吴建豪/周渝民/五月天 阿信",
+              "tags": null,
+              "totalNum": 0
+            },
+            {
+              "albumID": 68589582,
+              "albumMid": "001uKKpF1RuJSd",
+              "albumName": "即兴曲",
+              "albumTranName": "",
+              "albumType": "Single",
+              "pmid": "001uKKpF1RuJSd_1",
+              "publishDate": "2025-06-06",
+              "singerName": "周杰伦",
+              "tags": null,
+              "totalNum": 0
+            },
+            {
+              "albumID": 61118684,
+              "albumMid": "001g7BIA0IyPBZ",
+              "albumName": "Six Degrees",
+              "albumTranName": "",
+              "albumType": "Single",
+              "pmid": "001g7BIA0IyPBZ_1",
+              "publishDate": "2025-01-10",
+              "singerName": "派伟俊/周杰伦",
+              "tags": null,
+              "totalNum": 0
+            },
+            {
+              "albumID": 52616075,
+              "albumMid": "0039qQsU3Thnb5",
+              "albumName": "稻香 (Remix摇滚版)",
+              "albumTranName": "",
+              "albumType": "Single",
+              "pmid": "0039qQsU3Thnb5_1",
+              "publishDate": "2024-07-03",
+              "singerName": "周杰伦",
+              "tags": null,
+              "totalNum": 0
+            }
+          ],
+          "singerMid": "0025NhlN2yWrP4",
+          "total": 44
+        }
+      },
+      "start_ts": 1773975247718,
+      "traceid": "21cb1abf9e14a6dc",
+      "ts": 1773975247727
+    }
+  }
+}

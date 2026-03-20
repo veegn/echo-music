@@ -1,0 +1,624 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://u.y.qq.com/cgi-bin/musicu.fcg",
+    "params": {
+      "data": "{\"comm\":{\"g_tk\":1124214810,\"loginUin\":\"0\",\"hostUin\":0,\"inCharset\":\"utf8\",\"outCharset\":\"utf-8\",\"notice\":0,\"platform\":\"yqq.json\",\"needNewCode\":0,\"ct\":24,\"cv\":0},\"singer\":{\"method\":\"get_singer_detail_info\",\"param\":{\"sort\":5,\"singermid\":\"0025NhlN2yWrP4\",\"sin\":0,\"num\":5},\"module\":\"music.web_singer_info_svr\"}}",
+      "format": "json",
+      "g_tk": 1124214810,
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "loginUin": "0",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json",
+      "singermid": "0025NhlN2yWrP4"
+    },
+    "headers": {
+      "content-type": "application/x-www-form-urlencoded"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh, sh",
+      "connection": "keep-alive",
+      "content-length": "2541",
+      "content-type": "text/plain; charset=utf-8;",
+      "date": "Fri, 20 Mar 2026 02:54:07 GMT",
+      "server": "qm",
+      "u-location": "357363749_195160800",
+      "u-traceid": "5fb4804fa19ca477",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "singer": {
+        "code": 0,
+        "data": {
+          "extras": [
+            {
+              "is_new": 0,
+              "is_only": 0,
+              "listen_count": 144693355,
+              "upload_time": "2005-10-24 11:11:35"
+            },
+            {
+              "is_new": 0,
+              "is_only": 0,
+              "listen_count": 132214338,
+              "upload_time": "2015-02-07 17:37:22"
+            },
+            {
+              "is_new": 0,
+              "is_only": 0,
+              "listen_count": 130722812,
+              "upload_time": "2007-10-31 16:45:32"
+            },
+            {
+              "is_new": 0,
+              "is_only": 0,
+              "listen_count": 130428458,
+              "upload_time": "2010-08-31 10:24:46"
+            },
+            {
+              "is_new": 0,
+              "is_only": 0,
+              "listen_count": 129646044,
+              "upload_time": "2008-11-04 15:27:59"
+            }
+          ],
+          "music_grp": [],
+          "show_singer_desc": true,
+          "singer_brief": "周杰伦，英文名字JayChou，七九年出生的他早在念淡江中学音乐科时上“超级新人王”，就被主持人吴宗宪相中而签约。十八岁那年就交出不少亮眼的作品，包括吴宗宪的《屋顶》、王力宏的《打开爱》等。 周杰伦一出场给人一种爱耍酷的感觉，不喜与媒体亲近。然而作曲、填词、编曲、主唱，样样俱精的他，首张唱碟便给人一种横空出世的感觉，绝对惊喜。随后即得到“音乐新人王”称号，而且周杰伦具有自成一格的R&B演绎方法，桀骜不驯、酷酷的演唱风格，虽然被很多人认为“吐字不清”，但丝毫不影响他的身价一路狂飙，直升到天王级。",
+          "singer_info": {
+            "area": 0,
+            "attribute4": 0,
+            "fans": 49812229,
+            "genre": 0,
+            "id": 4558,
+            "mid": "0025NhlN2yWrP4",
+            "name": "周杰伦",
+            "other_name": ""
+          },
+          "songlist": [
+            {
+              "action": {
+                "alert": 41,
+                "icons": 12992510,
+                "msgdown": 0,
+                "msgfav": 0,
+                "msgid": 13,
+                "msgpay": 6,
+                "msgshare": 0,
+                "switch": 16897793
+              },
+              "album": {
+                "id": 8220,
+                "mid": "000MkMni19ClKG",
+                "name": "叶惠美",
+                "pmid": "000MkMni19ClKG_5",
+                "subtitle": "",
+                "time_public": "2003-07-31",
+                "title": "叶惠美"
+              },
+              "bpm": 0,
+              "data_type": 0,
+              "file": {
+                "b_30s": 0,
+                "e_30s": 60000,
+                "hires_bitdepth": 0,
+                "hires_sample": 0,
+                "media_mid": "003Qui1q2u1Zho",
+                "size_128mp3": 4317292,
+                "size_192aac": 6519764,
+                "size_192ogg": 5860576,
+                "size_24aac": 0,
+                "size_320mp3": 10792943,
+                "size_48aac": 1642440,
+                "size_96aac": 3283546,
+                "size_96ogg": 2927865,
+                "size_ape": 0,
+                "size_dts": 0,
+                "size_flac": 55397039,
+                "size_hires": 0,
+                "size_try": 960887,
+                "try_begin": 84346,
+                "try_end": 142843,
+                "url": ""
+              },
+              "fnote": 4009,
+              "genre": 1,
+              "id": 97773,
+              "index_album": 3,
+              "index_cd": 0,
+              "interval": 269,
+              "isonly": 0,
+              "ksong": {
+                "id": 8606,
+                "mid": "000oBPpd23GbIo"
+              },
+              "label": "0",
+              "language": 0,
+              "mid": "0039MnYb0qxYhV",
+              "modify_stamp": 0,
+              "mv": {
+                "id": 293791,
+                "name": "",
+                "title": "",
+                "vid": "w0026q7f01a",
+                "vt": 0
+              },
+              "name": "晴天",
+              "ov": 0,
+              "pay": {
+                "pay_down": 1,
+                "pay_month": 1,
+                "pay_play": 1,
+                "pay_status": 0,
+                "price_album": 0,
+                "price_track": 200,
+                "time_free": 0
+              },
+              "pingpong": "",
+              "ppurl": "",
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "title": "周杰伦",
+                  "type": 0,
+                  "uin": 0
+                }
+              ],
+              "status": 0,
+              "subtitle": "",
+              "tid": 0,
+              "time_public": "2003-07-31",
+              "title": "晴天",
+              "trace": "",
+              "type": 0,
+              "url": "",
+              "version": 0,
+              "volume": {
+                "gain": -7.603,
+                "lra": 3.712,
+                "peak": 0.946
+              }
+            },
+            {
+              "action": {
+                "alert": 41,
+                "icons": 12992510,
+                "msgdown": 0,
+                "msgfav": 0,
+                "msgid": 13,
+                "msgpay": 6,
+                "msgshare": 0,
+                "switch": 16897793
+              },
+              "album": {
+                "id": 20612,
+                "mid": "003DFRzD192KKD",
+                "name": "七里香",
+                "pmid": "003DFRzD192KKD_2",
+                "subtitle": "",
+                "time_public": "2004-08-03",
+                "title": "七里香"
+              },
+              "bpm": 61,
+              "data_type": 0,
+              "file": {
+                "b_30s": 60964,
+                "e_30s": 120964,
+                "hires_bitdepth": 0,
+                "hires_sample": 0,
+                "media_mid": "004UlK9x0jeuow",
+                "size_128mp3": 3843167,
+                "size_192aac": 5785073,
+                "size_192ogg": 5218730,
+                "size_24aac": 0,
+                "size_320mp3": 9607864,
+                "size_48aac": 1445600,
+                "size_96aac": 2920181,
+                "size_96ogg": 2582556,
+                "size_ape": 0,
+                "size_dts": 0,
+                "size_flac": 26174554,
+                "size_hires": 0,
+                "size_try": 960887,
+                "try_begin": 60964,
+                "try_end": 94382,
+                "url": ""
+              },
+              "fnote": 4009,
+              "genre": 1,
+              "id": 102065750,
+              "index_album": 6,
+              "index_cd": 0,
+              "interval": 240,
+              "isonly": 0,
+              "ksong": {
+                "id": 8603,
+                "mid": "002l2FkL3o6F26"
+              },
+              "label": "0",
+              "language": 0,
+              "mid": "001Bbywq2gicae",
+              "modify_stamp": 0,
+              "mv": {
+                "id": 55221,
+                "name": "",
+                "title": "",
+                "vid": "x00135ao69x",
+                "vt": 0
+              },
+              "name": "搁浅",
+              "ov": 0,
+              "pay": {
+                "pay_down": 1,
+                "pay_month": 1,
+                "pay_play": 1,
+                "pay_status": 0,
+                "price_album": 0,
+                "price_track": 200,
+                "time_free": 0
+              },
+              "pingpong": "",
+              "ppurl": "",
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "title": "周杰伦",
+                  "type": 0,
+                  "uin": 0
+                }
+              ],
+              "status": 0,
+              "subtitle": "",
+              "tid": 0,
+              "time_public": "2004-08-03",
+              "title": "搁浅",
+              "trace": "",
+              "type": 0,
+              "url": "",
+              "version": 0,
+              "volume": {
+                "gain": -9.338,
+                "lra": 8.8,
+                "peak": 1
+              }
+            },
+            {
+              "action": {
+                "alert": 41,
+                "icons": 12992510,
+                "msgdown": 0,
+                "msgfav": 0,
+                "msgid": 13,
+                "msgpay": 6,
+                "msgshare": 0,
+                "switch": 16897793
+              },
+              "album": {
+                "id": 33021,
+                "mid": "002eFUFm2XYZ7z",
+                "name": "我很忙",
+                "pmid": "002eFUFm2XYZ7z_3",
+                "subtitle": "",
+                "time_public": "2007-11-02",
+                "title": "我很忙"
+              },
+              "bpm": 54,
+              "data_type": 0,
+              "file": {
+                "b_30s": 56949,
+                "e_30s": 116949,
+                "hires_bitdepth": 0,
+                "hires_sample": 0,
+                "media_mid": "0015zR8B3gjJLl",
+                "size_128mp3": 3830789,
+                "size_192aac": 5795439,
+                "size_192ogg": 5414761,
+                "size_24aac": 0,
+                "size_320mp3": 9576656,
+                "size_48aac": 1452598,
+                "size_96aac": 2919222,
+                "size_96ogg": 2700910,
+                "size_ape": 0,
+                "size_dts": 0,
+                "size_flac": 26170419,
+                "size_hires": 0,
+                "size_try": 960887,
+                "try_begin": 56949,
+                "try_end": 91395,
+                "url": ""
+              },
+              "fnote": 4009,
+              "genre": 1,
+              "id": 410316,
+              "index_album": 3,
+              "index_cd": 0,
+              "interval": 239,
+              "isonly": 0,
+              "ksong": {
+                "id": 10135,
+                "mid": "000n4lOd35gELj"
+              },
+              "label": "0",
+              "language": 0,
+              "mid": "002qU5aY3Qu24y",
+              "modify_stamp": 0,
+              "mv": {
+                "id": 55327,
+                "name": "",
+                "title": "",
+                "vid": "l00131om505",
+                "vt": 0
+              },
+              "name": "青花瓷",
+              "ov": 0,
+              "pay": {
+                "pay_down": 1,
+                "pay_month": 1,
+                "pay_play": 1,
+                "pay_status": 0,
+                "price_album": 0,
+                "price_track": 200,
+                "time_free": 0
+              },
+              "pingpong": "",
+              "ppurl": "",
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "title": "周杰伦",
+                  "type": 0,
+                  "uin": 0
+                }
+              ],
+              "status": 0,
+              "subtitle": "",
+              "tid": 0,
+              "time_public": "2007-11-02",
+              "title": "青花瓷",
+              "trace": "",
+              "type": 0,
+              "url": "",
+              "version": 0,
+              "volume": {
+                "gain": -7.07,
+                "lra": 5.407,
+                "peak": 1
+              }
+            },
+            {
+              "action": {
+                "alert": 41,
+                "icons": 12992510,
+                "msgdown": 0,
+                "msgfav": 0,
+                "msgid": 13,
+                "msgpay": 6,
+                "msgshare": 0,
+                "switch": 16897793
+              },
+              "album": {
+                "id": 60671,
+                "mid": "0024bjiL2aocxT",
+                "name": "十一月的萧邦",
+                "pmid": "0024bjiL2aocxT_5",
+                "subtitle": "",
+                "time_public": "2005-11-01",
+                "title": "十一月的萧邦"
+              },
+              "bpm": 86,
+              "data_type": 0,
+              "file": {
+                "b_30s": 68816,
+                "e_30s": 128816,
+                "hires_bitdepth": 0,
+                "hires_sample": 0,
+                "media_mid": "0024jrso28p8VA",
+                "size_128mp3": 3630591,
+                "size_192aac": 5499068,
+                "size_192ogg": 5600056,
+                "size_24aac": 0,
+                "size_320mp3": 9075745,
+                "size_48aac": 1381318,
+                "size_96aac": 2768003,
+                "size_96ogg": 2830091,
+                "size_ape": 0,
+                "size_dts": 0,
+                "size_flac": 26691277,
+                "size_hires": 0,
+                "size_try": 960887,
+                "try_begin": 68816,
+                "try_end": 112473,
+                "url": ""
+              },
+              "fnote": 4009,
+              "genre": 34,
+              "id": 718477,
+              "index_album": 1,
+              "index_cd": 0,
+              "interval": 226,
+              "isonly": 0,
+              "ksong": {
+                "id": 8597,
+                "mid": "000wJa2G49MNiv"
+              },
+              "label": "0",
+              "language": 0,
+              "mid": "001zMQr71F1Qo8",
+              "modify_stamp": 0,
+              "mv": {
+                "id": 125719,
+                "name": "",
+                "title": "",
+                "vid": "T0010Rcobut",
+                "vt": 0
+              },
+              "name": "夜曲",
+              "ov": 0,
+              "pay": {
+                "pay_down": 1,
+                "pay_month": 1,
+                "pay_play": 1,
+                "pay_status": 0,
+                "price_album": 0,
+                "price_track": 200,
+                "time_free": 0
+              },
+              "pingpong": "",
+              "ppurl": "",
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "title": "周杰伦",
+                  "type": 0,
+                  "uin": 0
+                }
+              ],
+              "status": 0,
+              "subtitle": "",
+              "tid": 0,
+              "time_public": "2005-11-01",
+              "title": "夜曲",
+              "trace": "",
+              "type": 0,
+              "url": "",
+              "version": 0,
+              "volume": {
+                "gain": -9.996,
+                "lra": 2.968,
+                "peak": 1
+              }
+            },
+            {
+              "action": {
+                "alert": 41,
+                "icons": 12992510,
+                "msgdown": 0,
+                "msgfav": 0,
+                "msgid": 13,
+                "msgpay": 6,
+                "msgshare": 0,
+                "switch": 16897793
+              },
+              "album": {
+                "id": 36062,
+                "mid": "002Neh8l0uciQZ",
+                "name": "魔杰座",
+                "pmid": "002Neh8l0uciQZ_3",
+                "subtitle": "",
+                "time_public": "2008-10-15",
+                "title": "魔杰座"
+              },
+              "bpm": 0,
+              "data_type": 0,
+              "file": {
+                "b_30s": 0,
+                "e_30s": 60000,
+                "hires_bitdepth": 0,
+                "hires_sample": 0,
+                "media_mid": "003okWvo1qZu9c",
+                "size_128mp3": 4234954,
+                "size_192aac": 6415536,
+                "size_192ogg": 5768743,
+                "size_24aac": 0,
+                "size_320mp3": 10587098,
+                "size_48aac": 1608859,
+                "size_96aac": 3225784,
+                "size_96ogg": 2898630,
+                "size_ape": 0,
+                "size_dts": 0,
+                "size_flac": 29671753,
+                "size_hires": 0,
+                "size_try": 960887,
+                "try_begin": 77137,
+                "try_end": 130535,
+                "url": ""
+              },
+              "fnote": 4009,
+              "genre": 1,
+              "id": 449198,
+              "index_album": 4,
+              "index_cd": 0,
+              "interval": 264,
+              "isonly": 0,
+              "ksong": {
+                "id": 8616,
+                "mid": "000nNAoW0vsAXy"
+              },
+              "label": "0",
+              "language": 0,
+              "mid": "003cI52o4daJJL",
+              "modify_stamp": 0,
+              "mv": {
+                "id": 199394,
+                "name": "",
+                "title": "",
+                "vid": "r00127x0yzd",
+                "vt": 0
+              },
+              "name": "花海",
+              "ov": 0,
+              "pay": {
+                "pay_down": 1,
+                "pay_month": 1,
+                "pay_play": 1,
+                "pay_status": 0,
+                "price_album": 0,
+                "price_track": 200,
+                "time_free": 0
+              },
+              "pingpong": "",
+              "ppurl": "",
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "title": "周杰伦",
+                  "type": 0,
+                  "uin": 0
+                }
+              ],
+              "status": 0,
+              "subtitle": "",
+              "tid": 0,
+              "time_public": "2008-10-15",
+              "title": "花海",
+              "trace": "",
+              "type": 0,
+              "url": "",
+              "version": 0,
+              "volume": {
+                "gain": -8.315,
+                "lra": 7.082,
+                "peak": 1
+              }
+            }
+          ],
+          "total_album": 44,
+          "total_mv": 808,
+          "total_song": 1012,
+          "yinyueren": "0"
+        }
+      },
+      "start_ts": 1773975247782,
+      "traceid": "5fb4804fa19ca477",
+      "ts": 1773975247957
+    }
+  }
+}

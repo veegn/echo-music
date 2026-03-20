@@ -1,0 +1,524 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/soso/fcgi-bin/client_search_cp",
+    "params": {
+      "aggr": 1,
+      "catZhida": 1,
+      "cr": 1,
+      "ct": 24,
+      "flag_qc": 0,
+      "format": "json",
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "lossless": 0,
+      "n": 3,
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "p": 1,
+      "platform": "yqq.json",
+      "qqmusic_ver": 1298,
+      "remoteplace": "txt.yqq.song",
+      "t": 0,
+      "w": "周杰伦"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-type": "application/x-javascript;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:56:02 GMT",
+      "server": "nginx",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "keyword": "周杰伦",
+        "priority": 0,
+        "qc": [],
+        "semantic": {
+          "curnum": 0,
+          "curpage": 1,
+          "list": [],
+          "totalnum": 0
+        },
+        "song": {
+          "curnum": 5,
+          "curpage": 1,
+          "list": [
+            {
+              "albumid": 20612,
+              "albummid": "003DFRzD192KKD",
+              "albumname": "七里香",
+              "albumname_hilight": "七里香",
+              "alertid": 41,
+              "belongCD": 0,
+              "cdIdx": 6,
+              "chinesesinger": 0,
+              "docid": "13946252327248780224",
+              "grp": [
+                {
+                  "albumid": 0,
+                  "albummid": "",
+                  "albumname": "",
+                  "albumname_hilight": "",
+                  "alertid": 11,
+                  "belongCD": 0,
+                  "cdIdx": -31073,
+                  "chinesesinger": 0,
+                  "docid": "3101231686863009183",
+                  "format": "",
+                  "interval": 90,
+                  "isonly": 0,
+                  "lyric": "",
+                  "lyric_hilight": "",
+                  "media_mid": "001AcaF903VEW4",
+                  "msgid": 0,
+                  "newStatus": 2,
+                  "nt": 351319196,
+                  "pay": {
+                    "payalbum": 0,
+                    "payalbumprice": 0,
+                    "paydownload": 0,
+                    "payinfo": 1,
+                    "payplay": 0,
+                    "paytrackmouth": 1,
+                    "paytrackprice": 200
+                  },
+                  "preview": {
+                    "trybegin": 39288,
+                    "tryend": 64543,
+                    "trysize": 481070
+                  },
+                  "pubtime": 1726329600,
+                  "pure": 0,
+                  "singer": [
+                    {
+                      "id": 0,
+                      "mid": "0032fmHO2UDnV3",
+                      "name": "周杰伦",
+                      "name_hilight": "<em>周杰伦</em>"
+                    }
+                  ],
+                  "size128": 1444179,
+                  "size320": 0,
+                  "sizeape": 0,
+                  "sizeflac": 0,
+                  "sizeogg": 0,
+                  "songid": 515966476,
+                  "songmid": "001AcaF903VEW4",
+                  "songname": "搁浅",
+                  "songname_hilight": "搁浅",
+                  "songurl": "http://y.qq.com/#type=song&id=515966476",
+                  "strMediaMid": "001AcaF903VEW4",
+                  "stream": 1,
+                  "switch": 81683,
+                  "t": 0,
+                  "tag": 0,
+                  "type": 0,
+                  "ver": 0,
+                  "vid": ""
+                }
+              ],
+              "interval": 240,
+              "isonly": 1,
+              "lyric": "",
+              "lyric_hilight": "",
+              "media_mid": "004UlK9x0jeuow",
+              "msgid": 13,
+              "newStatus": 2,
+              "nt": 351319196,
+              "pay": {
+                "payalbum": 0,
+                "payalbumprice": 0,
+                "paydownload": 1,
+                "payinfo": 1,
+                "payplay": 1,
+                "paytrackmouth": 1,
+                "paytrackprice": 200
+              },
+              "preview": {
+                "trybegin": 60964,
+                "tryend": 94382,
+                "trysize": 960887
+              },
+              "pubtime": 1091462400,
+              "pure": 0,
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "name_hilight": "<em>周杰伦</em>"
+                }
+              ],
+              "size128": 3843167,
+              "size320": 9607864,
+              "sizeape": 0,
+              "sizeflac": 26174554,
+              "sizeogg": 5218730,
+              "songid": 102065750,
+              "songmid": "001Bbywq2gicae",
+              "songname": "搁浅",
+              "songname_hilight": "搁浅",
+              "strMediaMid": "004UlK9x0jeuow",
+              "stream": 1,
+              "switch": 16881409,
+              "t": 1,
+              "tag": 11,
+              "type": 0,
+              "ver": 0,
+              "vid": "x00135ao69x"
+            },
+            {
+              "albumid": 8220,
+              "albummid": "000MkMni19ClKG",
+              "albumname": "叶惠美",
+              "albumname_hilight": "叶惠美",
+              "alertid": 41,
+              "belongCD": 0,
+              "cdIdx": 3,
+              "chinesesinger": 0,
+              "docid": "4660176279196411288",
+              "grp": [],
+              "interval": 269,
+              "isonly": 1,
+              "lyric": "",
+              "lyric_hilight": "",
+              "media_mid": "003Qui1q2u1Zho",
+              "msgid": 13,
+              "newStatus": 2,
+              "nt": 4230540145,
+              "pay": {
+                "payalbum": 0,
+                "payalbumprice": 0,
+                "paydownload": 1,
+                "payinfo": 1,
+                "payplay": 1,
+                "paytrackmouth": 1,
+                "paytrackprice": 200
+              },
+              "preview": {
+                "trybegin": 84346,
+                "tryend": 142843,
+                "trysize": 960887
+              },
+              "pubtime": 1059580800,
+              "pure": 0,
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "name_hilight": "<em>周杰伦</em>"
+                }
+              ],
+              "size128": 4317292,
+              "size320": 10792943,
+              "sizeape": 0,
+              "sizeflac": 55397039,
+              "sizeogg": 5860576,
+              "songid": 97773,
+              "songmid": "0039MnYb0qxYhV",
+              "songname": "晴天",
+              "songname_hilight": "晴天",
+              "strMediaMid": "003Qui1q2u1Zho",
+              "stream": 1,
+              "switch": 16881409,
+              "t": 1,
+              "tag": 11,
+              "type": 0,
+              "ver": 0,
+              "vid": "w0026q7f01a"
+            },
+            {
+              "albumid": 20612,
+              "albummid": "003DFRzD192KKD",
+              "albumname": "七里香",
+              "albumname_hilight": "七里香",
+              "alertid": 41,
+              "belongCD": 0,
+              "cdIdx": 2,
+              "chinesesinger": 0,
+              "docid": "16059664576364176184",
+              "grp": [
+                {
+                  "albumid": 302135,
+                  "albummid": "000Ed3LN0XBI6R",
+                  "albumname": "心情出口",
+                  "albumname_hilight": "心情出口",
+                  "alertid": 41,
+                  "belongCD": 0,
+                  "cdIdx": 27,
+                  "chinesesinger": 0,
+                  "docid": "10557495959338852722",
+                  "interval": 298,
+                  "isonly": 0,
+                  "lyric": "",
+                  "lyric_hilight": "",
+                  "media_mid": "003oHWJb2MAyS8",
+                  "msgid": 13,
+                  "newStatus": 2,
+                  "nt": 18437555,
+                  "pay": {
+                    "payalbum": 0,
+                    "payalbumprice": 0,
+                    "paydownload": 1,
+                    "payinfo": 1,
+                    "payplay": 1,
+                    "paytrackmouth": 1,
+                    "paytrackprice": 200
+                  },
+                  "preview": {
+                    "trybegin": 80747,
+                    "tryend": 135231,
+                    "trysize": 960887
+                  },
+                  "pubtime": 1259251200,
+                  "pure": 0,
+                  "singer": [
+                    {
+                      "id": 4558,
+                      "mid": "0025NhlN2yWrP4",
+                      "name": "周杰伦",
+                      "name_hilight": "<em>周杰伦</em>"
+                    }
+                  ],
+                  "size128": 4780395,
+                  "size320": 11949952,
+                  "sizeape": 0,
+                  "sizeflac": 37060753,
+                  "sizeogg": 7331148,
+                  "songid": 106697280,
+                  "songmid": "0003wmXG3bMwFN",
+                  "songname": "七里香",
+                  "songname_hilight": "七里香",
+                  "strMediaMid": "003oHWJb2MAyS8",
+                  "stream": 1,
+                  "switch": 16881409,
+                  "t": 1,
+                  "tag": 0,
+                  "type": 0,
+                  "ver": 0,
+                  "vid": "k0013x8ao6z"
+                }
+              ],
+              "interval": 299,
+              "isonly": 1,
+              "lyric": "",
+              "lyric_hilight": "",
+              "media_mid": "0012Ez0a1tFcOI",
+              "msgid": 13,
+              "newStatus": 2,
+              "nt": 18437555,
+              "pay": {
+                "payalbum": 0,
+                "payalbumprice": 0,
+                "paydownload": 1,
+                "payinfo": 1,
+                "payplay": 1,
+                "paytrackmouth": 1,
+                "paytrackprice": 200
+              },
+              "preview": {
+                "trybegin": 80683,
+                "tryend": 135203,
+                "trysize": 960887
+              },
+              "pubtime": 1091462400,
+              "pure": 0,
+              "singer": [
+                {
+                  "id": 4558,
+                  "mid": "0025NhlN2yWrP4",
+                  "name": "周杰伦",
+                  "name_hilight": "<em>周杰伦</em>"
+                }
+              ],
+              "size128": 4788294,
+              "size320": 11970297,
+              "sizeape": 0,
+              "sizeflac": 35845646,
+              "sizeogg": 7078399,
+              "songid": 102065756,
+              "songmid": "004Z8Ihr0JIu5s",
+              "songname": "七里香",
+              "songname_hilight": "七里香",
+              "strMediaMid": "0012Ez0a1tFcOI",
+              "stream": 1,
+              "switch": 16881409,
+              "t": 1,
+              "tag": 11,
+              "type": 0,
+              "ver": 0,
+              "vid": "k0013x8ao6z"
+            }
+          ],
+          "totalnum": 600
+        },
+        "tab": 0,
+        "taglist": [],
+        "totaltime": 0,
+        "zhida": {
+          "type": 1,
+          "zhida_singer": {
+            "albumNum": 44,
+            "hotalbum": [
+              {
+                "albumID": 1458791,
+                "albumMID": "003RMaRI1iFoYd",
+                "albumName": "周杰伦的床边故事",
+                "albumname_hilight": "周杰伦的床边故事"
+              },
+              {
+                "albumID": 33021,
+                "albumMID": "002eFUFm2XYZ7z",
+                "albumName": "我很忙",
+                "albumname_hilight": "我很忙"
+              },
+              {
+                "albumID": 852856,
+                "albumMID": "001uqejs3d6EID",
+                "albumName": "哎呦，不错哦",
+                "albumname_hilight": "哎呦，不错哦"
+              },
+              {
+                "albumID": 194021,
+                "albumMID": "003Ow85E3pnoqi",
+                "albumName": "十二新作",
+                "albumname_hilight": "十二新作"
+              },
+              {
+                "albumID": 36062,
+                "albumMID": "002Neh8l0uciQZ",
+                "albumName": "魔杰座",
+                "albumname_hilight": "魔杰座"
+              },
+              {
+                "albumID": 8218,
+                "albumMID": "000f01724fd7TH",
+                "albumName": "Jay",
+                "albumname_hilight": "Jay"
+              },
+              {
+                "albumID": 56705,
+                "albumMID": "000bviBl4FjTpO",
+                "albumName": "跨时代",
+                "albumname_hilight": "跨时代"
+              },
+              {
+                "albumID": 60671,
+                "albumMID": "0024bjiL2aocxT",
+                "albumName": "十一月的萧邦",
+                "albumname_hilight": "十一月的萧邦"
+              },
+              {
+                "albumID": 8220,
+                "albumMID": "000MkMni19ClKG",
+                "albumName": "叶惠美",
+                "albumname_hilight": "叶惠美"
+              },
+              {
+                "albumID": 8217,
+                "albumMID": "000I5jJB3blWeN",
+                "albumName": "范特西",
+                "albumname_hilight": "范特西"
+              }
+            ],
+            "hotsong": [
+              {
+                "f": "97773|晴天|4558|周杰伦|8220|叶惠美|0|269|-1|1|0|10792943|4317292|0|0|0|55397039|5860576|6519764|0|0039MnYb0qxYhV|0025NhlN2yWrP4|000MkMni19ClKG|0|4009",
+                "songID": 97773,
+                "songMID": "0039MnYb0qxYhV",
+                "songName": "晴天",
+                "songname_hilight": "晴天"
+              },
+              {
+                "f": "102065750|搁浅|4558|周杰伦|20612|七里香|0|240|-1|1|0|9607864|3843167|0|0|0|26174554|5218730|5785073|0|001Bbywq2gicae|0025NhlN2yWrP4|003DFRzD192KKD|0|4009",
+                "songID": 102065750,
+                "songMID": "001Bbywq2gicae",
+                "songName": "搁浅",
+                "songname_hilight": "搁浅"
+              },
+              {
+                "f": "410316|青花瓷|4558|周杰伦|33021|我很忙|0|239|-1|1|0|9576656|3830789|0|0|0|26170419|5414761|5795439|0|002qU5aY3Qu24y|0025NhlN2yWrP4|002eFUFm2XYZ7z|0|4009",
+                "songID": 410316,
+                "songMID": "002qU5aY3Qu24y",
+                "songName": "青花瓷",
+                "songname_hilight": "青花瓷"
+              },
+              {
+                "f": "718477|夜曲|4558|周杰伦|60671|十一月的萧邦|0|226|-1|1|0|9075745|3630591|0|0|0|26691277|5600056|5499068|0|001zMQr71F1Qo8|0025NhlN2yWrP4|0024bjiL2aocxT|0|4009",
+                "songID": 718477,
+                "songMID": "001zMQr71F1Qo8",
+                "songName": "夜曲",
+                "songname_hilight": "夜曲"
+              },
+              {
+                "f": "449198|花海|4558|周杰伦|36062|魔杰座|0|264|-1|1|0|10587098|4234954|0|0|0|29671753|5768743|6415536|0|003cI52o4daJJL|0025NhlN2yWrP4|002Neh8l0uciQZ|0|4009",
+                "songID": 449198,
+                "songMID": "003cI52o4daJJL",
+                "songName": "花海",
+                "songname_hilight": "花海"
+              },
+              {
+                "f": "102065756|七里香|4558|周杰伦|20612|七里香|0|299|-1|1|0|11970297|4788294|0|0|0|35845646|7078399|7214942|0|004Z8Ihr0JIu5s|0025NhlN2yWrP4|003DFRzD192KKD|0|4009",
+                "songID": 102065756,
+                "songMID": "004Z8Ihr0JIu5s",
+                "songName": "七里香",
+                "songname_hilight": "七里香"
+              },
+              {
+                "f": "449205|稻香|4558|周杰伦|36062|魔杰座|0|223|-1|1|0|8941053|3576668|0|0|0|26012257|5136737|5431599|0|003aAYrm3GE0Ac|0025NhlN2yWrP4|002Neh8l0uciQZ|0|4009",
+                "songID": 449205,
+                "songMID": "003aAYrm3GE0Ac",
+                "songName": "稻香",
+                "songname_hilight": "稻香"
+              },
+              {
+                "f": "680279|烟花易冷|4558|周杰伦|56705|跨时代|0|263|-1|1|0|10537672|4215314|0|0|0|28353822|5894472|6376380|0|004emQMs09Z1lz|0025NhlN2yWrP4|000bviBl4FjTpO|0|4009",
+                "songID": 680279,
+                "songMID": "004emQMs09Z1lz",
+                "songName": "烟花易冷",
+                "songname_hilight": "烟花易冷"
+              },
+              {
+                "f": "449201|兰亭序|4558|周杰伦|36062|魔杰座|0|253|-1|1|0|10160781|4064429|0|0|0|28309022|5544577|6133907|0|00128N3r2SYKMF|0025NhlN2yWrP4|002Neh8l0uciQZ|0|4009",
+                "songID": 449201,
+                "songMID": "00128N3r2SYKMF",
+                "songName": "兰亭序",
+                "songname_hilight": "兰亭序"
+              },
+              {
+                "f": "5105986|一路向北|4558|周杰伦|14311|J III MP3 Player|0|294|-1|1|0|11772042|4708950|0|0|0|61646557|6747357|7123849|0|001xd0HI0X9GNq|0025NhlN2yWrP4|002MAeob3zLXwZ|0|4009",
+                "songID": 5105986,
+                "songMID": "001xd0HI0X9GNq",
+                "songName": "一路向北",
+                "songname_hilight": "一路向北"
+              }
+            ],
+            "mvNum": 1397,
+            "singerID": 4558,
+            "singerMID": "0025NhlN2yWrP4",
+            "singerName": "周杰伦",
+            "singerPic": "http://y.gtimg.cn/music/photo_new/T001R150x150M0000025NhlN2yWrP4.jpg",
+            "singername_hilight": "周杰伦",
+            "songNum": 2958
+          }
+        }
+      },
+      "message": "",
+      "notice": "",
+      "subcode": 0,
+      "time": 1773975362,
+      "tips": ""
+    }
+  }
+}

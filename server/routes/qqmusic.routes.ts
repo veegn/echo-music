@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Response, Router } from "express";
 import { Server } from "socket.io";
 import * as qqMusicService from "../services/qqmusic.service.js";
 import * as roomService from "../services/room.service.js";
@@ -53,7 +53,15 @@ function extractRadioTracks(payload: any): any[] {
     return candidates.find(Array.isArray) || [];
 }
 
-function handleError(res: any, err: any) {
+function badRequest(res: Response, error: string) {
+    return res.status(400).json({ error });
+}
+
+function notFound(res: Response, error: string) {
+    return res.status(404).json({ error });
+}
+
+function handleError(res: Response, err: any) {
     logError(TAG, "API Error", err);
     res.status(500).json({ error: err.message });
 }
@@ -109,7 +117,7 @@ export default function createQQMusicRouter(io: Server): Router {
         try {
             const { key, pageNo = 1, pageSize = 20 } = req.query;
             if (!key) {
-                return res.status(400).json({ error: "Search keyword is required" });
+                return badRequest(res, "Search keyword is required");
             }
             const result = await qqMusicService.searchSongs(key as string, Number(pageNo), Number(pageSize));
             res.json(result);
@@ -122,7 +130,7 @@ export default function createQQMusicRouter(io: Server): Router {
         try {
             const { id, roomId } = req.query;
             if (!id) {
-                return res.status(400).json({ error: "Song ID is required" });
+                return badRequest(res, "Song ID is required");
             }
             const room = roomId ? roomService.getRoom(roomId as string) : undefined;
             const cookie = room?.hostCookie ?? null;
@@ -137,15 +145,15 @@ export default function createQQMusicRouter(io: Server): Router {
         try {
             const { id, roomId } = req.query;
             if (!id) {
-                return res.status(400).json({ error: "User ID is required" });
+                return badRequest(res, "User ID is required");
             }
             const room = roomId ? roomService.getRoom(roomId as string) : undefined;
             if (roomId && !room) {
-                return res.status(404).json({ error: "Room not found" });
+                return notFound(res, "Room not found");
             }
             const cookie = room?.hostCookie ?? null;
             if (roomId && !cookie) {
-                return res.status(400).json({ error: "Host QQMusic cookie is required for user playlists" });
+                return badRequest(res, "Host QQMusic cookie is required for user playlists");
             }
             const result = await qqMusicService.getUserSonglist(id as string, cookie);
             const list = extractPlaylistList(result);
@@ -160,7 +168,7 @@ export default function createQQMusicRouter(io: Server): Router {
             const { roomId } = req.query;
             const room = roomId ? roomService.getRoom(roomId as string) : undefined;
             if (roomId && !room) {
-                return res.status(404).json({ error: "Room not found" });
+                return notFound(res, "Room not found");
             }
             const cookie = room?.hostCookie ?? null;
             const result = await qqMusicService.getRecommendPlaylist(cookie);
@@ -174,7 +182,7 @@ export default function createQQMusicRouter(io: Server): Router {
         try {
             const { songmid } = req.query;
             if (!songmid) {
-                return res.status(400).json({ error: "songmid is required" });
+                return badRequest(res, "songmid is required");
             }
             const result = await qqMusicService.getLyric(songmid as string);
             res.json(result);
@@ -187,11 +195,11 @@ export default function createQQMusicRouter(io: Server): Router {
         try {
             const { id, roomId } = req.query;
             if (!id) {
-                return res.status(400).json({ error: "Songlist ID is required" });
+                return badRequest(res, "Songlist ID is required");
             }
             const room = roomId ? roomService.getRoom(roomId as string) : undefined;
             if (roomId && !room) {
-                return res.status(404).json({ error: "Room not found" });
+                return notFound(res, "Room not found");
             }
             const cookie = room?.hostCookie ?? null;
             const result = await qqMusicService.getSonglistDetail(id as string, cookie);
@@ -212,13 +220,27 @@ export default function createQQMusicRouter(io: Server): Router {
 
     router.get("/radio/songs", async (req, res) => {
         try {
-            const { roomId } = req.query;
+            const { roomId, id = "99" } = req.query;
             const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+            if (roomId && !room) {
+                return notFound(res, "Room not found");
+            }
             const cookie = room?.hostCookie ?? null;
+            if (!cookie) {
+                return badRequest(res, "Host QQMusic cookie is required for radio songs");
+            }
 
-            const result = await qqMusicService.getRadioSongs(cookie);
-            const tracks = extractRadioTracks(result);
-            res.json({ ...result, tracks, stations: [] });
+            const result = await qqMusicService.getRadioSongs(cookie, String(id));
+            const tracks = Array.isArray(result) ? result : extractRadioTracks(result);
+            const stations = Array.isArray(result?.stations)
+                ? result.stations
+                : extractRadioStations(result);
+
+            res.json({
+                tracks,
+                stations,
+                data: Array.isArray(result) ? { tracks, stations } : result,
+            });
         } catch (err: any) {
             handleError(res, err);
         }

@@ -1,0 +1,67 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/v8/fcg-bin/fcg_v8_simsinger.fcg",
+    "params": {
+      "format": "json",
+      "num": 5,
+      "outCharset": "utf-8",
+      "singer_mid": "0025NhlN2yWrP4",
+      "start": 0,
+      "utf8": 1
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "access-control-allow-credentials": "true",
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-length": "716",
+      "content-security-policy": "script-src https: *.qq.com *.sinajs.cn *.gtimg.cn *.url.cn *.tenpay.com *.qpic.cn *.qpimg.cn *.idqqimg.com *.gtimg.com *.soso.com *.jd.com 'unsafe-inline' 'unsafe-eval'; report-uri https://stat.y.qq.com/monitor/report_csp",
+      "content-type": "text/html; charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:56:03 GMT",
+      "server": "nginx",
+      "uuid": "3512903435"
+    },
+    "data": {
+      "singers": {
+        "hasmore": 1,
+        "items": [
+          {
+            "id": 74,
+            "mid": "000Sp0Bz4JXH0o",
+            "name": "五月天",
+            "pic": "http://imgcache.qq.com/music/photo/mid_singer_150/0/o/000Sp0Bz4JXH0o.jpg"
+          },
+          {
+            "id": 265,
+            "mid": "001JDzPT3JdvqK",
+            "name": "王力宏",
+            "pic": "http://imgcache.qq.com/music/photo/mid_singer_150/q/K/001JDzPT3JdvqK.jpg"
+          },
+          {
+            "id": 4286,
+            "mid": "001BLpXF2DyJe2",
+            "name": "林俊杰",
+            "pic": "http://imgcache.qq.com/music/photo/mid_singer_150/e/2/001BLpXF2DyJe2.jpg"
+          },
+          {
+            "id": 5924,
+            "mid": "000Q4W691sMvLG",
+            "name": "苏打绿",
+            "pic": "http://imgcache.qq.com/music/photo/mid_singer_150/L/G/000Q4W691sMvLG.jpg"
+          },
+          {
+            "id": 13948,
+            "mid": "001fNHEf1SFEFN",
+            "name": "G.E.M. 邓紫棋",
+            "pic": "http://imgcache.qq.com/music/photo/mid_singer_150/F/N/001fNHEf1SFEFN.jpg"
+          }
+        ]
+      }
+    }
+  }
+}

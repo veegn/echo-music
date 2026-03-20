@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_singer_desc.fcg",
+    "params": {
+      "format": "xml",
+      "outCharset": "utf-8",
+      "singermid": "0025NhlN2yWrP4",
+      "utf8": 1
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "access-control-allow-credentials": "true",
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-length": "232",
+      "content-type": "text/xml;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:56:03 GMT",
+      "server": "nginx",
+      "uuid": "3309283339"
+    },
+    "data": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<result>\n\t<code>1200</code>\n\t<subcode>1200</subcode>\n\t<message><![CDATA[referer error]]></message>\n\t<notice>0</notice>\n\t<time>1773975363</time>\n\t<tips><![CDATA[referer error]]></tips>\n</result>"
+  }
+}

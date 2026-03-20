@@ -1,0 +1,1504 @@
+{
+  "request": {
+    "method": "post",
+    "url": "https://u.y.qq.com/cgi-bin/musicu.fcg",
+    "params": {
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json"
+    },
+    "data": {
+      "comm": {
+        "ct": 24,
+        "cv": 0,
+        "hostUin": 0,
+        "inCharset": "utf8",
+        "needNewCode": 0,
+        "notice": 0,
+        "outCharset": "utf-8",
+        "platform": "yqq.json"
+      },
+      "radiolist": {
+        "method": "GetRadiolist",
+        "module": "pf.radiosvr",
+        "param": {
+          "ct": "24"
+        }
+      },
+      "songlist": {
+        "method": "get_radio_track",
+        "module": "mb_track_radio_svr",
+        "param": {
+          "firstplay": 1,
+          "id": 99,
+          "num": 15
+        }
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json",
+      "content-type": "application/x-www-form-urlencoded"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh, sh",
+      "connection": "keep-alive",
+      "content-length": "3584",
+      "content-type": "text/plain; charset=utf-8;",
+      "date": "Fri, 20 Mar 2026 02:56:05 GMT",
+      "server": "qm",
+      "u-location": "513826124_353970292_353971408",
+      "u-traceid": "01fd56586ae1a4bc",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "radiolist": {
+        "code": 0,
+        "data": {
+          "freshtime": 60,
+          "radio_list": [
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 48,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 99,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 46665,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/4492404.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "猜你喜欢",
+                  "tjreport": "3_13_48_1_10004_99"
+                },
+                {
+                  "abt": "",
+                  "id": 101,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 48791,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260297.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "随心听",
+                  "tjreport": "3_13_48_2_10004_101"
+                },
+                {
+                  "abt": "",
+                  "id": 567,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 38710,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054458.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "抖音神曲",
+                  "tjreport": "3_13_48_3_10004_567"
+                },
+                {
+                  "abt": "",
+                  "id": 686,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/3188826.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "深度催眠",
+                  "tjreport": "3_13_48_4_10004_686"
+                },
+                {
+                  "abt": "",
+                  "id": 673,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2929760.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "情感治愈站",
+                  "tjreport": "3_13_48_5_10004_673"
+                },
+                {
+                  "abt": "",
+                  "id": 270,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 30812,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054525.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "KTV必点歌",
+                  "tjreport": "3_13_48_6_10004_270"
+                },
+                {
+                  "abt": "",
+                  "id": 127,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34176,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054444.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "经典",
+                  "tjreport": "3_13_48_7_10004_127"
+                },
+                {
+                  "abt": "",
+                  "id": 167,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 33071,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054505.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "网络流行",
+                  "tjreport": "3_13_48_8_10004_167"
+                },
+                {
+                  "abt": "",
+                  "id": 703,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/4488415.jpeg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "宝宝胎教",
+                  "tjreport": "3_13_48_9_10004_703"
+                },
+                {
+                  "abt": "",
+                  "id": 215,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39918,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054474.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "DJ舞曲",
+                  "tjreport": "3_13_48_10_10004_215"
+                },
+                {
+                  "abt": "",
+                  "id": 682,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/3171367.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "助眠白噪音",
+                  "tjreport": "3_13_48_11_10004_682"
+                },
+                {
+                  "abt": "",
+                  "id": 199,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34272,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054413.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "热歌",
+                  "tjreport": "3_13_48_12_10004_199"
+                },
+                {
+                  "abt": "",
+                  "id": 307,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 47617,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054526.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "精选招牌歌",
+                  "tjreport": "3_13_48_13_10004_307"
+                },
+                {
+                  "abt": "",
+                  "id": 119,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39037,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974802.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "粤语",
+                  "tjreport": "3_13_48_14_10004_119"
+                },
+                {
+                  "abt": "",
+                  "id": 136,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34507,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829116.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "忧伤",
+                  "tjreport": "3_13_48_15_10004_136"
+                },
+                {
+                  "abt": "",
+                  "id": 568,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 47108,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054491.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "热门翻唱",
+                  "tjreport": "3_13_48_16_10004_568"
+                },
+                {
+                  "abt": "",
+                  "id": 100,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 44830,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260296.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "跑步模式",
+                  "tjreport": "3_13_48_17_10004_100"
+                },
+                {
+                  "abt": "",
+                  "id": 269,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 45891,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260344.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "健身",
+                  "tjreport": "3_13_48_18_10004_269"
+                },
+                {
+                  "abt": "",
+                  "id": 447,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 37944,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054447.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "B榜热单",
+                  "tjreport": "3_13_48_19_10004_447"
+                },
+                {
+                  "abt": "",
+                  "id": 211,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 46182,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829086.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "平静",
+                  "tjreport": "3_13_48_20_10004_211"
+                },
+                {
+                  "abt": "",
+                  "id": 554,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 49582,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1262632.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "影视原声",
+                  "tjreport": "3_13_48_21_10004_554"
+                },
+                {
+                  "abt": "",
+                  "id": 347,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 41459,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054443.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "车载",
+                  "tjreport": "3_13_48_22_10004_347"
+                },
+                {
+                  "abt": "",
+                  "id": 322,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 43227,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260360.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "起床",
+                  "tjreport": "3_13_48_23_10004_322"
+                },
+                {
+                  "abt": "",
+                  "id": 550,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 35290,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054429.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "情歌",
+                  "tjreport": "3_13_48_24_10004_550"
+                },
+                {
+                  "abt": "",
+                  "id": 368,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39066,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_time_radio/1259786.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "睡前",
+                  "tjreport": "3_13_48_25_10004_368"
+                }
+              ],
+              "radio_list": "99,101,567,686,673,270,127,167,703,215,682,199,307,119,136,568,100,269,447,211,554,347,322,550,368",
+              "title": "热门",
+              "tjreport": "3_14_48_1_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 0,
+              "id": 44,
+              "list": [],
+              "radio_list": "",
+              "title": "最近",
+              "tjreport": "3_14_44_2_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 47,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 136,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34507,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829116.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "忧伤",
+                  "tjreport": "3_13_47_1_10004_136"
+                },
+                {
+                  "abt": "",
+                  "id": 140,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42686,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829120.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "快乐",
+                  "tjreport": "3_13_47_2_10004_140"
+                },
+                {
+                  "abt": "",
+                  "id": 211,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 46182,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829086.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "平静",
+                  "tjreport": "3_13_47_3_10004_211"
+                },
+                {
+                  "abt": "",
+                  "id": 572,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829133.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "兴奋",
+                  "tjreport": "3_13_47_4_10004_572"
+                },
+                {
+                  "abt": "",
+                  "id": 137,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 37185,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829073.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "寂寞",
+                  "tjreport": "3_13_47_5_10004_137"
+                },
+                {
+                  "abt": "",
+                  "id": 217,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 31496,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1829079.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "治愈",
+                  "tjreport": "3_13_47_6_10004_217"
+                }
+              ],
+              "radio_list": "136,140,211,572,137,217",
+              "title": "心情",
+              "tjreport": "3_14_47_3_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 54,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 199,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34272,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054413.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "热歌",
+                  "tjreport": "3_13_54_1_10004_199"
+                },
+                {
+                  "abt": "",
+                  "id": 126,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 44811,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054428.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "新歌",
+                  "tjreport": "3_13_54_2_10004_126"
+                },
+                {
+                  "abt": "",
+                  "id": 550,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 35290,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054429.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "情歌",
+                  "tjreport": "3_13_54_3_10004_550"
+                },
+                {
+                  "abt": "",
+                  "id": 554,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 49582,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1262632.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "影视原声",
+                  "tjreport": "3_13_54_4_10004_554"
+                },
+                {
+                  "abt": "",
+                  "id": 347,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 41459,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054443.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "车载",
+                  "tjreport": "3_13_54_5_10004_347"
+                },
+                {
+                  "abt": "",
+                  "id": 127,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34176,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054444.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "经典",
+                  "tjreport": "3_13_54_6_10004_127"
+                },
+                {
+                  "abt": "",
+                  "id": 447,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 37944,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054447.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "B榜热单",
+                  "tjreport": "3_13_54_7_10004_447"
+                },
+                {
+                  "abt": "",
+                  "id": 448,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 30417,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1652761.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "独立唱作人",
+                  "tjreport": "3_13_54_8_10004_448"
+                },
+                {
+                  "abt": "",
+                  "id": 567,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 38710,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054458.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "抖音神曲",
+                  "tjreport": "3_13_54_9_10004_567"
+                },
+                {
+                  "abt": "",
+                  "id": 552,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 31462,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054461.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "游戏",
+                  "tjreport": "3_13_54_10_10004_552"
+                },
+                {
+                  "abt": "",
+                  "id": 215,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39918,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054474.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "DJ舞曲",
+                  "tjreport": "3_13_54_11_10004_215"
+                },
+                {
+                  "abt": "",
+                  "id": 570,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 44771,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054477.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "LIVE现场",
+                  "tjreport": "3_13_54_12_10004_570"
+                },
+                {
+                  "abt": "",
+                  "id": 568,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 47108,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054491.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "热门翻唱",
+                  "tjreport": "3_13_54_13_10004_568"
+                },
+                {
+                  "abt": "",
+                  "id": 569,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 36298,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054500.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "综艺",
+                  "tjreport": "3_13_54_14_10004_569"
+                },
+                {
+                  "abt": "",
+                  "id": 610,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1895314.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "国漫原声",
+                  "tjreport": "3_13_54_15_10004_610"
+                },
+                {
+                  "abt": "",
+                  "id": 611,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1898840.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "经典日漫",
+                  "tjreport": "3_13_54_16_10004_611"
+                },
+                {
+                  "abt": "",
+                  "id": 612,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1898842.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "日漫新番",
+                  "tjreport": "3_13_54_17_10004_612"
+                },
+                {
+                  "abt": "",
+                  "id": 167,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 33071,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054505.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "网络流行",
+                  "tjreport": "3_13_54_18_10004_167"
+                },
+                {
+                  "abt": "",
+                  "id": 270,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 30812,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054525.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "KTV必点歌",
+                  "tjreport": "3_13_54_19_10004_270"
+                },
+                {
+                  "abt": "",
+                  "id": 307,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 47617,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054526.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "精选招牌歌",
+                  "tjreport": "3_13_54_20_10004_307"
+                }
+              ],
+              "radio_list": "199,126,550,554,347,127,447,448,567,552,215,570,568,569,610,611,612,167,270,307",
+              "title": "主题",
+              "tjreport": "3_14_54_4_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 46,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 368,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39066,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_time_radio/1259786.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "睡前",
+                  "tjreport": "3_13_46_1_10004_368"
+                },
+                {
+                  "abt": "",
+                  "id": 682,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/3171367.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "助眠白噪音",
+                  "tjreport": "3_13_46_2_10004_682"
+                },
+                {
+                  "abt": "",
+                  "id": 322,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 43227,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260360.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "起床",
+                  "tjreport": "3_13_46_3_10004_322"
+                },
+                {
+                  "abt": "",
+                  "id": 703,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/4488415.jpeg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "宝宝胎教",
+                  "tjreport": "3_13_46_4_10004_703"
+                },
+                {
+                  "abt": "",
+                  "id": 269,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 45891,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260344.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "健身",
+                  "tjreport": "3_13_46_5_10004_269"
+                },
+                {
+                  "abt": "",
+                  "id": 702,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/4488417.jpeg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "安抚哄睡",
+                  "tjreport": "3_13_46_6_10004_702"
+                },
+                {
+                  "abt": "",
+                  "id": 314,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 36135,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260352.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "门店",
+                  "tjreport": "3_13_46_7_10004_314"
+                },
+                {
+                  "abt": "",
+                  "id": 192,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42381,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260331.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "旅行",
+                  "tjreport": "3_13_46_8_10004_192"
+                },
+                {
+                  "abt": "",
+                  "id": 335,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 31529,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260499.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "夜店",
+                  "tjreport": "3_13_46_9_10004_335"
+                },
+                {
+                  "abt": "",
+                  "id": 325,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 32550,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260362.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "雨天",
+                  "tjreport": "3_13_46_10_10004_325"
+                },
+                {
+                  "abt": "",
+                  "id": 141,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 41446,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260315.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "咖啡馆",
+                  "tjreport": "3_13_46_11_10004_141"
+                },
+                {
+                  "abt": "",
+                  "id": 317,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 35981,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260355.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "学习",
+                  "tjreport": "3_13_46_12_10004_317"
+                },
+                {
+                  "abt": "",
+                  "id": 318,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 32316,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260356.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "工作",
+                  "tjreport": "3_13_46_13_10004_318"
+                }
+              ],
+              "radio_list": "368,682,322,703,269,702,314,192,335,325,141,317,318",
+              "title": "场景",
+              "tjreport": "3_14_46_5_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 49,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 444,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 36855,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1897292.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "欧美流行",
+                  "tjreport": "3_13_49_1_10004_444"
+                },
+                {
+                  "abt": "",
+                  "id": 134,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 48654,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974876.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "电音",
+                  "tjreport": "3_13_49_2_10004_134"
+                },
+                {
+                  "abt": "",
+                  "id": 345,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 44758,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871565.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "流行",
+                  "tjreport": "3_13_49_3_10004_345"
+                },
+                {
+                  "abt": "",
+                  "id": 365,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 33195,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871573.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "古风",
+                  "tjreport": "3_13_49_4_10004_365"
+                },
+                {
+                  "abt": "",
+                  "id": 346,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42886,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871576.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "民谣",
+                  "tjreport": "3_13_49_5_10004_346"
+                },
+                {
+                  "abt": "",
+                  "id": 129,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 31814,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871578.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "纯音乐",
+                  "tjreport": "3_13_49_6_10004_129"
+                },
+                {
+                  "abt": "",
+                  "id": 223,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 31223,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871583.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "Hip-Hop",
+                  "tjreport": "3_13_49_7_10004_223"
+                },
+                {
+                  "abt": "",
+                  "id": 190,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42960,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871588.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "中国风",
+                  "tjreport": "3_13_49_8_10004_190"
+                },
+                {
+                  "abt": "",
+                  "id": 173,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 40543,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871591.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "R&B",
+                  "tjreport": "3_13_49_9_10004_173"
+                },
+                {
+                  "abt": "",
+                  "id": 364,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 38922,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871593.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "民歌",
+                  "tjreport": "3_13_49_10_10004_364"
+                },
+                {
+                  "abt": "",
+                  "id": 130,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 30612,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871602.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "摇滚",
+                  "tjreport": "3_13_49_11_10004_130"
+                },
+                {
+                  "abt": "",
+                  "id": 133,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 35546,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871606.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "乡村",
+                  "tjreport": "3_13_49_12_10004_133"
+                },
+                {
+                  "abt": "",
+                  "id": 523,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 40744,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871615.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "华语嘻哈",
+                  "tjreport": "3_13_49_13_10004_523"
+                },
+                {
+                  "abt": "",
+                  "id": 195,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 46239,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871617.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "舞曲",
+                  "tjreport": "3_13_49_14_10004_195"
+                },
+                {
+                  "abt": "",
+                  "id": 132,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 40151,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871640.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "爵士",
+                  "tjreport": "3_13_49_15_10004_132"
+                },
+                {
+                  "abt": "",
+                  "id": 131,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 33303,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871645.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "古典",
+                  "tjreport": "3_13_49_16_10004_131"
+                },
+                {
+                  "abt": "",
+                  "id": 613,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1943229.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "民族音乐",
+                  "tjreport": "3_13_49_17_10004_613"
+                },
+                {
+                  "abt": "",
+                  "id": 602,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871090.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "金属",
+                  "tjreport": "3_13_49_18_10004_602"
+                },
+                {
+                  "abt": "",
+                  "id": 604,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871094.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "草原风情",
+                  "tjreport": "3_13_49_19_10004_604"
+                },
+                {
+                  "abt": "",
+                  "id": 605,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871098.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "热门网络说唱",
+                  "tjreport": "3_13_49_20_10004_605"
+                },
+                {
+                  "abt": "",
+                  "id": 606,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871104.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "高原天籁",
+                  "tjreport": "3_13_49_21_10004_606"
+                },
+                {
+                  "abt": "",
+                  "id": 607,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871109.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "西域风情",
+                  "tjreport": "3_13_49_22_10004_607"
+                },
+                {
+                  "abt": "",
+                  "id": 608,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871113.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "经典雷鬼",
+                  "tjreport": "3_13_49_23_10004_608"
+                },
+                {
+                  "abt": "",
+                  "id": 609,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871145.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "MC喊麦",
+                  "tjreport": "3_13_49_24_10004_609"
+                }
+              ],
+              "radio_list": "444,134,345,365,346,129,223,190,173,364,130,133,523,195,132,131,613,602,604,605,606,607,608,609",
+              "title": "曲风",
+              "tjreport": "3_14_49_6_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 53,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 120,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42011,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974790.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "英语",
+                  "tjreport": "3_13_53_1_10004_120"
+                },
+                {
+                  "abt": "",
+                  "id": 118,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 33083,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974814.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "国语",
+                  "tjreport": "3_13_53_2_10004_118"
+                },
+                {
+                  "abt": "",
+                  "id": 119,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39037,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974802.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "粤语",
+                  "tjreport": "3_13_53_3_10004_119"
+                },
+                {
+                  "abt": "",
+                  "id": 150,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 48118,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974817.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "韩语",
+                  "tjreport": "3_13_53_4_10004_150"
+                },
+                {
+                  "abt": "",
+                  "id": 149,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 34386,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974805.png",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "日语",
+                  "tjreport": "3_13_53_5_10004_149"
+                }
+              ],
+              "radio_list": "120,118,119,150,149",
+              "title": "语言",
+              "tjreport": "3_14_53_7_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 57,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 341,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 40195,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1922360.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "儿童",
+                  "tjreport": "3_13_57_1_10004_341"
+                },
+                {
+                  "abt": "",
+                  "id": 123,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 32709,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1922387.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "80后",
+                  "tjreport": "3_13_57_2_10004_123"
+                },
+                {
+                  "abt": "",
+                  "id": 124,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39951,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1922391.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "90后",
+                  "tjreport": "3_13_57_3_10004_124"
+                },
+                {
+                  "abt": "",
+                  "id": 298,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 49460,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1922376.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "00后",
+                  "tjreport": "3_13_57_4_10004_298"
+                },
+                {
+                  "abt": "",
+                  "id": 122,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39896,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1922380.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "70后",
+                  "tjreport": "3_13_57_5_10004_122"
+                }
+              ],
+              "radio_list": "341,123,124,298,122",
+              "title": "人群",
+              "tjreport": "3_14_57_8_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 51,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 174,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 48078,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847762.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "钢琴",
+                  "tjreport": "3_13_51_1_10004_174"
+                },
+                {
+                  "abt": "",
+                  "id": 175,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 30320,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847936.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "吉他",
+                  "tjreport": "3_13_51_2_10004_175"
+                },
+                {
+                  "abt": "",
+                  "id": 176,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 45050,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847944.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "小提琴",
+                  "tjreport": "3_13_51_3_10004_176"
+                },
+                {
+                  "abt": "",
+                  "id": 207,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42014,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847946.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "古筝",
+                  "tjreport": "3_13_51_4_10004_207"
+                },
+                {
+                  "abt": "",
+                  "id": 225,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 40421,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847955.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "笛子",
+                  "tjreport": "3_13_51_5_10004_225"
+                },
+                {
+                  "abt": "",
+                  "id": 181,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 45005,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847956.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "萨克斯",
+                  "tjreport": "3_13_51_6_10004_181"
+                }
+              ],
+              "radio_list": "174,175,176,207,225,181",
+              "title": "乐器",
+              "tjreport": "3_14_51_9_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 101,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 346,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42886,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871576.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "民谣",
+                  "tjreport": "3_13_101_1_10004_346"
+                },
+                {
+                  "abt": "",
+                  "id": 584,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054256.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "音乐故事",
+                  "tjreport": "3_13_101_2_10004_584"
+                },
+                {
+                  "abt": "",
+                  "id": 365,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 33195,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871573.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "古风",
+                  "tjreport": "3_13_101_3_10004_365"
+                },
+                {
+                  "abt": "",
+                  "id": 134,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 48654,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974876.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "电音",
+                  "tjreport": "3_13_101_4_10004_134"
+                },
+                {
+                  "abt": "",
+                  "id": 174,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 48078,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1847762.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "钢琴",
+                  "tjreport": "3_13_101_5_10004_174"
+                },
+                {
+                  "abt": "",
+                  "id": 686,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/3188826.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "深度催眠",
+                  "tjreport": "3_13_101_6_10004_686"
+                },
+                {
+                  "abt": "",
+                  "id": 550,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 35290,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2054429.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "情歌",
+                  "tjreport": "3_13_101_7_10004_550"
+                },
+                {
+                  "abt": "",
+                  "id": 129,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 31814,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1871578.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "纯音乐",
+                  "tjreport": "3_13_101_8_10004_129"
+                },
+                {
+                  "abt": "",
+                  "id": 702,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/4488417.jpeg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "安抚哄睡",
+                  "tjreport": "3_13_101_9_10004_702"
+                },
+                {
+                  "abt": "",
+                  "id": 703,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/4488415.jpeg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "宝宝胎教",
+                  "tjreport": "3_13_101_10_10004_703"
+                }
+              ],
+              "radio_list": "346,584,365,134,174,686,550,129,702,703",
+              "title": "陪你听",
+              "tjreport": "3_14_101_10_0_0"
+            },
+            {
+              "abt": "",
+              "group_type": 10023,
+              "id": 100,
+              "list": [
+                {
+                  "abt": "",
+                  "id": 663,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 0,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/2478366.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "华纳音乐",
+                  "tjreport": "3_13_100_1_10004_663"
+                },
+                {
+                  "abt": "",
+                  "id": 558,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 42018,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1260770.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "滚石唱片",
+                  "tjreport": "3_13_100_2_10004_558"
+                },
+                {
+                  "abt": "",
+                  "id": 571,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 39144,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974854.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "华研音乐",
+                  "tjreport": "3_13_100_3_10004_571"
+                },
+                {
+                  "abt": "",
+                  "id": 430,
+                  "listenDesc": "0人在收听",
+                  "listenNum": 36880,
+                  "pic_url": "https://y.gtimg.cn/music/common/upload/t_music_radio/1974847.jpg",
+                  "rec_type": 10004,
+                  "subscript_picurl": "",
+                  "title": "SMTOWN",
+                  "tjreport": "3_13_100_4_10004_430"
+                }
+              ],
+              "radio_list": "663,558,571,430",
+              "title": "厂牌",
+              "tjreport": "3_14_100_11_0_0"
+            }
+          ],
+          "title": "全部分类"
+        }
+      },
+      "songlist": {
+        "code": 1000,
+        "data": {
+          "abt": "",
+          "bg_pic_url": "",
+          "bg_video_url": "",
+          "count_down_time": {
+            "CountdownTime": 0,
+            "Entrance": 0,
+            "Ext": null,
+            "ISJoinExp": false
+          },
+          "extras": null,
+          "id": 99,
+          "name": "",
+          "slogan": "",
+          "tjreport": "",
+          "tracks": null,
+          "video_cards": null
+        }
+      },
+      "start_ts": 1773975365245,
+      "traceid": "01fd56586ae1a4bc",
+      "ts": 1773975365248
+    }
+  }
+}

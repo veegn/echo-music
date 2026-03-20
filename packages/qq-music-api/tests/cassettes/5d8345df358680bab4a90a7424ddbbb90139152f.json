@@ -1,0 +1,346 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://u.y.qq.com/cgi-bin/musicu.fcg",
+    "params": {
+      "data": "{\"comm\":{\"g_tk\":1124214810,\"loginUin\":\"0\",\"hostUin\":0,\"inCharset\":\"utf8\",\"outCharset\":\"utf-8\",\"notice\":0,\"platform\":\"yqq.json\",\"needNewCode\":0,\"ct\":24,\"cv\":0},\"songinfo\":{\"method\":\"get_song_detail_yqq\",\"param\":{\"song_type\":0,\"song_mid\":\"001Bbywq2gicae\",\"song_id\":\"\"},\"module\":\"music.pf_song_detail_svr\"}}",
+      "format": "json",
+      "g_tk": 1124214810,
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "loginUin": "0",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json"
+    },
+    "headers": {
+      "content-type": "application/x-www-form-urlencoded"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh, sh",
+      "connection": "keep-alive",
+      "content-length": "2003",
+      "content-type": "text/plain; charset=utf-8;",
+      "date": "Fri, 20 Mar 2026 02:54:07 GMT",
+      "server": "qm",
+      "u-location": "506034307_195162666",
+      "u-traceid": "52e503280aea1516",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "songinfo": {
+        "code": 0,
+        "data": {
+          "extras": {
+            "from": "0",
+            "name": "搁浅",
+            "subtitle": "",
+            "transname": "",
+            "wikiurl": "https://wiki.y.qq.com/i/c74m4pm3deaqmbiuo0eg"
+          },
+          "info": {
+            "company": {
+              "content": [
+                {
+                  "author": "",
+                  "id": 2317,
+                  "is_parent": 0,
+                  "jumpurl": "",
+                  "mid": "",
+                  "ori_picurl": "",
+                  "picurl": "",
+                  "read_cnt": 0,
+                  "show_type": 0,
+                  "type": 0,
+                  "value": "杰威尔音乐有限公司"
+                }
+              ],
+              "more": 0,
+              "pos": 51,
+              "selected": "company",
+              "title": "唱片公司",
+              "type": "JUMP_TO_COMPANY",
+              "use_platform": 1
+            },
+            "genre": {
+              "content": [
+                {
+                  "author": "",
+                  "id": 40,
+                  "is_parent": 0,
+                  "jumpurl": "http://y.qq.com/m/client/categoryzone/detail.html?categoryId=40&showType=2&isParent=0&_hidehd=1&groupId=100",
+                  "mid": "",
+                  "ori_picurl": "",
+                  "picurl": "",
+                  "read_cnt": 0,
+                  "show_type": 2,
+                  "type": 0,
+                  "value": "Pop"
+                }
+              ],
+              "more": 0,
+              "pos": 12,
+              "selected": "genre",
+              "title": "歌曲流派",
+              "type": "JUMP_TO_CATEGORY",
+              "use_platform": 3
+            },
+            "intro": {
+              "content": [
+                {
+                  "author": "",
+                  "id": 0,
+                  "is_parent": 0,
+                  "jumpurl": "",
+                  "mid": "",
+                  "ori_picurl": "",
+                  "picurl": "",
+                  "read_cnt": 0,
+                  "show_type": 0,
+                  "type": 0,
+                  "value": "《搁浅》是周杰伦2004年发行的专辑《七里香》中的歌曲，是一首典型周氏情歌，延续了周杰伦一贯的风格。曲与词契合度较高，曲调起伏不大，却略显忧郁，整首歌的气氛用阴暗压抑的天气做衬托，几近完美。"
+                }
+              ],
+              "more": 0,
+              "pos": 52,
+              "selected": "intro",
+              "title": "简介",
+              "type": "SPECIAL_DISPLAY",
+              "use_platform": 3
+            },
+            "lan": {
+              "content": [
+                {
+                  "author": "",
+                  "id": 1,
+                  "is_parent": 0,
+                  "jumpurl": "http://y.qq.com/m/client/categoryzone/detail.html?categoryId=1&showType=2&isParent=0&_hidehd=1&groupId=100",
+                  "mid": "",
+                  "ori_picurl": "",
+                  "picurl": "",
+                  "read_cnt": 0,
+                  "show_type": 2,
+                  "type": 0,
+                  "value": "国语"
+                }
+              ],
+              "more": 0,
+              "pos": 11,
+              "selected": "lan",
+              "title": "歌曲语种",
+              "type": "JUMP_TO_CATEGORY",
+              "use_platform": 3
+            },
+            "pub_time": {
+              "content": [
+                {
+                  "author": "",
+                  "id": 0,
+                  "is_parent": 0,
+                  "jumpurl": "",
+                  "mid": "",
+                  "ori_picurl": "",
+                  "picurl": "",
+                  "read_cnt": 0,
+                  "show_type": 0,
+                  "type": 0,
+                  "value": "2004-08-03"
+                }
+              ],
+              "more": 0,
+              "pos": 50,
+              "selected": "pub_time",
+              "title": "发行时间",
+              "type": "desc",
+              "use_platform": 0
+            }
+          },
+          "track_info": {
+            "action": {
+              "alert": 41,
+              "icon2": 0,
+              "icons": 12992510,
+              "msgdown": 0,
+              "msgfav": 0,
+              "msgid": 13,
+              "msgpay": 6,
+              "msgshare": 0,
+              "switch": 16897793,
+              "switch2": 0
+            },
+            "album": {
+              "id": 20612,
+              "mid": "003DFRzD192KKD",
+              "name": "七里香",
+              "pmid": "003DFRzD192KKD_2",
+              "subtitle": "",
+              "time_public": "2004-08-03",
+              "title": "七里香"
+            },
+            "bpm": 61,
+            "data_type": 0,
+            "es": "",
+            "file": {
+              "b_30s": 60964,
+              "e_30s": 120964,
+              "hires_bitdepth": 0,
+              "hires_sample": 0,
+              "media_mid": "004UlK9x0jeuow",
+              "size_128mp3": 3843167,
+              "size_192aac": 5785073,
+              "size_192ogg": 5218730,
+              "size_24aac": 0,
+              "size_320mp3": 9607864,
+              "size_360ra": [],
+              "size_48aac": 1445600,
+              "size_96aac": 2920181,
+              "size_96ogg": 2582556,
+              "size_ape": 0,
+              "size_dolby": 0,
+              "size_dts": 0,
+              "size_flac": 26174554,
+              "size_hires": 0,
+              "size_new": [
+                159023510,
+                25832444,
+                66663065,
+                8929800,
+                0,
+                18930712,
+                30864039,
+                2282724,
+                25415640,
+                6766629
+              ],
+              "size_try": 960887,
+              "try_begin": 60964,
+              "try_end": 94382,
+              "url": ""
+            },
+            "fnote": 4009,
+            "genre": 1,
+            "id": 102065750,
+            "index_album": 6,
+            "index_cd": 0,
+            "interval": 240,
+            "isonly": 0,
+            "ksong": {
+              "id": 8603,
+              "mid": "002l2FkL3o6F26"
+            },
+            "ktag": "0",
+            "label": "0",
+            "language": 0,
+            "mid": "001Bbywq2gicae",
+            "modify_stamp": 0,
+            "mv": {
+              "id": 55221,
+              "name": "",
+              "title": "",
+              "vid": "x00135ao69x",
+              "vt": 0
+            },
+            "name": "搁浅",
+            "ov": 0,
+            "pay": {
+              "pay_down": 1,
+              "pay_month": 1,
+              "pay_play": 1,
+              "pay_status": 0,
+              "price_album": 0,
+              "price_track": 200,
+              "time_free": 0
+            },
+            "pingpong": "",
+            "ppurl": "",
+            "sa": 17408,
+            "singer": [
+              {
+                "id": 4558,
+                "mid": "0025NhlN2yWrP4",
+                "name": "周杰伦",
+                "title": "周杰伦",
+                "type": 0,
+                "uin": 0
+              }
+            ],
+            "status": 0,
+            "subtitle": "",
+            "tid": 0,
+            "time_public": "2004-08-03",
+            "title": "搁浅",
+            "trace": "",
+            "type": 0,
+            "url": "",
+            "version": 0,
+            "vf": [
+              -9.22747,
+              0.999969,
+              9.06098,
+              0,
+              0,
+              0
+            ],
+            "vi": [
+              2317,
+              179,
+              178,
+              16236825,
+              60964,
+              90964,
+              1
+            ],
+            "volume": {
+              "gain": -9.338,
+              "lra": 8.8,
+              "peak": 1
+            },
+            "vs": [
+              "062VCVkH3Hm4wk",
+              "",
+              "",
+              "001iPeIv0fQFm4",
+              "001uePnD0viCl4",
+              "",
+              "",
+              "",
+              "",
+              "001I5guA3pht5l",
+              "",
+              "",
+              "",
+              "003q0i213hOLlU",
+              "000gD4zE1lAKrY",
+              "0024ty0G3RPabb",
+              "000DCUQA3kbqzC",
+              "0028PbGF22ToQA",
+              "003sZXos0DkhaM",
+              "002Z3svs4fcqsg",
+              "000Ppwp10YhRA6",
+              "001ykOO8371KNX",
+              "0049tY6m3FfXBq",
+              "003Dubi44StZtM",
+              "000LoWR82pBZ0N",
+              "",
+              "001II8ny3iix3e",
+              "002TsjlE4W796n",
+              "001WW1Dv1SCD0N",
+              "002ANKSj2HKJK1",
+              "003sKe6X0T42Ec",
+              ""
+            ]
+          }
+        }
+      },
+      "start_ts": 1773975247192,
+      "traceid": "52e503280aea1516",
+      "ts": 1773975247445
+    }
+  }
+}

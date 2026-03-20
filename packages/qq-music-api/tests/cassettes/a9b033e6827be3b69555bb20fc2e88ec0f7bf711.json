@@ -1,0 +1,146 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg",
+    "params": {
+      "format": "json",
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "is_xml": 0,
+      "key": "周",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-type": "text/html;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:56:05 GMT",
+      "server": "nginx",
+      "transfer-encoding": "chunked",
+      "uuid": "2340788747",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "album": {
+          "count": 2,
+          "itemlist": [
+            {
+              "docid": "36062",
+              "id": "36062",
+              "mid": "002Neh8l0uciQZ",
+              "name": "魔杰座",
+              "pic": "http://y.gtimg.cn/music/photo_new/T002R180x180M000002Neh8l0uciQZ_3.jpg",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "60671",
+              "id": "60671",
+              "mid": "0024bjiL2aocxT",
+              "name": "十一月的萧邦",
+              "pic": "http://y.gtimg.cn/music/photo_new/T002R180x180M0000024bjiL2aocxT_5.jpg",
+              "singer": "周杰伦"
+            }
+          ],
+          "name": "专辑",
+          "order": 2,
+          "type": 3
+        },
+        "mv": {
+          "count": 2,
+          "itemlist": [
+            {
+              "docid": "1866752",
+              "id": "1866752",
+              "mid": "000RUod52SSa9F",
+              "name": "只为真相",
+              "singer": "周深",
+              "vid": "l00402cryq9"
+            },
+            {
+              "docid": "293791",
+              "id": "293791",
+              "mid": "00061J2t0b0PPW",
+              "name": "晴天",
+              "singer": "周杰伦",
+              "vid": "w0026q7f01a"
+            }
+          ],
+          "name": "MV",
+          "order": 3,
+          "type": 4
+        },
+        "singer": {
+          "count": 2,
+          "itemlist": [
+            {
+              "docid": "4558",
+              "id": "4558",
+              "mid": "0025NhlN2yWrP4",
+              "name": "周杰伦",
+              "pic": "http://y.gtimg.cn/music/photo_new/T001R150x150M0000025NhlN2yWrP4_10.jpg",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "199509",
+              "id": "199509",
+              "mid": "003fA5G40k6hKc",
+              "name": "周深",
+              "pic": "http://y.gtimg.cn/music/photo_new/T001R150x150M000003fA5G40k6hKc_6.jpg",
+              "singer": "周深"
+            }
+          ],
+          "name": "歌手",
+          "order": 1,
+          "type": 2
+        },
+        "song": {
+          "count": 4,
+          "itemlist": [
+            {
+              "docid": "201712191",
+              "id": "201712191",
+              "mid": "001af6KM0x0dIM",
+              "name": "注定",
+              "singer": "周笔畅/白举纲"
+            },
+            {
+              "docid": "200058555",
+              "id": "200058555",
+              "mid": "000vd0tE0oObe5",
+              "name": "周游",
+              "singer": "陈粒"
+            },
+            {
+              "docid": "415142551",
+              "id": "415142551",
+              "mid": "002XUssY24DEF2",
+              "name": "可能再见就是下辈子",
+              "singer": "周一豪"
+            },
+            {
+              "docid": "5159478",
+              "id": "5159478",
+              "mid": "004Vibh82cWenU",
+              "name": "画沙",
+              "singer": "周杰伦/袁咏琳"
+            }
+          ],
+          "name": "单曲",
+          "order": 0,
+          "type": 1
+        }
+      },
+      "subcode": 0
+    }
+  }
+}

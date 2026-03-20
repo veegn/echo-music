@@ -7,6 +7,26 @@ const path = require('path');
 const repoRoot = path.resolve(__dirname, '..');
 const storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'echo-music-qq-it-'));
 const persistCookie = 'uin=o012345; qqmusic_key=test-key; qm_keyst=test-key;';
+const realisticCookie = [
+  'eas_sid=31z7Z6w9b7w8s187G3F5f1B8I8',
+  'pgv_pvid=4212045504',
+  'qq_domain_video_guid_verify=310ea30b0dc2c4b5',
+  '_qimei_uuid42=1a11f0e04021001d4808767eff4084ae9747dbfae5',
+  '_qimei_fingerprint=9e8e88ad5498e92053a42edd91e790a2',
+  'login_type=1',
+  'tmeLoginType=2',
+  'psrf_musickey_createtime=1773667919',
+  'qqmusic_key=Q_H_L_63k3NfVd3WHfhdwOP3msjO1KRvPoLrJGXybl7EZ3t4O7sqdSK5brRsDbTy6laKm6OSXgxgpmbXyp1TaiKLzcSTYeJ',
+  'euin=7K-q7w-zNe4A',
+  'uin=529620852',
+  'qm_keyst=Q_H_L_63k3NfVd3WHfhdwOP3msjO1KRvPoLrJGXybl7EZ3t4O7sqdSK5brRsDbTy6laKm6OSXgxgpmbXyp1TaiKLzcSTYeJ',
+  'psrf_qqaccess_token=5A42278F7C480A32063013200D725DE4',
+  'psrf_qqunionid=3CFC7A3B1E266B48EA3E9009A2B7A594',
+  'music_ignore_pskey=202306271436Hn@vBj',
+  'psrf_qqrefresh_token=4CBEB066546994326BC67E8B93BAD71B',
+  'psrf_qqopenid=53148005B3088D7B5CD954B5BB0D857F',
+  'psrf_access_token_expiresAt=1778851919',
+].join('; ');
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -69,6 +89,17 @@ function firstArray(...candidates) {
   return [];
 }
 
+function pickSongMid(song) {
+  return (
+    song?.songmid ||
+    song?.mid ||
+    song?.songInfo?.mid ||
+    song?.songInfo?.songMid ||
+    song?.song_mid ||
+    ''
+  );
+}
+
 async function main() {
   const port = process.env.PORT ? Number(process.env.PORT) : await findAvailablePort();
   const baseUrl = `http://127.0.0.1:${port}`;
@@ -100,10 +131,36 @@ async function main() {
     const validCookie = await requestJson(baseUrl, '/api/qqmusic/verify-cookie', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ cookie: 'uin=o012345; foo=bar;' }),
+      body: JSON.stringify({ cookie: 'uin=o012345; qqmusic_key=test-key; qm_keyst=test-key;' }),
     });
-    assert(validCookie.status === 200, 'verify-cookie with uin should return 200');
-    assert(validCookie.body.success === true, 'verify-cookie with uin should succeed');
+    assert(validCookie.status === 200, 'verify-cookie with auth cookie should return 200');
+    assert(validCookie.body.success === true, 'verify-cookie with auth cookie should succeed');
+
+    const realisticVerify = await requestJson(baseUrl, '/api/qqmusic/verify-cookie', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ cookie: realisticCookie }),
+    });
+    assert(realisticVerify.status === 200, 'verify-cookie with realistic cookie should return 200');
+    assert(realisticVerify.body.success === true, 'verify-cookie with realistic cookie should succeed');
+
+    const missingUinCookie = await requestJson(baseUrl, '/api/qqmusic/verify-cookie', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ cookie: 'qqmusic_key=test-key; qm_keyst=test-key;' }),
+    });
+    assert(missingUinCookie.status === 200, 'verify-cookie without uin should return 200');
+    assert(missingUinCookie.body.success === false, 'verify-cookie without uin should fail');
+    assert(missingUinCookie.body.message === 'Cookie missing uin', 'verify-cookie without uin should expose missing uin reason');
+
+    const missingAuthCookie = await requestJson(baseUrl, '/api/qqmusic/verify-cookie', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ cookie: 'uin=529620852; ptcz=only-ptcz; RK=only-rk;' }),
+    });
+    assert(missingAuthCookie.status === 200, 'verify-cookie without auth key should return 200');
+    assert(missingAuthCookie.body.success === false, 'verify-cookie without auth key should fail');
+    assert(missingAuthCookie.body.message === 'Cookie missing auth key', 'verify-cookie without auth key should expose missing auth key reason');
 
     const searchMissing = await requestJson(baseUrl, '/api/qqmusic/search');
     assert(searchMissing.status === 400, 'search without key should return 400');
@@ -136,6 +193,26 @@ async function main() {
 
     const userSonglistNoCookie = await requestJson(baseUrl, `/api/qqmusic/user/songlist?id=123&roomId=${roomId}`);
     assert(userSonglistNoCookie.status === 400, 'user/songlist without room cookie should return 400');
+
+    const roomCookieMissingUin = await requestJson(baseUrl, '/api/qqmusic/room-cookie', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ roomId, cookie: 'qqmusic_key=test-key; qm_keyst=test-key;' }),
+    });
+    assert(roomCookieMissingUin.status === 400, 'room-cookie without uin should return 400');
+    assert(roomCookieMissingUin.body.success === false, 'room-cookie without uin should fail');
+    assert(roomCookieMissingUin.body.message === 'Cookie missing uin', 'room-cookie without uin should expose missing uin reason');
+
+    const realisticRoomCookie = await requestJson(baseUrl, '/api/qqmusic/room-cookie', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ roomId, cookie: realisticCookie }),
+    });
+    assert(realisticRoomCookie.status === 200, 'room-cookie with realistic cookie should return 200');
+    assert(realisticRoomCookie.body.success === true, 'room-cookie with realistic cookie should succeed');
+    assert(realisticRoomCookie.body.room.hasCookie === true, 'room-cookie should mark room as having cookie');
+    assert(realisticRoomCookie.body.room.hostQQId === '529620852', 'room-cookie should normalize hostQQId from realistic cookie');
+    assert(typeof realisticRoomCookie.body.room.hostCookie === 'undefined', 'room-cookie should not leak hostCookie in safe room state');
 
     const { io } = require('socket.io-client');
     const socket = io(baseUrl, { transports: ['websocket'] });
@@ -183,7 +260,10 @@ async function main() {
 
     const roomsFile = path.join(storageDir, 'rooms.json');
     const persistedRooms = JSON.parse(fs.readFileSync(roomsFile, 'utf8'));
-    assert(persistedRooms[roomId].hostCookie === persistCookie.replace(/;$/, ''), 'room cookie should persist to storage');
+    assert(typeof persistedRooms[roomId].hostCookie === 'string', 'room cookie should persist to storage');
+    assert(persistedRooms[roomId].hostCookie.includes('uin=12345'), 'persisted room cookie should normalize uin');
+    assert(persistedRooms[roomId].hostCookie.includes('qqmusic_key=test-key'), 'persisted room cookie should retain qqmusic_key');
+    assert(persistedRooms[roomId].hostCookie.includes('qm_keyst=test-key'), 'persisted room cookie should retain qm_keyst');
     assert(persistedRooms[roomId].hostQQId === '12345', 'room hostQQId should persist to storage');
 
     const fakeRoomId = 'does-not-exist';
@@ -211,6 +291,14 @@ async function main() {
     const realUin = process.env.QQMUSIC_REAL_UIN;
     const smokeResults = { enabled: !!(realCookie && realUin), checks: [] };
     if (realCookie && realUin) {
+      const realVerify = await requestJson(baseUrl, '/api/qqmusic/verify-cookie', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ cookie: realCookie }),
+      });
+      assert(realVerify.status === 200, 'real verify-cookie should return 200');
+      assert(realVerify.body.success === true, 'real verify-cookie should succeed');
+
       const { io } = require('socket.io-client');
       const smokeRoom = await requestJson(baseUrl, '/api/rooms', {
         method: 'POST',
@@ -219,6 +307,15 @@ async function main() {
       });
       assert(smokeRoom.status === 200, 'smoke room creation should succeed');
       const smokeRoomId = smokeRoom.body.id;
+
+      const realRoomCookie = await requestJson(baseUrl, '/api/qqmusic/room-cookie', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ roomId: smokeRoomId, cookie: realCookie }),
+      });
+      assert(realRoomCookie.status === 200, 'real room-cookie should return 200');
+      assert(realRoomCookie.body.success === true, 'real room-cookie should succeed');
+      assert(realRoomCookie.body.room.hostQQId === realUin, 'real room-cookie should preserve real uin');
 
       const smokeSocket = io(baseUrl, { transports: ['websocket'] });
       await new Promise((resolve, reject) => {
@@ -269,6 +366,25 @@ async function main() {
       );
       assert(smokePlaylistList.length > 0, 'smoke user/songlist should return at least one playlist');
 
+      const smokeHot = await requestJson(baseUrl, '/api/qqmusic/hot');
+      assert(smokeHot.status === 200, 'smoke hot should return 200');
+
+      const smokeSearch = await requestJson(baseUrl, '/api/qqmusic/search?key=周杰伦&pageNo=1&pageSize=3');
+      assert(smokeSearch.status === 200, 'smoke search should return 200');
+
+      const smokeRadioCategories = await requestJson(baseUrl, '/api/qqmusic/radio/categories');
+      assert(smokeRadioCategories.status === 200, 'smoke radio/categories should return 200');
+
+      const smokeRecommend = await requestJson(baseUrl, `/api/qqmusic/recommend/playlist/u?roomId=${smokeRoomId}`);
+      assert(smokeRecommend.status === 200, 'smoke recommend/playlist/u should return 200');
+      const smokeRecommendList = firstArray(
+        smokeRecommend.body?.list,
+        smokeRecommend.body?.data?.list,
+        smokeRecommend.body?.data?.response?.data?.playlists,
+        smokeRecommend.body?.data?.data?.playlists,
+        smokeRecommend.body?.response?.data?.playlists
+      );
+
       const firstPlaylist = smokePlaylistList[0];
       const smokeSonglist = await requestJson(baseUrl, `/api/qqmusic/songlist?id=${encodeURIComponent(firstPlaylist.dissid)}&roomId=${smokeRoomId}`);
       assert(smokeSonglist.status === 200, 'smoke songlist should return 200');
@@ -280,6 +396,14 @@ async function main() {
         smokeSonglist.body?.data?.songlist
       );
       assert(smokeSongs.length > 0, 'smoke songlist should return songs');
+      const smokeSongMid = pickSongMid(smokeSongs[0]);
+      assert(smokeSongMid, 'smoke songlist should provide a songmid');
+
+      const smokeSongUrl = await requestJson(baseUrl, `/api/qqmusic/song/url?id=${encodeURIComponent(smokeSongMid)}&roomId=${smokeRoomId}`);
+      assert(smokeSongUrl.status === 200, 'smoke song/url should return 200');
+
+      const smokeLyric = await requestJson(baseUrl, `/api/qqmusic/lyric?songmid=${encodeURIComponent(smokeSongMid)}`);
+      assert(smokeLyric.status === 200, 'smoke lyric should return 200');
 
       const smokeRadio = await requestJson(baseUrl, `/api/qqmusic/radio/songs?id=99&roomId=${smokeRoomId}`);
       assert(smokeRadio.status === 200, 'smoke radio/songs should return 200');
@@ -303,14 +427,54 @@ async function main() {
       );
 
       smokeResults.checks.push({
+        endpoint: '/api/qqmusic/verify-cookie',
+        status: realVerify.status,
+        success: realVerify.body.success,
+      });
+      smokeResults.checks.push({
+        endpoint: '/api/qqmusic/room-cookie',
+        status: realRoomCookie.status,
+        hostQQId: realRoomCookie.body.room.hostQQId,
+      });
+      smokeResults.checks.push({
         endpoint: '/api/qqmusic/user/songlist',
         status: smokePlaylists.status,
         playlists: smokePlaylistList.length,
       });
       smokeResults.checks.push({
+        endpoint: '/api/qqmusic/hot',
+        status: smokeHot.status,
+      });
+      smokeResults.checks.push({
+        endpoint: '/api/qqmusic/search',
+        status: smokeSearch.status,
+        hasData: !!smokeSearch.body?.data,
+      });
+      smokeResults.checks.push({
+        endpoint: '/api/qqmusic/radio/categories',
+        status: smokeRadioCategories.status,
+        hasData: !!smokeRadioCategories.body?.data,
+      });
+      smokeResults.checks.push({
+        endpoint: '/api/qqmusic/recommend/playlist/u',
+        status: smokeRecommend.status,
+        playlists: smokeRecommendList.length,
+        code: smokeRecommend.body?.code ?? smokeRecommend.body?.data?.code ?? null,
+      });
+      smokeResults.checks.push({
         endpoint: '/api/qqmusic/songlist',
         status: smokeSonglist.status,
         songs: smokeSongs.length,
+      });
+      smokeResults.checks.push({
+        endpoint: '/api/qqmusic/song/url',
+        status: smokeSongUrl.status,
+        hasData: !!smokeSongUrl.body?.data,
+      });
+      smokeResults.checks.push({
+        endpoint: '/api/qqmusic/lyric',
+        status: smokeLyric.status,
+        hasLyric: typeof smokeLyric.body?.lyric === 'string' || typeof smokeLyric.body?.data?.lyric === 'string',
       });
       smokeResults.checks.push({
         endpoint: '/api/qqmusic/radio/songs?id=99',
@@ -325,6 +489,9 @@ async function main() {
       local: {
         verifyCookieEmpty: emptyCookie.body,
         verifyCookieValid: validCookie.body,
+        verifyCookieRealistic: realisticVerify.body,
+        verifyCookieMissingUin: missingUinCookie.body,
+        verifyCookieMissingAuth: missingAuthCookie.body,
         searchMissingStatus: searchMissing.status,
         songUrlMissingStatus: songUrlMissing.status,
         userSonglistMissingStatus: userSonglistMissing.status,
@@ -333,6 +500,8 @@ async function main() {
         radioSongsMissingStatus: radioSongsMissing.status,
         qrStatusMissingStatus: qrStatusMissing.status,
         userSonglistNoCookieStatus: userSonglistNoCookie.status,
+        roomCookieMissingUinStatus: roomCookieMissingUin.status,
+        roomCookieRealisticStatus: realisticRoomCookie.status,
         cookiePersisted: true,
         userSonglistMissingRoomStatus: userSonglistMissingRoom.status,
         recommendMissingRoomStatus: recommendMissingRoom.status,

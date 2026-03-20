@@ -1,0 +1,148 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg",
+    "params": {
+      "format": "json",
+      "g_tk": 1124214810,
+      "hostUin": 0,
+      "inCharset": "utf8",
+      "is_xml": 0,
+      "key": "周",
+      "loginUin": "0",
+      "needNewCode": 0,
+      "notice": 0,
+      "outCharset": "utf-8",
+      "platform": "yqq.json"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-type": "text/html;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:54:10 GMT",
+      "server": "nginx",
+      "transfer-encoding": "chunked",
+      "uuid": "3309283339",
+      "vary": "Accept-Encoding"
+    },
+    "data": {
+      "code": 0,
+      "data": {
+        "album": {
+          "count": 2,
+          "itemlist": [
+            {
+              "docid": "20612",
+              "id": "20612",
+              "mid": "003DFRzD192KKD",
+              "name": "七里香",
+              "pic": "http://y.gtimg.cn/music/photo_new/T002R180x180M000003DFRzD192KKD_2.jpg",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "56705",
+              "id": "56705",
+              "mid": "000bviBl4FjTpO",
+              "name": "跨时代",
+              "pic": "http://y.gtimg.cn/music/photo_new/T002R180x180M000000bviBl4FjTpO_2.jpg",
+              "singer": "周杰伦"
+            }
+          ],
+          "name": "专辑",
+          "order": 2,
+          "type": 3
+        },
+        "mv": {
+          "count": 2,
+          "itemlist": [
+            {
+              "docid": "1866752",
+              "id": "1866752",
+              "mid": "000RUod52SSa9F",
+              "name": "只为真相",
+              "singer": "周深",
+              "vid": "l00402cryq9"
+            },
+            {
+              "docid": "293791",
+              "id": "293791",
+              "mid": "00061J2t0b0PPW",
+              "name": "晴天",
+              "singer": "周杰伦",
+              "vid": "w0026q7f01a"
+            }
+          ],
+          "name": "MV",
+          "order": 3,
+          "type": 4
+        },
+        "singer": {
+          "count": 2,
+          "itemlist": [
+            {
+              "docid": "4558",
+              "id": "4558",
+              "mid": "0025NhlN2yWrP4",
+              "name": "周杰伦",
+              "pic": "http://y.gtimg.cn/music/photo_new/T001R150x150M0000025NhlN2yWrP4_10.jpg",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "199509",
+              "id": "199509",
+              "mid": "003fA5G40k6hKc",
+              "name": "周深",
+              "pic": "http://y.gtimg.cn/music/photo_new/T001R150x150M000003fA5G40k6hKc_6.jpg",
+              "singer": "周深"
+            }
+          ],
+          "name": "歌手",
+          "order": 1,
+          "type": 2
+        },
+        "song": {
+          "count": 4,
+          "itemlist": [
+            {
+              "docid": "102065756",
+              "id": "102065756",
+              "mid": "004Z8Ihr0JIu5s",
+              "name": "七里香",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "449198",
+              "id": "449198",
+              "mid": "003cI52o4daJJL",
+              "name": "花海",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "449205",
+              "id": "449205",
+              "mid": "003aAYrm3GE0Ac",
+              "name": "稻香",
+              "singer": "周杰伦"
+            },
+            {
+              "docid": "718477",
+              "id": "718477",
+              "mid": "001zMQr71F1Qo8",
+              "name": "夜曲",
+              "singer": "周杰伦"
+            }
+          ],
+          "name": "单曲",
+          "order": 0,
+          "type": 1
+        }
+      },
+      "subcode": 0
+    }
+  }
+}

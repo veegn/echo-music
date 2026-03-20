@@ -1,18 +1,14 @@
-// ============================
-// 服务器入口
-// ============================
-
 import express from "express";
-
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import roomRoutes from "./routes/room.routes.js";
+import { logError, logInfo } from "./logger.js";
 import createQQMusicRouter from "./routes/qqmusic.routes.js";
+import roomRoutes from "./routes/room.routes.js";
 import { registerSocketHandlers } from "./socket/room.handler.js";
-import { logInfo, logError } from "./logger.js";
 
 const TAG = "Server";
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -20,16 +16,12 @@ const io = new Server(httpServer, {
 });
 
 app.use(express.json());
-
-// ----- 注册路由 -----
 app.use("/api/rooms", roomRoutes);
 app.use("/api/qqmusic", createQQMusicRouter(io));
 
-// ----- 注册 Socket 处理器 -----
 registerSocketHandlers(io);
 
-// ----- 启动服务 -----
-async function startServer() {
+async function startServer(): Promise<void> {
     const isProduction = process.env.NODE_ENV === "production";
 
     if (!isProduction) {
@@ -39,32 +31,31 @@ async function startServer() {
             appType: "spa",
         });
         app.use(vite.middlewares);
-        logInfo(TAG, "Vite 开发服务器中间件已挂载");
+        logInfo(TAG, "Mounted Vite middleware for development mode");
     } else {
         app.use(express.static("dist"));
-        logInfo(TAG, "已挂载静态资源目录 dist，运行为生产模式");
+        logInfo(TAG, "Serving static files from dist in production mode");
     }
 
-    const PORT = Number(process.env.PORT) || 3000;
-    httpServer.listen(PORT, "0.0.0.0", () => {
-        logInfo(TAG, `服务器启动成功`, {
-            port: PORT,
+    const port = Number(process.env.PORT) || 3000;
+    httpServer.listen(port, "0.0.0.0", () => {
+        logInfo(TAG, "Server started", {
+            port,
             mode: isProduction ? "production" : "development",
-            url: `http://localhost:${PORT}`,
+            url: `http://localhost:${port}`,
         });
     });
 }
 
-// --- 全局错误处理，防止部分老旧 npm 包（如 qq-music-api 内部未 catch 被拒绝的 promise）导致服务崩溃 ---
-process.on('uncaughtException', (err) => {
-    logError(TAG, "Uncaught Exception", err);
+process.on("uncaughtException", (err) => {
+    logError(TAG, "Uncaught exception", err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-    logError(TAG, "Unhandled Rejection", reason);
+process.on("unhandledRejection", (reason) => {
+    logError(TAG, "Unhandled rejection", reason);
 });
 
-startServer().catch(err => {
-    console.error("服务启动失败:", err);
+startServer().catch((err) => {
+    logError(TAG, "Failed to start server", err);
     process.exit(1);
 });

@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "get",
+    "url": "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg",
+    "params": {
+      "format": "json",
+      "outCharset": "utf-8",
+      "pcachetime": 1773975246982,
+      "songmid": "001Bbywq2gicae"
+    },
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "headers": {
+      "area": "sh",
+      "connection": "keep-alive",
+      "content-length": "46",
+      "content-type": "text/html;charset=utf-8",
+      "date": "Fri, 20 Mar 2026 02:54:07 GMT",
+      "server": "nginx"
+    },
+    "data": {
+      "code": -1310,
+      "retcode": -1310,
+      "subcode": -1310
+    }
+  }
+}
