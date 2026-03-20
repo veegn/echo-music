@@ -5,6 +5,24 @@ import colors from './colors';
 import { debugLog, errorLog, isDebugEnabled } from './debug';
 import { getHttpMode, loadCassette, saveCassette } from './httpCassette';
 
+const MAX_ERROR_BODY_LENGTH = 300;
+
+const summarizeErrorResponse = (data: unknown): unknown => {
+	if (data === undefined || data === null || data === '') {
+		return data ?? null;
+	}
+
+	if (typeof data === 'string') {
+		return data.slice(0, MAX_ERROR_BODY_LENGTH);
+	}
+
+	try {
+		return JSON.parse(JSON.stringify(data));
+	} catch {
+		return String(data).slice(0, MAX_ERROR_BODY_LENGTH);
+	}
+};
+
 // Create dedicated instance
 const service = axios.create({
 	withCredentials: true,
@@ -58,7 +76,13 @@ service.interceptors.response.use(
 	},
 	error => {
 		const url = error.config ? error.config.url : 'Unknown URL';
-		errorLog('request', colors.error(`${url} request error: ${error.message}`));
+		errorLog('request', colors.error(`${url} request error: ${error.message}`), {
+			method: error.config?.method,
+			status: error.response?.status,
+			statusText: error.response?.statusText,
+			params: error.config?.params,
+			data: summarizeErrorResponse(error.response?.data)
+		});
 		return Promise.reject(error);
 	}
 );

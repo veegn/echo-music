@@ -4,6 +4,28 @@ import QQMusic from "qq-music-api";
 
 const TAG = "QQMusicApiClient";
 
+function summarizeQQMusicError(result: any) {
+    const error = result?.error ?? result?.data?.error ?? result?.body?.error;
+    if (!error) {
+        return null;
+    }
+
+    const responseData = error?.response?.data;
+    return {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        url: error?.config?.url,
+        method: error?.config?.method,
+        params: error?.config?.params,
+        data: typeof responseData === "string"
+            ? responseData.slice(0, 300)
+            : responseData ?? null,
+    };
+}
+
 async function callQQMusic(
     path: string,
     params?: Record<string, unknown>,
@@ -19,21 +41,48 @@ async function callQQMusic(
     }
 
     const startedAt = Date.now();
-    const result = await apiCall(path, { ...params, cookie: finalCookie });
-    const durationMs = Date.now() - startedAt;
+    try {
+        const result = await apiCall(path, { ...params, cookie: finalCookie });
+        const durationMs = Date.now() - startedAt;
 
-    const code = result?.data?.code ?? result?.code;
-    const cookiePreview = finalCookie
-        ? `${finalCookie.slice(0, 10)}...${finalCookie.slice(-10)}`
-        : "none";
+        const code = result?.data?.code ?? result?.code;
+        const cookiePreview = finalCookie
+            ? `${finalCookie.slice(0, 10)}...${finalCookie.slice(-10)}`
+            : "none";
+        const errorSummary = summarizeQQMusicError(result);
 
-    logInfo(TAG, `[API] ${path} | ${durationMs}ms | code=${code}`, {
-        params,
-        cookie: cookiePreview,
-    });
-    logDebug(TAG, `QQMusic raw result: ${path}`, { result });
+        if (errorSummary) {
+            logError(TAG, `[API] ${path} upstream error after ${durationMs}ms`, undefined, {
+                params,
+                cookie: cookiePreview,
+                upstream: errorSummary,
+            });
+        } else {
+            logInfo(TAG, `[API] ${path} | ${durationMs}ms | code=${code}`, {
+                params,
+                cookie: cookiePreview,
+            });
+        }
+        logDebug(TAG, `QQMusic raw result: ${path}`, { result });
 
-    return result;
+        return result;
+    } catch (err: any) {
+        const durationMs = Date.now() - startedAt;
+        const cookiePreview = finalCookie
+            ? `${finalCookie.slice(0, 10)}...${finalCookie.slice(-10)}`
+            : "none";
+
+        logError(TAG, `[API] ${path} threw after ${durationMs}ms`, err, {
+            params,
+            cookie: cookiePreview,
+            status: err?.response?.status,
+            statusText: err?.response?.statusText,
+            upstreamData: typeof err?.response?.data === "string"
+                ? err.response.data.slice(0, 300)
+                : err?.response?.data ?? null,
+        });
+        throw err;
+    }
 }
 
 export async function searchSongs(key: string, pageNo = 1, pageSize = 20): Promise<any> {

@@ -1,6 +1,24 @@
 import type { ApiResponse } from '../types/api';
 import { errorLog } from './debug';
 
+const MAX_ERROR_BODY_LENGTH = 300;
+
+function summarizeError(error: any) {
+  return {
+    name: error?.name,
+    message: error?.message,
+    code: error?.code,
+    status: error?.response?.status,
+    statusText: error?.response?.statusText,
+    url: error?.config?.url,
+    method: error?.config?.method,
+    params: error?.config?.params,
+    data: typeof error?.response?.data === 'string'
+      ? error.response.data.slice(0, MAX_ERROR_BODY_LENGTH)
+      : error?.response?.data ?? null,
+  };
+}
+
 export function successResponse(data: any, status: number = 200): ApiResponse {
   return {
     status,
@@ -42,7 +60,7 @@ export async function handleApi<T = any>(
     };
   } catch (error) {
     if (options?.logError !== false && process.env.NODE_ENV !== 'test') {
-      errorLog('apiResponse', 'API error', error);
+      errorLog('apiResponse', 'API error', summarizeError(error));
     }
 
     return {
