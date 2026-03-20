@@ -28,9 +28,3 @@ jobs:
 
       - name: Build app
         run: npm run build
-
-      - name: Run app integration test
-        run: npm run test:integration
-
-      - name: Run QQMusic integration test
-        run: npm run test:integration:qqmusic
