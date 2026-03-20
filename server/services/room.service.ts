@@ -257,21 +257,40 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
 
 async function fetchRecommendedSong(room: Room): Promise<Song | null> {
     try {
-        let result: any = await qqMusicService.getRadioSongs(room.hostCookie);
+        const result: any = await qqMusicService.getRadioSongs(room.hostCookie);
+        const tracks = Array.isArray(result)
+            ? result
+            : Array.isArray(result?.tracks)
+                ? result.tracks
+                : [];
 
-        if (result && result.tracks && result.tracks.length > 0) {
-            const randomSong = result.tracks[Math.floor(Math.random() * result.tracks.length)];
-            return {
-                id: Date.now().toString(),
-                songmid: randomSong.mid,
-                songname: randomSong.title || randomSong.name,
-                singer: formatSinger(randomSong.singer),
-                albumname: randomSong.album?.title || randomSong.album?.name || "Unknown Album",
-                albummid: randomSong.album?.mid || "",
-                album: { mid: randomSong.album?.mid },
-                requestedBy: "Radio",
-            };
+        if (tracks.length === 0) {
+            logWarn(TAG, "No radio tracks available for auto play", { roomId: room.id });
+            return null;
         }
+
+        const nextSong = tracks[0];
+        const songmid = nextSong.songmid || nextSong.mid || "";
+        const songname = nextSong.songname || nextSong.title || nextSong.name || "";
+
+        if (!songmid || !songname) {
+            logWarn(TAG, "Invalid radio track payload for auto play", {
+                roomId: room.id,
+                trackKeys: nextSong ? Object.keys(nextSong) : [],
+            });
+            return null;
+        }
+
+        return {
+            id: Date.now().toString(),
+            songmid,
+            songname,
+            singer: formatSinger(nextSong.singer),
+            albumname: nextSong.albumname || nextSong.album?.title || nextSong.album?.name || "Unknown Album",
+            albummid: nextSong.albummid || nextSong.album?.mid || "",
+            album: { mid: nextSong.albummid || nextSong.album?.mid },
+            requestedBy: "Radio",
+        };
     } catch (e: any) {
         logError(TAG, "Failed to fetch recommended song", e, { roomId: room.id });
     }
