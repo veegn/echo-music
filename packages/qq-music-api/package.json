@@ -12,8 +12,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "lint": "tsc --noEmit",
+    "build": "npm exec tsc",
+    "lint": "npm exec tsc -- --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
     "record:fixtures": "tsx tests/recordFixtures.ts",
     "test:replay": "tsx --test tests/replay.test.ts",

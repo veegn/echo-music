@@ -20,13 +20,13 @@ ENV NODE_ENV=production
 
 COPY package*.json ./
 COPY packages/qq-music-api/package.json ./packages/qq-music-api/package.json
+COPY --from=builder /app/packages/qq-music-api/dist ./packages/qq-music-api/dist
 
 RUN npm install --omit=dev
 
 COPY --from=builder /app/server ./server
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
-COPY --from=builder /app/packages/qq-music-api/dist ./packages/qq-music-api/dist
 
 EXPOSE 3000
 

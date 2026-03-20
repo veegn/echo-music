@@ -1,6 +1,6 @@
-import QQMusic from "@sansenjian/qq-music-api";
 import { logDebug, logError, logInfo, logWarn } from "../logger.js";
 import { normalizeCookie } from "./qqmusic-cookie.js";
+import QQMusic from "qq-music-api";
 
 const TAG = "QQMusicApiClient";
 
