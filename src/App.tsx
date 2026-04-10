@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Music, Lock, Users, Plus, Edit2 } from 'lucide-react';
+import { Music, Lock, Users, Plus, Edit2, Library } from 'lucide-react';
 import { useStore } from './store';
+import LocalMusicLibrary from './components/LocalMusicLibrary';
 import RoomView from './components/RoomView';
 import {
   WelcomeDialog,
@@ -15,7 +16,8 @@ const LobbyHeader: React.FC<{
   userName: string;
   onEditName: () => void;
   onCreateRoom: () => void;
-}> = ({ userName, onEditName, onCreateRoom }) => (
+  onOpenLocalLibrary: () => void;
+}> = ({ userName, onEditName, onCreateRoom, onOpenLocalLibrary }) => (
   <header className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 sm:mb-20 glass-panel px-6 py-4 sm:px-8 sm:py-5 rounded-[32px] shadow-2xl shadow-black/40">
     <div className="flex items-center gap-4">
       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 border border-emerald-400/20">
@@ -34,6 +36,13 @@ const LobbyHeader: React.FC<{
       </div>
     </div>
     <div className="flex items-center gap-3 sm:gap-5 w-full sm:w-auto justify-between sm:justify-end">
+      <button
+        onClick={onOpenLocalLibrary}
+        className="flex items-center gap-2 px-4 h-12 rounded-2xl bg-zinc-900/55 border border-zinc-800/80 text-zinc-200 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors"
+      >
+        <Library className="w-4 h-4" />
+        <span className="text-sm font-semibold">本地音乐库</span>
+      </button>
       <div className="flex items-center gap-3 pl-4 pr-1.5 py-1.5 bg-zinc-900/50 rounded-2xl border border-zinc-800/80 shadow-inner backdrop-blur-md">
         <div className="flex flex-col items-end">
           <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter">当前用户</span>
@@ -147,6 +156,7 @@ const RoomCard: React.FC<{ room: any; onClick: () => void }> = ({ room, onClick 
 
 export default function App() {
   const { userName, room, joinRoom, showToast } = useStore();
+  const [pathname, setPathname] = useState(window.location.pathname);
   const [rooms, setRooms] = useState<any[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [pendingRoomId, setPendingRoomId] = useState<string | null>(
@@ -155,6 +165,12 @@ export default function App() {
   const [showWelcome, setShowWelcome] = useState(!userName);
   const [welcomeForceInitial, setWelcomeForceInitial] = useState('');
   const [joinRoomTarget, setJoinRoomTarget] = useState<any>(null);
+
+  useEffect(() => {
+    const handlePopState = () => setPathname(window.location.pathname);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     if (room) return;
@@ -232,6 +248,13 @@ export default function App() {
     );
   }
 
+  if (pathname === '/local-music') {
+    return <LocalMusicLibrary onBack={() => {
+      window.history.pushState({}, '', '/');
+      setPathname('/');
+    }} />;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
       <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
@@ -248,6 +271,10 @@ export default function App() {
             setShowWelcome(true);
           }}
           onCreateRoom={() => setShowCreate(true)}
+          onOpenLocalLibrary={() => {
+            window.history.pushState({}, '', '/local-music');
+            setPathname('/local-music');
+          }}
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">

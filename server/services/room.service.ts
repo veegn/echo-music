@@ -9,31 +9,136 @@ import path from "path";
 const TAG = "RoomService";
 const STORAGE_DIR = process.env.ECHO_MUSIC_STORAGE_DIR
     ? path.resolve(process.env.ECHO_MUSIC_STORAGE_DIR)
-    : path.join(process.cwd(), 'server', 'storage');
-const ROOMS_FILE = path.join(STORAGE_DIR, "rooms.json");
+    : path.join(process.cwd(), "server", "storage");
+const ROOMS_DIR = path.join(STORAGE_DIR, "rooms");
+const LEGACY_ROOMS_FILE = path.join(STORAGE_DIR, "rooms.json");
 
-if (!fs.existsSync(STORAGE_DIR)) {
-    try {
-        fs.mkdirSync(STORAGE_DIR, { recursive: true });
-    } catch (e) {
-        logError(TAG, "Failed to create storage directory", e as Error);
+const rooms = new Map<string, Room>();
+const destructionTimers = new Map<string, NodeJS.Timeout>();
+const dirtyRoomIds = new Set<string>();
+let flushTimer: NodeJS.Timeout | null = null;
+
+function ensureRoomsDir(): void {
+    if (!fs.existsSync(ROOMS_DIR)) {
+        fs.mkdirSync(ROOMS_DIR, { recursive: true });
     }
 }
 
-const rooms = new Map<string, Room>();
+function getRoomFilePath(roomId: string): string {
+    return path.join(ROOMS_DIR, `${roomId}.json`);
+}
 
-export function saveRooms() {
-    try {
-        const obj = Object.fromEntries(Array.from(rooms.entries()));
-        fs.writeFileSync(ROOMS_FILE, JSON.stringify(obj, null, 2));
-        logInfo(TAG, "Rooms saved to disk", { count: rooms.size, filePath: ROOMS_FILE });
-    } catch (e) {
-        logError(TAG, "Failed to save rooms", e as Error);
+function persistableRoom(room: Room): Room {
+    return {
+        ...room,
+        users: [],
+        isPlaying: false,
+        currentTime: 0,
+    };
+}
+
+function flushDirtyRooms(): void {
+    ensureRoomsDir();
+
+    for (const roomId of Array.from(dirtyRoomIds)) {
+        const room = rooms.get(roomId);
+        const filePath = getRoomFilePath(roomId);
+
+        try {
+            if (!room) {
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            } else {
+                const tmpFilePath = `${filePath}.tmp`;
+                fs.writeFileSync(tmpFilePath, JSON.stringify(persistableRoom(room), null, 2));
+                fs.renameSync(tmpFilePath, filePath);
+            }
+            dirtyRoomIds.delete(roomId);
+        } catch (error) {
+            logError(TAG, "Failed to persist room file", error, { roomId, filePath });
+        }
     }
+
+    logInfo(TAG, "Room files flushed", {
+        count: rooms.size,
+        dirPath: ROOMS_DIR,
+    });
+}
+
+function scheduleFlush(roomIds?: string | string[]): void {
+    const ids = Array.isArray(roomIds)
+        ? roomIds
+        : roomIds
+            ? [roomIds]
+            : Array.from(rooms.keys());
+
+    ids.forEach((roomId) => dirtyRoomIds.add(roomId));
+
+    if (flushTimer) {
+        clearTimeout(flushTimer);
+    }
+
+    flushTimer = setTimeout(() => {
+        flushTimer = null;
+        flushDirtyRooms();
+    }, 250);
 }
 
 function generateRoomId(): string {
     return crypto.randomBytes(4).toString("hex");
+}
+
+function migrateLegacyRoomsIfNeeded(): void {
+    ensureRoomsDir();
+    const hasRoomFiles = fs.readdirSync(ROOMS_DIR).some((file) => file.endsWith(".json"));
+    if (hasRoomFiles || !fs.existsSync(LEGACY_ROOMS_FILE)) {
+        return;
+    }
+
+    try {
+        const data = JSON.parse(fs.readFileSync(LEGACY_ROOMS_FILE, "utf-8"));
+        for (const [id, room] of Object.entries(data)) {
+            const filePath = getRoomFilePath(id);
+            fs.writeFileSync(filePath, JSON.stringify(room, null, 2));
+        }
+        fs.renameSync(LEGACY_ROOMS_FILE, `${LEGACY_ROOMS_FILE}.migrated`);
+        logInfo(TAG, "Migrated legacy rooms.json to per-room files", {
+            count: Object.keys(data).length,
+            dirPath: ROOMS_DIR,
+        });
+    } catch (error) {
+        logError(TAG, "Failed to migrate legacy rooms.json", error);
+    }
+}
+
+function loadRoomsFromDisk(): void {
+    ensureRoomsDir();
+    migrateLegacyRoomsIfNeeded();
+
+    try {
+        const files = fs.readdirSync(ROOMS_DIR).filter((file) => file.endsWith(".json"));
+        for (const file of files) {
+            const filePath = path.join(ROOMS_DIR, file);
+            const room = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+            rooms.set(room.id, {
+                ...room,
+                users: [],
+                isPlaying: false,
+                currentTime: 0,
+                hostCookie: room.hostCookie || null,
+                hostQQId: room.hostQQId || "",
+            });
+            scheduleRoomDestruction(room.id, 60 * 60 * 1000);
+        }
+        logInfo(TAG, "Rooms loaded from storage", { count: rooms.size, dirPath: ROOMS_DIR });
+    } catch (error) {
+        logError(TAG, "Failed to load rooms", error);
+    }
+}
+
+export function saveRooms(roomId?: string | string[]): void {
+    scheduleFlush(roomId);
 }
 
 export function formatSinger(singer: unknown): string {
@@ -72,7 +177,7 @@ export function createRoom(name: string, password: string, hostName: string): { 
     };
 
     rooms.set(id, room);
-    saveRooms();
+    saveRooms(id);
     scheduleRoomDestruction(id);
     logInfo(TAG, "Room created", { roomId: id, roomName: name, host: hostName });
     return { id, existing: false };
@@ -88,11 +193,9 @@ export function deleteRoom(roomId: string): void {
         logInfo(TAG, "Room deleted", { roomId, roomName: room.name });
         rooms.delete(roomId);
         cancelRoomDestruction(roomId);
-        saveRooms();
+        saveRooms(roomId);
     }
 }
-
-const destructionTimers = new Map<string, NodeJS.Timeout>();
 
 export function scheduleRoomDestruction(roomId: string, limitMs: number = 5 * 60 * 1000): void {
     if (destructionTimers.has(roomId)) {
@@ -114,27 +217,6 @@ export function cancelRoomDestruction(roomId: string): void {
         destructionTimers.delete(roomId);
         logInfo(TAG, "Cancelled room destruction", { roomId });
     }
-}
-
-try {
-    if (fs.existsSync(ROOMS_FILE)) {
-        const data = JSON.parse(fs.readFileSync(ROOMS_FILE, "utf-8"));
-        Object.entries(data).forEach(([id, room]: [string, any]) => {
-            rooms.set(id, {
-                ...room,
-                users: [],
-                isPlaying: false,
-                hostCookie: room.hostCookie || null,
-                hostQQId: room.hostQQId || "",
-            });
-            // ✅ 修复⑤：重启后给房间 60 分钟宽限期等待用户重连，而不是默认的 5 分钟
-            // 一旦有用户加入，cancelRoomDestruction 会取消此定时器，断开时再以 5 分钟重置
-            scheduleRoomDestruction(id, 60 * 60 * 1000);
-        });
-        logInfo(TAG, "Rooms loaded from storage", { count: rooms.size });
-    }
-} catch (e) {
-    logError(TAG, "Failed to load rooms", e as Error);
 }
 
 export function listPublicRooms(): PublicRoomInfo[] {
@@ -179,8 +261,7 @@ export function setRoomCookie(room: Room, cookie: string): void {
     room.hostCookie = normalizedCookie || null;
     room.hostQQId = normalizedCookie ? qqMusicService.extractUin(normalizedCookie) : "";
 
-    // Metadata is persisted, but cookie/QQ id are always scrubbed in saveRooms.
-    saveRooms();
+    saveRooms(room.id);
 
     logInfo(TAG, "Room cookie updated", {
         roomId: room.id,
@@ -208,7 +289,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
             isAuto,
         });
 
-        saveRooms();
+        saveRooms(room.id);
         io.to(roomId).emit("room_state", getSafeRoomState(room));
 
         if (!isAuto) {
@@ -236,7 +317,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
                         singer: autoSong.singer,
                     });
 
-                    saveRooms();
+                    saveRooms(room.id);
                     io.to(roomId).emit("room_state", getSafeRoomState(room));
                     return;
                 }
@@ -248,7 +329,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
         room.currentSong = null;
         room.isPlaying = false;
         room.currentTime = 0;
-        saveRooms();
+        saveRooms(room.id);
         logInfo(TAG, "Queue ended", { roomId });
     }
 
@@ -297,3 +378,14 @@ async function fetchRecommendedSong(room: Room): Promise<Song | null> {
 
     return null;
 }
+
+loadRoomsFromDisk();
+
+process.on("beforeExit", () => {
+    try {
+        flushDirtyRooms();
+    } catch (error) {
+        logError(TAG, "Failed to flush room files before exit", error);
+    }
+});
+

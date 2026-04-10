@@ -1,5 +1,6 @@
 import { Response, Router } from "express";
 import { Server } from "socket.io";
+import * as musicCacheService from "../services/music-cache.service.js";
 import * as qqMusicService from "../services/qqmusic.service.js";
 import * as roomService from "../services/room.service.js";
 import { logError, logInfo, logWarn } from "../logger.js";
@@ -51,6 +52,43 @@ function extractRadioTracks(payload: any): any[] {
     ];
 
     return candidates.find(Array.isArray) || [];
+}
+
+function findFirstHttpUrl(obj: unknown): string | null {
+    if (!obj || typeof obj !== "object") return null;
+
+    for (const value of Object.values(obj as Record<string, unknown>)) {
+        if (typeof value === "string" && value.startsWith("http")) {
+            return value;
+        }
+        const nested = findFirstHttpUrl(value);
+        if (nested) return nested;
+    }
+
+    return null;
+}
+
+function extractPlayableUrl(payload: any, songmid: string): string {
+    if (typeof payload === "string" && payload.startsWith("http")) {
+        return payload;
+    }
+
+    if (payload && typeof payload === "object") {
+        if (typeof payload.data === "string" && payload.data.startsWith("http")) {
+            return payload.data;
+        }
+        if (Array.isArray(payload.data) && typeof payload.data[0] === "string") {
+            return payload.data[0];
+        }
+        if (payload.data && typeof payload.data === "object" && typeof payload.data[songmid] === "string") {
+            return payload.data[songmid];
+        }
+        if (typeof payload[songmid] === "string") {
+            return payload[songmid];
+        }
+    }
+
+    return findFirstHttpUrl(payload) || "";
 }
 
 function badRequest(res: Response, error: string) {
@@ -135,6 +173,17 @@ export default function createQQMusicRouter(io: Server): Router {
             const room = roomId ? roomService.getRoom(roomId as string) : undefined;
             const cookie = room?.hostCookie ?? null;
             const result = await qqMusicService.getSongUrl(id as string, cookie);
+            const playableUrl = extractPlayableUrl(result, id as string);
+
+            if (playableUrl && room?.currentSong?.songmid === String(id)) {
+                musicCacheService.cachePlayedSong(room.currentSong, playableUrl).catch((error) => {
+                    logError(TAG, "Failed to cache currently playing song", error, {
+                        roomId,
+                        songmid: id,
+                    });
+                });
+            }
+
             res.json(result);
         } catch (err: any) {
             handleError(res, err);

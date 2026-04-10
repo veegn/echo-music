@@ -52,7 +52,7 @@ export function registerSocketHandlers(io: Server): void {
                 room.chat.push(joinMsg);
                 if (room.chat.length > 100) room.chat.shift();
             }
-            roomService.saveRooms();
+            roomService.saveRooms(roomId);
             io.to(roomId).emit("chat_message", joinMsg);
 
             // 重置监听器防止重复绑定（重连场景）
@@ -88,7 +88,7 @@ export function registerSocketHandlers(io: Server): void {
                 };
                 room.chat.push(leaveMsg);
                 if (room.chat.length > 100) room.chat.shift();
-                roomService.saveRooms();
+                roomService.saveRooms(roomId);
                 io.to(roomId).emit("chat_message", leaveMsg);
 
                 if (room.users.length === 0) {
@@ -104,7 +104,7 @@ export function registerSocketHandlers(io: Server): void {
                 const msg = { id: Date.now(), type: "user" as const, userName, text };
                 room.chat.push(msg);
                 if (room.chat.length > 100) room.chat.shift();
-                roomService.saveRooms();
+                roomService.saveRooms(roomId);
                 io.to(roomId).emit("chat_message", msg);
             });
 
@@ -144,7 +144,7 @@ export function registerSocketHandlers(io: Server): void {
                     };
                     room.chat.push(msg);
                     if (room.chat.length > 100) room.chat.shift();
-                    roomService.saveRooms();
+                    roomService.saveRooms(roomId);
                     io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
                     io.to(roomId).emit("chat_message", msg);
                 }
@@ -182,7 +182,7 @@ export function registerSocketHandlers(io: Server): void {
 
                 const [item] = room.queue.splice(oldIndex, 1);
                 room.queue.splice(newIndex, 0, item);
-                roomService.saveRooms();
+                roomService.saveRooms(roomId);
                 logInfo(TAG, "Queue reordered", { roomId, userName, oldIndex, newIndex, songName: item.songname });
                 io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
             });
@@ -193,7 +193,7 @@ export function registerSocketHandlers(io: Server): void {
                 if (!room) return;
                 if (index >= 0 && index < room.queue.length) {
                     const removed = room.queue.splice(index, 1)[0];
-                    roomService.saveRooms();
+                    roomService.saveRooms(roomId);
                     logInfo(TAG, "Song removed", { roomId, userName, songName: removed.songname });
                     io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
                 }
@@ -269,7 +269,7 @@ export function registerSocketHandlers(io: Server): void {
                     };
                     room.chat.push(msg);
                     if (room.chat.length > 100) room.chat.shift();
-                    roomService.saveRooms();
+                    roomService.saveRooms(roomId);
                     io.to(roomId).emit("chat_message", msg);
                 }
             });
@@ -304,7 +304,7 @@ export function registerSocketHandlers(io: Server): void {
                 };
                 room.chat.push(msg);
                 if (room.chat.length > 100) room.chat.shift();
-                roomService.saveRooms();
+                roomService.saveRooms(roomId);
                 io.to(roomId).emit("chat_message", msg);
             });
 
@@ -315,7 +315,7 @@ export function registerSocketHandlers(io: Server): void {
                 room.queue = [];
                 logInfo(TAG, "Queue cleared", { roomId, userName });
                 io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
-                roomService.saveRooms();
+                roomService.saveRooms(roomId);
             });
         });
     });
