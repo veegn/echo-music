@@ -38,6 +38,11 @@ export interface RoomState {
     currentSong: Song | null;
     isPlaying: boolean;
     currentTime: number;
+    syncLeaderId: string;
+    syncLeaderName: string;
+    syncTerm: number;
+    syncVersion: number;
+    syncLeaseUntil: number;
     hasCookie: boolean;
     hostQQId: string;
     chat: ChatMessage[];

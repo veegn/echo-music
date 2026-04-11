@@ -23,7 +23,7 @@ function findFirstHttpUrl(obj: unknown): string | null {
 }
 
 export default function Player({ isHost }: { isHost: boolean }) {
-    const { room, skipSong, syncPlayer, showToast } = useStore();
+    const { room, skipSong, syncPlayer, controlPlayback, seekPlayer, showToast, socket } = useStore();
     const [showCookieDialog, setShowCookieDialog] = useState(false);
     const [audioUrl, setAudioUrl] = useState('');
     const [localCurrentTime, setLocalCurrentTime] = useState(0);
@@ -32,6 +32,9 @@ export default function Player({ isHost }: { isHost: boolean }) {
     const [autoPlayFailed, setAutoPlayFailed] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
     const lastSyncRef = useRef(0);
+    const suppressSyncRef = useRef(false);
+    const takeoverTimeoutRef = useRef(0);
+    const isSyncLeader = !!room?.syncLeaderId && room.syncLeaderId === socket?.id;
 
     useEffect(() => {
         if (room) {
@@ -93,7 +96,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
         } catch (e: any) {
             showToast(e.message || '播放失败', 'error');
             setSongLoading(false);
-            if (isHost) setTimeout(() => skipSong(true), 3000);
+            setTimeout(() => skipSong(true), 3000);
         }
     };
 
@@ -102,7 +105,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
             setLocalCurrentTime(audioRef.current.currentTime);
         }
 
-        if (isHost && audioRef.current) {
+        if (isSyncLeader && audioRef.current) {
             const now = Date.now();
             if (now - lastSyncRef.current > 1000) {
                 syncPlayer(audioRef.current.currentTime, !audioRef.current.paused);
@@ -111,36 +114,67 @@ export default function Player({ isHost }: { isHost: boolean }) {
         }
     };
 
+    // 修复 Bug：当 Leader 暂停时 onTimeUpdate 不会触发，导致 Lease 超时后被路人夺权。
+    // 添加兜底的心跳机制
+    useEffect(() => {
+        let timer: number;
+        if (isSyncLeader) {
+            timer = window.setInterval(() => {
+                if (audioRef.current) {
+                    const now = Date.now();
+                    if (now - lastSyncRef.current > 3000) {
+                        syncPlayer(audioRef.current.currentTime, !audioRef.current.paused);
+                        lastSyncRef.current = now;
+                    }
+                }
+            }, 2000);
+        }
+        return () => window.clearInterval(timer);
+    }, [isSyncLeader]);
+
     const handleLoadedMetadata = () => {
         if (audioRef.current) {
             setDuration(audioRef.current.duration);
             // 非房主：音频加载完成后立即 seek 到已同步的播放位置，避免从 0 开始
-            if (!isHost && room?.currentTime && room.currentTime > 1) {
+            if (!isSyncLeader && room?.currentTime && room.currentTime > 1) {
                 audioRef.current.currentTime = room.currentTime;
             }
         }
     };
 
     const togglePlay = () => {
-        if (!isHost) return;
         if (audioRef.current) {
-            if (audioRef.current.paused) {
-                audioRef.current.play();
+            const nextIsPlaying = audioRef.current.paused;
+            takeoverTimeoutRef.current = Date.now() + 1500;
+            suppressSyncRef.current = true;
+            if (nextIsPlaying) {
+                audioRef.current.play().catch(() => setAutoPlayFailed(true));
             } else {
                 audioRef.current.pause();
             }
+            controlPlayback(audioRef.current.currentTime, nextIsPlaying);
+            window.setTimeout(() => {
+                suppressSyncRef.current = false;
+            }, 0);
         }
     };
 
     const handlePlayPause = () => {
-        if (isHost && audioRef.current) {
-            syncPlayer(audioRef.current.currentTime, !audioRef.current.paused);
+        if (audioRef.current && !suppressSyncRef.current) {
+            if (!isSyncLeader) {
+                takeoverTimeoutRef.current = Date.now() + 1500;
+                controlPlayback(audioRef.current.currentTime, !audioRef.current.paused);
+            } else {
+                syncPlayer(audioRef.current.currentTime, !audioRef.current.paused);
+            }
         }
     };
 
     useEffect(() => {
-        if (!isHost && audioRef.current && room) {
+        if (!isSyncLeader && audioRef.current && room) {
+            if (Date.now() < takeoverTimeoutRef.current) return;
             const diff = Math.abs(audioRef.current.currentTime - room.currentTime);
+            suppressSyncRef.current = true;
             // 误差超过 2s 时强制纠偏
             if (diff > 2) audioRef.current.currentTime = room.currentTime;
 
@@ -152,11 +186,14 @@ export default function Player({ isHost }: { isHost: boolean }) {
                 audioRef.current.pause();
                 setAutoPlayFailed(false);
             }
+            window.setTimeout(() => {
+                suppressSyncRef.current = false;
+            }, 0);
         }
-    }, [room?.currentTime, room?.isPlaying, isHost]);
+    }, [room?.currentTime, room?.isPlaying, isSyncLeader]);
 
     useEffect(() => {
-        if (audioRef.current && room?.currentSong && isHost) {
+        if (audioRef.current && room?.currentSong && isSyncLeader) {
             setSongLoading(true);
             audioRef.current.play()
                 .then(() => {
@@ -169,7 +206,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
                     showToast('浏览器拦截了自动播放，请手动点击播放。', 'error');
                 });
         }
-    }, [audioUrl, isHost, room?.currentSong]);
+    }, [audioUrl, isSyncLeader, room?.currentSong]);
 
     return (
         <div className="w-full h-full relative z-10 flex flex-col min-h-0 overflow-hidden">
@@ -263,7 +300,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
                                 onLoadedMetadata={handleLoadedMetadata}
                                 onPlay={handlePlayPause}
                                 onPause={handlePlayPause}
-                                onEnded={() => isHost && skipSong(true)}
+                                onEnded={() => isSyncLeader && skipSong(true)}
                                 className="hidden"
                             />
                         )}
@@ -285,10 +322,12 @@ export default function Player({ isHost }: { isHost: boolean }) {
                                 <div
                                     className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden relative cursor-pointer"
                                     onClick={(e) => {
-                                        if (isHost && audioRef.current && duration) {
+                                        if (audioRef.current && duration) {
                                             const rect = e.currentTarget.getBoundingClientRect();
                                             const pos = (e.clientX - rect.left) / rect.width;
                                             audioRef.current.currentTime = pos * duration;
+                                            takeoverTimeoutRef.current = Date.now() + 1500;
+                                            seekPlayer(audioRef.current.currentTime);
                                         }
                                     }}
                                 >
@@ -307,7 +346,7 @@ export default function Player({ isHost }: { isHost: boolean }) {
                                 <div className="flex items-center gap-6">
                                     <button
                                         onClick={togglePlay}
-                                        disabled={!isHost || !room?.currentSong}
+                                        disabled={!room?.currentSong}
                                         className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 relative flex items-center justify-center w-5 h-5 active:scale-75 cursor-pointer"
                                         title={room?.isPlaying ? '暂停' : '播放'}
                                     >
@@ -325,8 +364,11 @@ export default function Player({ isHost }: { isHost: boolean }) {
                                         </AnimatePresence>
                                     </button>
                                     <button
-                                        onClick={() => skipSong()}
-                                        disabled={!isHost || !room?.currentSong}
+                                        onClick={() => {
+                                            takeoverTimeoutRef.current = Date.now() + 1500;
+                                            skipSong();
+                                        }}
+                                        disabled={!room?.currentSong}
                                         title="下一首 / 切歌"
                                         className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 active:scale-75 cursor-pointer flex items-center justify-center"
                                     >

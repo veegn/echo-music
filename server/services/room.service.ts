@@ -12,6 +12,7 @@ const STORAGE_DIR = process.env.ECHO_MUSIC_STORAGE_DIR
     : path.join(process.cwd(), "server", "storage");
 const ROOMS_DIR = path.join(STORAGE_DIR, "rooms");
 const LEGACY_ROOMS_FILE = path.join(STORAGE_DIR, "rooms.json");
+export const SYNC_LEASE_MS = 5000;
 
 const rooms = new Map<string, Room>();
 const destructionTimers = new Map<string, NodeJS.Timeout>();
@@ -89,6 +90,51 @@ function generateRoomId(): string {
     return crypto.randomBytes(4).toString("hex");
 }
 
+function getPreferredLeader(room: Room) {
+    return room.users.find((user) => user.name === room.hostName) || room.users[0] || null;
+}
+
+export function bumpSyncVersion(room: Room): number {
+    room.syncVersion += 1;
+    return room.syncVersion;
+}
+
+export function isSyncLeaderActive(room: Room): boolean {
+    return !!room.syncLeaderId
+        && room.users.some((user) => user.id === room.syncLeaderId)
+        && room.syncLeaseUntil > Date.now();
+}
+
+export function assignSyncLeader(room: Room, user: { id: string; name: string } | null, extendLease = true): boolean {
+    const nextLeaderId = user?.id || "";
+    const nextLeaderName = user?.name || "";
+    const changed = room.syncLeaderId !== nextLeaderId;
+
+    if (changed) {
+        room.syncTerm += 1;
+    }
+
+    room.syncLeaderId = nextLeaderId;
+    room.syncLeaderName = nextLeaderName;
+    room.syncLeaseUntil = nextLeaderId && extendLease ? Date.now() + SYNC_LEASE_MS : 0;
+
+    return changed;
+}
+
+export function renewSyncLeaderLease(room: Room): void {
+    if (!room.syncLeaderId) return;
+    room.syncLeaseUntil = Date.now() + SYNC_LEASE_MS;
+}
+
+export function ensureSyncLeader(room: Room): boolean {
+    if (isSyncLeaderActive(room)) {
+        return false;
+    }
+
+    const nextLeader = getPreferredLeader(room);
+    return assignSyncLeader(room, nextLeader);
+}
+
 function migrateLegacyRoomsIfNeeded(): void {
     ensureRoomsDir();
     const hasRoomFiles = fs.readdirSync(ROOMS_DIR).some((file) => file.endsWith(".json"));
@@ -126,6 +172,11 @@ function loadRoomsFromDisk(): void {
                 users: [],
                 isPlaying: false,
                 currentTime: 0,
+                syncLeaderId: room.syncLeaderId || "",
+                syncLeaderName: room.syncLeaderName || "",
+                syncTerm: Number(room.syncTerm || 0),
+                syncVersion: Number(room.syncVersion || 0),
+                syncLeaseUntil: Number(room.syncLeaseUntil || 0),
                 hostCookie: room.hostCookie || null,
                 hostQQId: room.hostQQId || "",
             });
@@ -173,6 +224,11 @@ export function createRoom(name: string, password: string, hostName: string): { 
         currentSong: null,
         isPlaying: false,
         currentTime: 0,
+        syncLeaderId: "",
+        syncLeaderName: "",
+        syncTerm: 0,
+        syncVersion: 0,
+        syncLeaseUntil: 0,
         chat: [],
     };
 
@@ -250,6 +306,11 @@ export function getSafeRoomState(room: Room): SafeRoomState {
         currentSong: room.currentSong,
         isPlaying: room.isPlaying,
         currentTime: room.currentTime,
+        syncLeaderId: room.syncLeaderId,
+        syncLeaderName: room.syncLeaderName,
+        syncTerm: room.syncTerm,
+        syncVersion: room.syncVersion,
+        syncLeaseUntil: room.syncLeaseUntil,
         hasCookie: !!room.hostCookie,
         hostQQId: room.hostQQId,
         chat: room.chat,
@@ -279,6 +340,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
         room.currentSong = room.queue.shift()!;
         room.currentTime = 0;
         room.isPlaying = true;
+        bumpSyncVersion(room);
 
         logInfo(TAG, "Play next song from queue", {
             roomId,
@@ -310,6 +372,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
                     room.currentSong = autoSong;
                     room.currentTime = 0;
                     room.isPlaying = true;
+                    bumpSyncVersion(room);
 
                     logInfo(TAG, "Auto recommendation started", {
                         roomId,
@@ -329,6 +392,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
         room.currentSong = null;
         room.isPlaying = false;
         room.currentTime = 0;
+        bumpSyncVersion(room);
         saveRooms(room.id);
         logInfo(TAG, "Queue ended", { roomId });
     }
@@ -388,4 +452,3 @@ process.on("beforeExit", () => {
         logError(TAG, "Failed to flush room files before exit", error);
     }
 });
-

@@ -22,6 +22,8 @@ interface AppState {
   removeSong: (index: number) => void;
   setCookie: (cookie: string) => Promise<void>;
   syncPlayer: (currentTime: number, isPlaying: boolean) => void;
+  controlPlayback: (currentTime: number, isPlaying: boolean) => void;
+  seekPlayer: (currentTime: number) => void;
   playSongs: (songs: any[]) => void;
   clearQueue: () => void;
 }
@@ -84,12 +86,39 @@ export const useStore = create<AppState>((set, get) => ({
         });
       });
 
-      socket.on('player_sync', ({ currentTime, isPlaying, syncedAt }: { currentTime: number; isPlaying: boolean; syncedAt?: number }) => {
-        const lagSeconds = syncedAt ? (Date.now() - syncedAt) / 1000 : 0;
-        const compensatedTime = isPlaying ? currentTime + lagSeconds : currentTime;
+      socket.on('player_sync', ({
+        currentTime,
+        isPlaying,
+        syncedAt,
+        syncLeaderId,
+        syncLeaderName,
+        syncTerm,
+        syncVersion,
+      }: {
+        currentTime: number;
+        isPlaying: boolean;
+        syncedAt?: number;
+        syncLeaderId?: string;
+        syncLeaderName?: string;
+        syncTerm?: number;
+        syncVersion?: number;
+      }) => {
+        // 修复：不能直接使用 client_time - server_time，因为客户端和服务端的时钟不同步。
+        // 这会导致巨大的时间偏移误差（甚至负向跳跃）。建议移除，或使用 RTT 测速。
+        const compensatedTime = currentTime;
         set((state) => {
           if (state.room) {
-            return { room: { ...state.room, currentTime: compensatedTime, isPlaying } };
+            return {
+              room: {
+                ...state.room,
+                currentTime: compensatedTime,
+                isPlaying,
+                syncLeaderId: syncLeaderId ?? state.room.syncLeaderId,
+                syncLeaderName: syncLeaderName ?? state.room.syncLeaderName,
+                syncTerm: syncTerm ?? state.room.syncTerm,
+                syncVersion: syncVersion ?? state.room.syncVersion,
+              },
+            };
           }
           return state;
         });
@@ -148,10 +177,28 @@ export const useStore = create<AppState>((set, get) => ({
     });
   },
   syncPlayer: (currentTime, isPlaying) => {
-    get().socket?.emit('sync_player', { currentTime, isPlaying });
+    const room = get().room;
+    get().socket?.emit('sync_player', {
+      currentTime,
+      isPlaying,
+      term: room?.syncTerm ?? 0,
+      version: room?.syncVersion ?? 0,
+    });
     set((state) => {
       if (state.room) {
         return { room: { ...state.room, currentTime, isPlaying } };
+      }
+      return state;
+    });
+  },
+  controlPlayback: (currentTime, isPlaying) => {
+    get().socket?.emit('control_playback', { currentTime, isPlaying });
+  },
+  seekPlayer: (currentTime) => {
+    get().socket?.emit('seek_player', { currentTime });
+    set((state) => {
+      if (state.room) {
+        return { room: { ...state.room, currentTime } };
       }
       return state;
     });
