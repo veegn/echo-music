@@ -92,9 +92,16 @@ export async function searchSongs(key: string, pageNo = 1, pageSize = 20): Promi
 export async function getSongUrl(songmid: string, roomCookie: string | null): Promise<any> {
     try {
         const result = await callQQMusic("/song/url", { id: songmid }, roomCookie);
+        const resolvedQuality =
+            result?.data?.quality
+            || result?.data?.resolvedQuality
+            || result?.quality
+            || result?.resolvedQuality
+            || null;
         logInfo(TAG, "getSongUrl response", {
             hasData: !!result?.data,
             midMatch: !!result?.data?.[songmid],
+            resolvedQuality,
         });
         return result;
     } catch (err: any) {
