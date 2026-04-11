@@ -43,14 +43,22 @@ export function normalizeSongUrlPayload(path: string, ctx: MockContext) {
   }
 
   const playUrl = ctx.body?.data?.playUrl || ctx.body?.response?.playUrl || {};
+  const quality =
+    ctx.body?.data?.quality
+    || ctx.body?.data?.resolvedQuality
+    || ctx.body?.response?.quality
+    || ctx.body?.response?.resolvedQuality;
   if (Object.keys(playUrl).length === 0) {
     return null;
   }
 
-  const data: Record<string, string> = {};
+  const data: Record<string, string | number> = {};
   Object.keys(playUrl).forEach((key) => {
     data[key] = playUrl[key].url;
   });
+  if (quality) {
+    data.quality = quality;
+  }
 
   return { data };
 }

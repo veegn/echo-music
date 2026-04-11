@@ -1,10 +1,9 @@
 import { Room, SafeRoomState, PublicRoomInfo, Song } from "../types.js";
 import { logInfo, logWarn, logError } from "../logger.js";
-import * as qqMusicService from "./qqmusic.service.js";
-import { Server } from "socket.io";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import * as qqMusicService from "./qqmusic.service.js";
 
 const TAG = "RoomService";
 const STORAGE_DIR = process.env.ECHO_MUSIC_STORAGE_DIR
@@ -333,114 +332,6 @@ export function setRoomCookie(room: Room, cookie: string): void {
 
 export async function verifyRoomCookie(cookie: string): Promise<{ success: boolean; message?: string }> {
     return qqMusicService.verifyCookie(cookie);
-}
-
-export async function playNextSong(room: Room, roomId: string, io: Server, isAuto = false): Promise<void> {
-    if (room.queue.length > 0) {
-        room.currentSong = room.queue.shift()!;
-        room.currentTime = 0;
-        room.isPlaying = true;
-        bumpSyncVersion(room);
-
-        logInfo(TAG, "Play next song from queue", {
-            roomId,
-            songName: room.currentSong.songname,
-            singer: room.currentSong.singer,
-            requestedBy: room.currentSong.requestedBy,
-            remainingQueue: room.queue.length,
-            isAuto,
-        });
-
-        saveRooms(room.id);
-        io.to(roomId).emit("room_state", getSafeRoomState(room));
-
-        if (!isAuto) {
-            const msg = {
-                id: Date.now(),
-                type: "system" as const,
-                text: `Now playing: ${room.currentSong.songname} - ${room.currentSong.singer}`,
-            };
-            room.chat.push(msg);
-            if (room.chat.length > 100) room.chat.shift();
-            io.to(roomId).emit("chat_message", msg);
-        }
-    } else {
-        if (room.hostCookie) {
-            try {
-                const autoSong = await fetchRecommendedSong(room);
-                if (autoSong) {
-                    room.currentSong = autoSong;
-                    room.currentTime = 0;
-                    room.isPlaying = true;
-                    bumpSyncVersion(room);
-
-                    logInfo(TAG, "Auto recommendation started", {
-                        roomId,
-                        songName: autoSong.songname,
-                        singer: autoSong.singer,
-                    });
-
-                    saveRooms(room.id);
-                    io.to(roomId).emit("room_state", getSafeRoomState(room));
-                    return;
-                }
-            } catch (e) {
-                logError(TAG, "Failed to auto-recommend song", e, { roomId });
-            }
-        }
-
-        room.currentSong = null;
-        room.isPlaying = false;
-        room.currentTime = 0;
-        bumpSyncVersion(room);
-        saveRooms(room.id);
-        logInfo(TAG, "Queue ended", { roomId });
-    }
-
-    io.to(roomId).emit("room_state", getSafeRoomState(room));
-}
-
-async function fetchRecommendedSong(room: Room): Promise<Song | null> {
-    try {
-        const result: any = await qqMusicService.getRadioSongs(room.hostCookie);
-        const tracks = Array.isArray(result)
-            ? result
-            : Array.isArray(result?.tracks)
-                ? result.tracks
-                : [];
-
-        if (tracks.length === 0) {
-            logWarn(TAG, "No radio tracks available for auto play", { roomId: room.id });
-            return null;
-        }
-
-        const nextSong = tracks[0];
-        const songmid = nextSong.songmid || nextSong.mid || "";
-        const songname = nextSong.songname || nextSong.title || nextSong.name || "";
-
-        if (!songmid || !songname) {
-            logWarn(TAG, "Invalid radio track payload for auto play", {
-                roomId: room.id,
-                trackKeys: nextSong ? Object.keys(nextSong) : [],
-            });
-            return null;
-        }
-
-        return {
-            id: Date.now().toString(),
-            songmid,
-            songname,
-            singer: formatSinger(nextSong.singer),
-            albumname: nextSong.albumname || nextSong.album?.title || nextSong.album?.name || "Unknown Album",
-            albummid: nextSong.albummid || nextSong.album?.mid || "",
-            album: { mid: nextSong.albummid || nextSong.album?.mid },
-            requestedBy: "Radio",
-        };
-    } catch (e: any) {
-        logError(TAG, "Failed to fetch recommended song", e, { roomId: room.id });
-    }
-
-    return null;
 }
 
 loadRoomsFromDisk();

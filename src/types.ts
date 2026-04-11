@@ -1,13 +1,9 @@
-// ============================
-// 前端共享类型定义
-// ============================
-
 export interface User {
     id: string;
     name: string;
 }
 
-export interface Song {
+export interface SongMeta {
     id: string;
     songmid: string;
     songname: string;
@@ -22,6 +18,13 @@ export interface Song {
     requestedBy: string;
 }
 
+export interface RoomPlaybackSong extends SongMeta {
+    playUrl?: string;
+    playQuality?: string | number;
+}
+
+export type Song = SongMeta;
+
 export interface ChatMessage {
     id: number;
     type: 'system' | 'user';
@@ -34,8 +37,8 @@ export interface RoomState {
     name: string;
     hostName: string;
     users: User[];
-    queue: Song[];
-    currentSong: Song | null;
+    queue: SongMeta[];
+    currentSong: RoomPlaybackSong | null;
     isPlaying: boolean;
     currentTime: number;
     syncLeaderId: string;

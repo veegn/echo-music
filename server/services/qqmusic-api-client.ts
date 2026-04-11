@@ -3,6 +3,9 @@ import { normalizeCookie } from "./qqmusic-cookie.js";
 import QQMusic from "qq-music-api";
 
 const TAG = "QQMusicApiClient";
+const SONG_URL_CACHE_TTL_MS = 5 * 60 * 1000;
+const songUrlCache = new Map<string, { expiresAt: number; result: any; playableUrl: string; quality: string | number | null }>();
+const songUrlInflight = new Map<string, Promise<any>>();
 
 function summarizeQQMusicError(result: any) {
     const error = result?.error ?? result?.data?.error ?? result?.body?.error;
@@ -85,23 +88,116 @@ async function callQQMusic(
     }
 }
 
+function buildSongUrlCacheKey(songmid: string, cookie: string | null): string {
+    const normalizedCookie = cookie ? normalizeCookie(cookie) : "";
+    const cookieKey = normalizedCookie ? `${normalizedCookie.slice(0, 16)}:${normalizedCookie.slice(-16)}` : "nocookie";
+    return `${songmid}:${cookieKey}`;
+}
+
+function findFirstHttpUrl(obj: unknown): string | null {
+    if (!obj || typeof obj !== "object") return null;
+
+    for (const value of Object.values(obj as Record<string, unknown>)) {
+        if (typeof value === "string" && value.startsWith("http")) {
+            return value;
+        }
+        const nested = findFirstHttpUrl(value);
+        if (nested) return nested;
+    }
+
+    return null;
+}
+
+export function extractPlayableUrl(payload: any, songmid: string): string {
+    if (typeof payload === "string" && payload.startsWith("http")) {
+        return payload;
+    }
+
+    if (payload && typeof payload === "object") {
+        if (typeof payload.data === "string" && payload.data.startsWith("http")) {
+            return payload.data;
+        }
+        if (Array.isArray(payload.data) && typeof payload.data[0] === "string") {
+            return payload.data[0];
+        }
+        if (payload.data && typeof payload.data === "object" && typeof payload.data[songmid] === "string") {
+            return payload.data[songmid];
+        }
+        if (typeof payload[songmid] === "string") {
+            return payload[songmid];
+        }
+    }
+
+    return findFirstHttpUrl(payload) || "";
+}
+
+export async function resolveSongPlayback(songmid: string, roomCookie: string | null): Promise<{
+    result: any;
+    playableUrl: string;
+    quality: string | number | null;
+    cacheHit: boolean;
+}> {
+    const cacheKey = buildSongUrlCacheKey(songmid, roomCookie);
+    const cached = songUrlCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        return {
+            result: cached.result,
+            playableUrl: cached.playableUrl,
+            quality: cached.quality,
+            cacheHit: true,
+        };
+    }
+
+    const inflight = songUrlInflight.get(cacheKey);
+    if (inflight) {
+        return inflight;
+    }
+
+    const request = (async () => {
+        const result = await callQQMusic("/song/url", { id: songmid }, roomCookie);
+        const playableUrl = extractPlayableUrl(result, songmid);
+        const quality =
+            result?.data?.quality
+            || result?.data?.resolvedQuality
+            || result?.quality
+            || result?.resolvedQuality
+            || null;
+
+        songUrlCache.set(cacheKey, {
+            expiresAt: Date.now() + SONG_URL_CACHE_TTL_MS,
+            result,
+            playableUrl,
+            quality,
+        });
+
+        return {
+            result,
+            playableUrl,
+            quality,
+            cacheHit: false,
+        };
+    })();
+
+    songUrlInflight.set(cacheKey, request);
+    try {
+        return await request;
+    } finally {
+        songUrlInflight.delete(cacheKey);
+    }
+}
+
 export async function searchSongs(key: string, pageNo = 1, pageSize = 20): Promise<any> {
     return callQQMusic("/search", { key, pageNo, pageSize });
 }
 
 export async function getSongUrl(songmid: string, roomCookie: string | null): Promise<any> {
     try {
-        const result = await callQQMusic("/song/url", { id: songmid }, roomCookie);
-        const resolvedQuality =
-            result?.data?.quality
-            || result?.data?.resolvedQuality
-            || result?.quality
-            || result?.resolvedQuality
-            || null;
+        const { result, quality, cacheHit } = await resolveSongPlayback(songmid, roomCookie);
         logInfo(TAG, "getSongUrl response", {
             hasData: !!result?.data,
             midMatch: !!result?.data?.[songmid],
-            resolvedQuality,
+            resolvedQuality: quality,
+            cacheHit,
         });
         return result;
     } catch (err: any) {

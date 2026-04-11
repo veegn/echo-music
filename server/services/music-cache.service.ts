@@ -15,7 +15,6 @@ const STORAGE_DIR = process.env.ECHO_MUSIC_STORAGE_DIR
 const CACHE_ROOT = path.join(STORAGE_DIR, "music-cache");
 const AUDIO_DIR = path.join(CACHE_ROOT, "audio");
 const COVER_DIR = path.join(CACHE_ROOT, "cover");
-const LEGACY_INDEX_FILE = path.join(CACHE_ROOT, "index.json");
 const DB_FILE = path.join(CACHE_ROOT, "index.sqlite");
 const SQL_WASM_DIR = path.join(process.cwd(), "node_modules", "sql.js", "dist");
 
@@ -479,20 +478,20 @@ function upsertRecord(record: CachedTrackRecord): void {
             cached_at=excluded.cached_at,
             last_played_at=excluded.last_played_at`,
         [
-            record.songmid,
-            record.songname,
-            record.singer,
-            record.albumname,
-            record.albummid,
-            record.intro,
-            record.audioSourceUrl,
-            record.audioLocalPath,
-            record.audioSize,
-            record.coverSourceUrl,
-            record.coverLocalPath,
-            record.requestedBy,
-            record.cachedAt,
-            record.lastPlayedAt,
+            record.songmid ?? "",
+            record.songname ?? "",
+            record.singer ?? "",
+            record.albumname ?? "",
+            record.albummid ?? "",
+            record.intro ?? "",
+            record.audioSourceUrl ?? "",
+            record.audioLocalPath ?? "",
+            record.audioSize ?? 0,
+            record.coverSourceUrl ?? "",
+            record.coverLocalPath ?? "",
+            record.requestedBy ?? "",
+            record.cachedAt ?? "",
+            record.lastPlayedAt ?? "",
         ],
     );
     scheduleFlush();
@@ -523,27 +522,6 @@ function createSchema(): void {
     `);
 }
 
-function migrateLegacyJsonIndex(): void {
-    if (!fs.existsSync(LEGACY_INDEX_FILE)) {
-        return;
-    }
-
-    try {
-        const raw = JSON.parse(fs.readFileSync(LEGACY_INDEX_FILE, "utf-8"));
-        for (const record of Object.values(raw) as CachedTrackRecord[]) {
-            if (!record?.songmid) continue;
-            upsertRecord(record);
-        }
-        fs.renameSync(LEGACY_INDEX_FILE, `${LEGACY_INDEX_FILE}.migrated`);
-        logInfo(TAG, "Migrated legacy music cache index to sqlite", {
-            filePath: LEGACY_INDEX_FILE,
-            count: Object.keys(raw).length,
-        });
-    } catch (error) {
-        logError(TAG, "Failed to migrate legacy music cache index", error);
-    }
-}
-
 const SQL = await initSqlJs({
     locateFile: (file) => path.join(SQL_WASM_DIR, file),
 });
@@ -553,7 +531,6 @@ db = fs.existsSync(DB_FILE)
     ? new SQL.Database(fs.readFileSync(DB_FILE))
     : new SQL.Database();
 createSchema();
-migrateLegacyJsonIndex();
 flushDb();
 
 process.on("beforeExit", () => {

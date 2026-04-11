@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import * as playbackService from "../services/playback.service.js";
 import * as roomService from "../services/room.service.js";
 import { logInfo, logWarn } from "../logger.js";
 
@@ -41,20 +42,12 @@ export function registerSocketHandlers(io: Server): void {
                 currentUsers: getRoom()?.users.length,
             });
 
-            io.to(roomId).emit("room_state", roomService.getSafeRoomState(getRoom()!));
+            playbackService.broadcastRoomState(getRoom()!, roomId, io);
 
-            const joinMsg = {
-                id: Date.now(),
-                type: "system" as const,
-                text: `${userName} joined the room`,
-            };
             {
                 const room = getRoom()!;
-                room.chat.push(joinMsg);
-                if (room.chat.length > 100) room.chat.shift();
+                playbackService.appendSystemMessage(room, roomId, io, `${userName} joined the room`, true);
             }
-            roomService.saveRooms(roomId);
-            io.to(roomId).emit("chat_message", joinMsg);
 
             // 重置监听器防止重复绑定（重连场景）
             socket.removeAllListeners("disconnect");
@@ -92,16 +85,8 @@ export function registerSocketHandlers(io: Server): void {
                     syncLeaderId: room.syncLeaderId || "(none)",
                 });
 
-                io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
-                const leaveMsg = {
-                    id: Date.now(),
-                    type: "system" as const,
-                    text: `${userName} left the room`,
-                };
-                room.chat.push(leaveMsg);
-                if (room.chat.length > 100) room.chat.shift();
-                roomService.saveRooms(roomId);
-                io.to(roomId).emit("chat_message", leaveMsg);
+                playbackService.broadcastRoomState(room, roomId, io);
+                playbackService.appendSystemMessage(room, roomId, io, `${userName} left the room`, true);
 
                 if (room.users.length === 0) {
                     roomService.scheduleRoomDestruction(roomId);
@@ -124,77 +109,14 @@ export function registerSocketHandlers(io: Server): void {
             socket.on("add_song", (song: any) => {
                 const room = getRoom();
                 if (!room) return;
-
-                const singerName = roomService.formatSinger(song.singer);
-                const albummid = song.albummid || (song.album && song.album.mid) || song.album_mid || "";
-
-                const newSong = {
-                    ...song,
-                    albummid,
-                    singer: singerName,
-                    requestedBy: userName,
-                    id: Date.now().toString(),
-                };
-
-                room.queue.push(newSong);
-
-                logInfo(TAG, "Song added", {
-                    roomId,
-                    userName,
-                    songName: song.songname,
-                    singer: singerName,
-                    queueLength: room.queue.length,
-                });
-
-                if (!room.currentSong) {
-                    roomService.playNextSong(room, roomId, io);
-                } else {
-                    const msg = {
-                        id: Date.now(),
-                        type: "system" as const,
-                        text: `${userName} queued: ${song.songname}`,
-                    };
-                    room.chat.push(msg);
-                    if (room.chat.length > 100) room.chat.shift();
-                    roomService.saveRooms(roomId);
-                    io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
-                    io.to(roomId).emit("chat_message", msg);
-                }
+                void playbackService.queueSong(room, roomId, io, song, userName);
             });
 
             // ─── skip_song ───────────────────────────────────────────────
             socket.on("skip_song", (isAuto?: boolean) => {
                 const room = getRoom();
                 if (!room) return;
-
-                if (isAuto && room.lastSkipTime && Date.now() - room.lastSkipTime < 1500) {
-                    logInfo(TAG, "Ignore duplicated auto skip", {
-                        roomId,
-                        userName,
-                        socketId: socket.id,
-                        lastSkipAgeMs: Date.now() - room.lastSkipTime,
-                    });
-                    return;
-                }
-
-                const skippedSongName = room.currentSong?.songname;
-                logInfo(TAG, "Skip song", {
-                    roomId,
-                    userName,
-                    skippedSong: skippedSongName ?? "none",
-                    isAuto: !!isAuto,
-                });
-
-                room.lastSkipTime = Date.now();
-                roomService.bumpSyncVersion(room);
-                roomService.playNextSong(room, roomId, io, isAuto);
-
-                if (skippedSongName && !isAuto) {
-                    const msg = { id: Date.now(), type: "system" as const, text: `${userName} skipped a song` };
-                    room.chat.push(msg);
-                    if (room.chat.length > 100) room.chat.shift();
-                    io.to(roomId).emit("chat_message", msg);
-                }
+                void playbackService.skipCurrentSong(room, roomId, io, userName, !!isAuto);
             });
 
             // ─── reorder_queue ───────────────────────────────────────────
@@ -260,9 +182,9 @@ export function registerSocketHandlers(io: Server): void {
                 });
 
                 if (!room.currentSong && room.queue.length === 0) {
-                    roomService.playNextSong(room, roomId, io);
+                    void playbackService.playNextSong(room, roomId, io);
                 } else {
-                    io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
+                    playbackService.broadcastRoomState(room, roomId, io);
                 }
 
                 ack?.({ success: true });
@@ -316,109 +238,48 @@ export function registerSocketHandlers(io: Server): void {
 
                 const isRecentlySkipped = room.lastSkipTime && Date.now() - room.lastSkipTime < 3000;
                 if (wasPlaying !== isPlaying && !isRecentlySkipped) {
-                    const msg = {
-                        id: Date.now(),
-                        type: "system" as const,
-                        text: isPlaying ? `${userName} resumed playback` : `${userName} paused playback`,
-                    };
-                    room.chat.push(msg);
-                    if (room.chat.length > 100) room.chat.shift();
-                    roomService.saveRooms(roomId);
-                    io.to(roomId).emit("chat_message", msg);
+                    playbackService.appendSystemMessage(
+                        room,
+                        roomId,
+                        io,
+                        isPlaying ? `${userName} resumed playback` : `${userName} paused playback`,
+                        true,
+                    );
                 }
             });
 
             socket.on("control_playback", ({ currentTime, isPlaying }) => {
                 const room = getRoom();
                 if (!room || !room.currentSong) return;
-
-                roomService.assignSyncLeader(room, { id: socket.id, name: userName });
-                const wasPlaying = room.isPlaying;
-                room.currentTime = Number(currentTime) || 0;
-                room.isPlaying = !!isPlaying;
-                roomService.bumpSyncVersion(room);
-                roomService.renewSyncLeaderLease(room);
-                roomService.saveRooms(roomId);
-
-                io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
-                io.to(roomId).emit("player_sync", {
-                    currentTime: room.currentTime,
-                    isPlaying: room.isPlaying,
-                    syncedAt: Date.now(),
-                    syncLeaderId: room.syncLeaderId,
-                    syncLeaderName: room.syncLeaderName,
-                    syncTerm: room.syncTerm,
-                    syncVersion: room.syncVersion,
-                });
-
-                const isRecentlySkipped = room.lastSkipTime && Date.now() - room.lastSkipTime < 3000;
-                if (wasPlaying !== room.isPlaying && !isRecentlySkipped) {
-                    const msg = {
-                        id: Date.now(),
-                        type: "system" as const,
-                        text: room.isPlaying ? `${userName} resumed playback` : `${userName} paused playback`,
-                    };
-                    room.chat.push(msg);
-                    if (room.chat.length > 100) room.chat.shift();
-                    io.to(roomId).emit("chat_message", msg);
-                }
+                playbackService.applyPlaybackControl(
+                    room,
+                    roomId,
+                    io,
+                    userName,
+                    socket.id,
+                    currentTime,
+                    isPlaying,
+                );
             });
 
             socket.on("seek_player", ({ currentTime }) => {
                 const room = getRoom();
                 if (!room || !room.currentSong) return;
-
-                roomService.assignSyncLeader(room, { id: socket.id, name: userName });
-                room.currentTime = Math.max(0, Number(currentTime) || 0);
-                roomService.bumpSyncVersion(room);
-                roomService.renewSyncLeaderLease(room);
-                roomService.saveRooms(roomId);
-
-                io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
-                io.to(roomId).emit("player_sync", {
-                    currentTime: room.currentTime,
-                    isPlaying: room.isPlaying,
-                    syncedAt: Date.now(),
-                    syncLeaderId: room.syncLeaderId,
-                    syncLeaderName: room.syncLeaderName,
-                    syncTerm: room.syncTerm,
-                    syncVersion: room.syncVersion,
-                });
+                playbackService.applyPlaybackSeek(
+                    room,
+                    roomId,
+                    io,
+                    userName,
+                    socket.id,
+                    currentTime,
+                );
             });
 
             // ─── play_songs ──────────────────────────────────────────────
             socket.on("play_songs", (songs: any[]) => {
                 const room = getRoom();
                 if (!room) return;
-                if (!Array.isArray(songs) || songs.length === 0) return;
-
-                const normalizedSongs = songs.map((s) => {
-                    const albummid = s.albummid || (s.album && s.album.mid) || s.album_mid || "";
-                    return {
-                        ...s,
-                        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-                        songmid: s.songmid || s.mid,
-                        songname: s.songname || s.name || s.title,
-                        albummid,
-                        singer: roomService.formatSinger(s.singer || s.singer_name || s.artist_name),
-                        requestedBy: userName,
-                    };
-                });
-
-                room.queue = normalizedSongs;
-                room.lastSkipTime = Date.now();
-                roomService.bumpSyncVersion(room);
-                roomService.playNextSong(room, roomId, io);
-
-                const msg = {
-                    id: Date.now(),
-                    type: "system" as const,
-                    text: `${userName} started batch playback (${normalizedSongs.length} songs)`,
-                };
-                room.chat.push(msg);
-                if (room.chat.length > 100) room.chat.shift();
-                roomService.saveRooms(roomId);
-                io.to(roomId).emit("chat_message", msg);
+                void playbackService.startBatchPlayback(room, roomId, io, songs, userName);
             });
 
             // ─── clear_queue ─────────────────────────────────────────────
@@ -427,8 +288,7 @@ export function registerSocketHandlers(io: Server): void {
                 if (!room) return;
                 room.queue = [];
                 logInfo(TAG, "Queue cleared", { roomId, userName });
-                io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
-                roomService.saveRooms(roomId);
+                playbackService.broadcastRoomState(room, roomId, io, true);
             });
         });
     });
