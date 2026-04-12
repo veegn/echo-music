@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Users, MessageSquare, Search as SearchIcon, ListMusic, X, LogOut, WifiOff, LoaderCircle } from 'lucide-react';
+import { Users, MessageSquare, Search as SearchIcon, ListMusic, X, LogOut, WifiOff, LoaderCircle, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import ChatBox from './ChatBox';
 import Player from './Player';
 import MusicPanel from './MusicPanel';
 
 export default function RoomView() {
-    const { room, leaveRoom, userName, connectionState } = useStore();
+    const { room, leaveRoom, deleteRoom, userName, connectionState, showToast } = useStore();
     const isHost = room?.hostName === userName;
     const [showRightPanel, setShowRightPanel] = useState(false);
     const [showChatPopup, setShowChatPopup] = useState(false);
@@ -43,6 +43,17 @@ export default function RoomView() {
         };
     }, []);
 
+    const handleDeleteRoom = async () => {
+        if (!room || !isHost) return;
+        if (!window.confirm(`\u786e\u8ba4\u5220\u9664\u623f\u95f4\u300a${room.name}\u300b\u5417\uff1f\u5220\u9664\u540e\u623f\u95f4\u548c\u5df2\u4fdd\u5b58\u7684 Cookie \u5c06\u4e00\u5e76\u79fb\u9664\u3002`)) return;
+
+        try {
+            await deleteRoom();
+        } catch (error: any) {
+            showToast(error?.message || '\u5220\u9664\u623f\u95f4\u5931\u8d25', 'error');
+        }
+    };
+
     return (
         <div className="flex flex-col h-screen bg-zinc-950 text-zinc-50 overflow-hidden font-sans relative">
             <header className="shrink-0 h-16 glass-panel z-40 px-6 flex items-center justify-between shadow-xl">
@@ -53,7 +64,7 @@ export default function RoomView() {
                         </h2>
                         <div className="flex items-center gap-2 mt-0.5 text-xs text-zinc-400">
                             <span className="flex items-center gap-1.5 bg-zinc-800/40 px-2 py-0.5 rounded border border-zinc-700/30">
-                                <span className="text-zinc-500">房主</span>
+                                <span className="text-zinc-500">{'\u623f\u4e3b'}</span>
                                 <span className="text-zinc-300 font-medium truncate max-w-[120px]">{room?.hostName}</span>
                             </span>
                             {room?.hostQQId && (
@@ -74,19 +85,19 @@ export default function RoomView() {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                                 </div>
-                                <span className="text-zinc-300">已连接</span>
+                                <span className="text-zinc-300">{'\u5df2\u8fde\u63a5'}</span>
                             </>
                         )}
                         {connectionState === 'connecting' && (
                             <>
                                 <LoaderCircle className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-                                <span className="text-amber-400">重连中</span>
+                                <span className="text-amber-400">{'\u91cd\u8fde\u4e2d'}</span>
                             </>
                         )}
                         {connectionState === 'disconnected' && (
                             <>
                                 <WifiOff className="w-3.5 h-3.5 text-red-400" />
-                                <span className="text-red-400">已断开</span>
+                                <span className="text-red-400">{'\u5df2\u65ad\u5f00'}</span>
                             </>
                         )}
                     </div>
@@ -97,7 +108,7 @@ export default function RoomView() {
                             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${showRightPanel ? 'bg-zinc-800 text-white shadow-sm' : 'btn-ghost'}`}
                         >
                             <SearchIcon className="w-4 h-4" />
-                            音乐控制台
+                            {'\u97f3\u4e50\u63a7\u5236\u53f0'}
                         </button>
                     </div>
 
@@ -106,8 +117,17 @@ export default function RoomView() {
                         className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all shrink-0"
                     >
                         <LogOut className="w-4 h-4" />
-                        <span className="hidden sm:inline">离开房间</span>
+                        <span className="hidden sm:inline">{'\u79bb\u5f00\u623f\u95f4'}</span>
                     </button>
+                    {isHost && (
+                        <button
+                            onClick={() => { void handleDeleteRoom(); }}
+                            className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-red-300 hover:text-red-200 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 transition-all shrink-0"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            <span className="hidden sm:inline">{'\u5220\u9664\u623f\u95f4'}</span>
+                        </button>
+                    )}
                 </div>
             </header>
 

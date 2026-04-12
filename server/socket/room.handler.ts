@@ -34,7 +34,6 @@ export function registerSocketHandlers(io: Server): void {
                 roomService.ensureSyncLeader(room);
             }
             socket.join(roomId);
-            roomService.cancelRoomDestruction(roomId);
 
             logInfo(TAG, "User joined room", {
                 roomId,
@@ -63,6 +62,7 @@ export function registerSocketHandlers(io: Server): void {
             socket.removeAllListeners("seek_player");
             socket.removeAllListeners("play_songs");
             socket.removeAllListeners("clear_queue");
+            socket.removeAllListeners("delete_room");
 
             // ─── disconnect ──────────────────────────────────────────────
             socket.on("disconnect", () => {
@@ -89,9 +89,6 @@ export function registerSocketHandlers(io: Server): void {
                 playbackService.broadcastRoomState(room, roomId, io);
                 playbackService.appendSystemMessage(room, roomId, io, `${userName} left the room`, true);
 
-                if (room.users.length === 0) {
-                    roomService.scheduleRoomDestruction(roomId);
-                }
             });
 
             // ─── chat_message ────────────────────────────────────────────
@@ -296,6 +293,33 @@ export function registerSocketHandlers(io: Server): void {
                 roomService.saveRooms(roomId);
                 logDebug(TAG, "Queue cleared", { roomId, userName });
                 playbackService.broadcastRoomState(room, roomId, io, true);
+            });
+
+            socket.on("delete_room", (ack?: (response: { success: boolean; error?: string }) => void) => {
+                const room = getRoom();
+                if (!room) {
+                    ack?.({ success: false, error: "Room not found" });
+                    return;
+                }
+
+                if (userName !== room.hostName) {
+                    ack?.({ success: false, error: "Only the host can delete the room" });
+                    return;
+                }
+
+                logInfo(TAG, "Room deleted by host", {
+                    roomId,
+                    hostName: userName,
+                    socketId: socket.id,
+                });
+
+                io.to(roomId).emit("room_deleted", {
+                    roomId,
+                    message: `${userName} deleted the room`,
+                    deletedBySocketId: socket.id,
+                });
+                roomService.deleteRoom(roomId);
+                ack?.({ success: true });
             });
         });
     });

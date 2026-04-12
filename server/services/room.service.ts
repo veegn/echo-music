@@ -11,7 +11,6 @@ const ROOMS_DIR = config.storage.roomsDir;
 export const SYNC_LEASE_MS = config.room.syncLeaseMs;
 
 const rooms = new Map<string, Room>();
-const destructionTimers = new Map<string, NodeJS.Timeout>();
 const dirtyRoomIds = new Set<string>();
 let flushTimer: NodeJS.Timeout | null = null;
 
@@ -155,7 +154,6 @@ function loadRoomsFromDisk(): void {
                 hostCookie: room.hostCookie || null,
                 hostQQId: room.hostQQId || "",
             });
-            scheduleRoomDestruction(room.id, config.room.loadedRoomDestructionMs);
         }
         logInfo(TAG, "Rooms loaded from storage", { count: rooms.size, dirPath: ROOMS_DIR });
     } catch (error) {
@@ -209,7 +207,6 @@ export function createRoom(name: string, password: string, hostName: string): { 
 
     rooms.set(id, room);
     saveRooms(id);
-    scheduleRoomDestruction(id, config.room.idleDestructionMs);
     logInfo(TAG, "Room created", { roomId: id, roomName: name, host: hostName });
     return { id, existing: false };
 }
@@ -223,31 +220,16 @@ export function deleteRoom(roomId: string): void {
     if (room) {
         logInfo(TAG, "Room deleted", { roomId, roomName: room.name });
         rooms.delete(roomId);
-        cancelRoomDestruction(roomId);
         saveRooms(roomId);
     }
 }
 
-export function scheduleRoomDestruction(roomId: string, limitMs: number = config.room.idleDestructionMs): void {
-    if (destructionTimers.has(roomId)) {
-        clearTimeout(destructionTimers.get(roomId)!);
-    }
-
-    const timer = setTimeout(() => {
-        logInfo(TAG, "Destroy idle room", { roomId, idleMinutes: limitMs / 60000 });
-        deleteRoom(roomId);
-        destructionTimers.delete(roomId);
-    }, limitMs);
-
-    destructionTimers.set(roomId, timer);
+export function scheduleRoomDestruction(_roomId: string, _limitMs: number = config.room.idleDestructionMs): void {
+    // Rooms are now persistent and never expire automatically.
 }
 
-export function cancelRoomDestruction(roomId: string): void {
-    if (destructionTimers.has(roomId)) {
-        clearTimeout(destructionTimers.get(roomId)!);
-        destructionTimers.delete(roomId);
-        logInfo(TAG, "Cancelled room destruction", { roomId });
-    }
+export function cancelRoomDestruction(_roomId: string): void {
+    // Rooms are now persistent and never expire automatically.
 }
 
 export function listPublicRooms(): PublicRoomInfo[] {

@@ -15,6 +15,7 @@ interface AppState {
   setRoomState: (room: RoomState | null) => void;
   joinRoom: (roomId: string, password?: string) => Promise<void>;
   leaveRoom: () => void;
+  deleteRoom: () => Promise<void>;
   sendMessage: (text: string) => void;
   addSong: (song: any) => void;
   skipSong: (isAuto?: boolean) => void;
@@ -136,6 +137,18 @@ export const useStore = create<AppState>((set, get) => ({
         }
       });
 
+      socket.on('room_deleted', (payload?: { roomId?: string; message?: string; deletedBySocketId?: string }) => {
+        const deletedBySelf = payload?.deletedBySocketId && payload.deletedBySocketId === socket.id;
+        const currentSocket = get().socket;
+        currentSocket?.disconnect();
+        set({ socket: null, room: null, chat: [], connectionState: 'disconnected' });
+        window.history.pushState({}, '', window.location.pathname);
+        get().showToast(
+          deletedBySelf ? '\u623f\u95f4\u5df2\u5220\u9664' : '\u623f\u95f4\u5df2\u88ab\u5220\u9664',
+          deletedBySelf ? 'success' : 'info',
+        );
+      });
+
       set({ socket, connectionState: 'connecting' });
     });
   },
@@ -146,6 +159,24 @@ export const useStore = create<AppState>((set, get) => ({
     }
     set({ socket: null, room: null, chat: [], connectionState: 'disconnected' });
     window.history.pushState({}, '', window.location.pathname);
+  },
+  deleteRoom: () => {
+    return new Promise((resolve, reject) => {
+      const socket = get().socket;
+      if (!socket) {
+        reject(new Error('Socket not connected'));
+        return;
+      }
+
+      socket.emit('delete_room', (response?: { success?: boolean; error?: string }) => {
+        if (response?.success) {
+          resolve();
+          return;
+        }
+
+        reject(new Error(response?.error || 'Failed to delete room'));
+      });
+    });
   },
   sendMessage: (text) => {
     get().socket?.emit('chat_message', text);
