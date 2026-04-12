@@ -1,7 +1,8 @@
 import { Server, Socket } from "socket.io";
 import * as playbackService from "../services/playback.service.js";
 import * as roomService from "../services/room.service.js";
-import { logInfo, logWarn } from "../logger.js";
+import { logInfo, logWarn, logDebug } from "../logger.js";
+import { config } from "../config.js";
 
 const TAG = "SocketHandler";
 
@@ -100,8 +101,9 @@ export function registerSocketHandlers(io: Server): void {
 
                 const msg = { id: Date.now(), type: "user" as const, userName, text };
                 room.chat.push(msg);
-                if (room.chat.length > 100) room.chat.shift();
-                roomService.saveRooms(roomId);
+                if (room.chat.length > config.room.maxChatHistory) {
+                    room.chat.shift();
+                }
                 io.to(roomId).emit("chat_message", msg);
             });
 
@@ -128,7 +130,7 @@ export function registerSocketHandlers(io: Server): void {
                 const [item] = room.queue.splice(oldIndex, 1);
                 room.queue.splice(newIndex, 0, item);
                 roomService.saveRooms(roomId);
-                logInfo(TAG, "Queue reordered", { roomId, userName, oldIndex, newIndex, songName: item.songname });
+                logDebug(TAG, "Queue reordered", { roomId, userName, oldIndex, newIndex, songName: item.songname });
                 io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
             });
 
@@ -139,7 +141,7 @@ export function registerSocketHandlers(io: Server): void {
                 if (index >= 0 && index < room.queue.length) {
                     const removed = room.queue.splice(index, 1)[0];
                     roomService.saveRooms(roomId);
-                    logInfo(TAG, "Song removed", { roomId, userName, songName: removed.songname });
+                    logDebug(TAG, "Song removed", { roomId, userName, songName: removed.songname });
                     io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
                 }
             });
@@ -248,9 +250,11 @@ export function registerSocketHandlers(io: Server): void {
                 }
             });
 
-            socket.on("control_playback", ({ currentTime, isPlaying }) => {
+            socket.on("control_playback", ({ currentTime, isPlaying, version }) => {
                 const room = getRoom();
                 if (!room || !room.currentSong) return;
+                if (typeof version === "number" && version < room.syncVersion) return;
+
                 playbackService.applyPlaybackControl(
                     room,
                     roomId,
@@ -262,9 +266,11 @@ export function registerSocketHandlers(io: Server): void {
                 );
             });
 
-            socket.on("seek_player", ({ currentTime }) => {
+            socket.on("seek_player", ({ currentTime, version }) => {
                 const room = getRoom();
                 if (!room || !room.currentSong) return;
+                if (typeof version === "number" && version < room.syncVersion) return;
+
                 playbackService.applyPlaybackSeek(
                     room,
                     roomId,
@@ -287,7 +293,8 @@ export function registerSocketHandlers(io: Server): void {
                 const room = getRoom();
                 if (!room) return;
                 room.queue = [];
-                logInfo(TAG, "Queue cleared", { roomId, userName });
+                roomService.saveRooms(roomId);
+                logDebug(TAG, "Queue cleared", { roomId, userName });
                 playbackService.broadcastRoomState(room, roomId, io, true);
             });
         });

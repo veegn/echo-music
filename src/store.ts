@@ -103,24 +103,28 @@ export const useStore = create<AppState>((set, get) => ({
         syncTerm?: number;
         syncVersion?: number;
       }) => {
-        // 修复：不能直接使用 client_time - server_time，因为客户端和服务端的时钟不同步。
-        // 这会导致巨大的时间偏移误差（甚至负向跳跃）。建议移除，或使用 RTT 测速。
-        const compensatedTime = currentTime;
         set((state) => {
-          if (state.room) {
-            return {
-              room: {
-                ...state.room,
-                currentTime: compensatedTime,
-                isPlaying,
-                syncLeaderId: syncLeaderId ?? state.room.syncLeaderId,
-                syncLeaderName: syncLeaderName ?? state.room.syncLeaderName,
-                syncTerm: syncTerm ?? state.room.syncTerm,
-                syncVersion: syncVersion ?? state.room.syncVersion,
-              },
-            };
+          if (!state.room) return state;
+          if (syncVersion !== undefined && state.room.syncVersion !== undefined && syncVersion < state.room.syncVersion) {
+            return state; // Ignore stale sync events
           }
-          return state;
+
+          let estimatedLatency = 0.150;
+          let timeSinceServerEmitted = syncedAt ? (Date.now() - syncedAt) / 1000 : 0;
+          let validOffset = Math.max(0, timeSinceServerEmitted);
+          let finalTime = isPlaying ? currentTime + validOffset + estimatedLatency : currentTime;
+
+          return {
+            room: {
+              ...state.room,
+              currentTime: finalTime,
+              isPlaying,
+              syncLeaderId: syncLeaderId ?? state.room.syncLeaderId,
+              syncLeaderName: syncLeaderName ?? state.room.syncLeaderName,
+              syncTerm: syncTerm ?? state.room.syncTerm,
+              syncVersion: syncVersion ?? state.room.syncVersion,
+            },
+          };
         });
       });
 
@@ -192,10 +196,12 @@ export const useStore = create<AppState>((set, get) => ({
     });
   },
   controlPlayback: (currentTime, isPlaying) => {
-    get().socket?.emit('control_playback', { currentTime, isPlaying });
+    const room = get().room;
+    get().socket?.emit('control_playback', { currentTime, isPlaying, version: room?.syncVersion ?? 0 });
   },
   seekPlayer: (currentTime) => {
-    get().socket?.emit('seek_player', { currentTime });
+    const room = get().room;
+    get().socket?.emit('seek_player', { currentTime, version: room?.syncVersion ?? 0 });
     set((state) => {
       if (state.room) {
         return { room: { ...state.room, currentTime } };

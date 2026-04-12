@@ -32,13 +32,13 @@ export function useRoomPlayerController() {
 
   useEffect(() => {
     if (room?.currentSong) {
-      setSongLoading(true);
       if (room.currentSong.playUrl) {
         setAudioUrl(room.currentSong.playUrl);
         setSongLoading(false);
         setAutoPlayFailed(false);
       } else {
-        void fetchAudioUrl(room.currentSong.songmid);
+        setAudioUrl('');
+        setSongLoading(true);
       }
     } else {
       setAudioUrl('');
@@ -46,51 +46,6 @@ export function useRoomPlayerController() {
       setAutoPlayFailed(false);
     }
   }, [room?.currentSong?.songmid, room?.currentSong?.playUrl]);
-
-  const fetchAudioUrl = async (songmid: string) => {
-    try {
-      const res = await fetch(`/api/qqmusic/song/url?id=${songmid}&roomId=${room?.id}`);
-      const data = await res.json();
-      let url = '';
-
-      if (typeof data === 'string' && data.startsWith('http')) {
-        url = data;
-      } else if (data && typeof data === 'object') {
-        if (typeof data.data === 'string' && data.data.startsWith('http')) {
-          url = data.data;
-        } else if (Array.isArray(data.data)) {
-          url = data.data[0];
-        } else if (data.data && typeof data.data === 'object') {
-          url = data.data[songmid];
-        }
-        if (!url) url = data[songmid];
-        if (!url) url = findFirstHttpUrl(data) ?? '';
-      } else if (Array.isArray(data)) {
-        const first = data[0];
-        url = typeof first === 'string'
-          ? first
-          : (first?.url || first?.purl || first?.[songmid] || '');
-      }
-
-      if (url && typeof url === 'string') {
-        url = url.trim().replace(/[\r\n]/g, '').replace(/^http:\/\//i, 'https://');
-      }
-
-      if (url && url.length > 10) {
-        setAudioUrl(url);
-      } else {
-        const errorMsg = room?.hasCookie
-          ? '这首歌曲可能需要 VIP 或版权授权，暂时无法播放。'
-          : '房主尚未绑定 VIP 账号，无法播放加密或高音质歌曲。';
-        throw new Error(errorMsg);
-      }
-      setSongLoading(false);
-    } catch (e: any) {
-      showToast(e.message || '播放失败', 'error');
-      setSongLoading(false);
-      setTimeout(() => skipSong(true), 3000);
-    }
-  };
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -164,7 +119,7 @@ export function useRoomPlayerController() {
       if (Date.now() < takeoverTimeoutRef.current) return;
       const diff = Math.abs(audioRef.current.currentTime - room.currentTime);
       suppressSyncRef.current = true;
-      if (diff > 2) audioRef.current.currentTime = room.currentTime;
+      if (diff > 0.8) audioRef.current.currentTime = room.currentTime;
 
       if (room.isPlaying && audioRef.current.paused) {
         audioRef.current.play()
@@ -199,19 +154,19 @@ export function useRoomPlayerController() {
   const handleSeek = (nextTime: number) => {
     if (!audioRef.current) return;
     audioRef.current.currentTime = nextTime;
-    takeoverTimeoutRef.current = Date.now() + 1500;
+    takeoverTimeoutRef.current = Date.now() + 500;
     seekPlayer(nextTime);
   };
 
   const handleSkip = () => {
-    takeoverTimeoutRef.current = Date.now() + 1500;
+    takeoverTimeoutRef.current = Date.now() + 500;
     skipSong();
   };
 
   const retryAutoplay = () => {
     audioRef.current?.play()
       .then(() => setAutoPlayFailed(false))
-      .catch(() => {});
+      .catch(() => { });
   };
 
   return {

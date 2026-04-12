@@ -1,9 +1,9 @@
 import { Response, Router } from "express";
 import { Server } from "socket.io";
-import * as playbackService from "../services/playback.service.js";
 import * as qqMusicService from "../services/qqmusic.service.js";
 import * as roomService from "../services/room.service.js";
 import { logError, logInfo, logWarn } from "../logger.js";
+import type { RequestHandler, Request, NextFunction } from "express";
 
 const TAG = "QQMusicRoutes";
 
@@ -67,255 +67,134 @@ function handleError(res: Response, err: any) {
     res.status(500).json({ error: err.message });
 }
 
+// Wrapper to auto-catch async errors and avoid repetative try-catch blocks
+function asyncHandler(fn: RequestHandler): RequestHandler {
+    return (req: Request, res: Response, next: NextFunction) => {
+        Promise.resolve(fn(req, res, next)).catch(err => {
+            handleError(res, err);
+        });
+    };
+}
+
 export default function createQQMusicRouter(io: Server): Router {
     const router = Router();
 
-    router.post("/verify-cookie", async (req, res) => {
-        try {
-            const { cookie } = req.body;
-            if (!cookie) {
-                logWarn(TAG, "Cookie is empty");
-                return res.json({ success: false, message: "Cookie is required" });
-            }
-            const result = await qqMusicService.verifyCookie(cookie);
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
+    router.post("/verify-cookie", asyncHandler(async (req, res) => {
+        const { cookie } = req.body;
+        if (!cookie) {
+            logWarn(TAG, "Cookie is empty");
+            return res.json({ success: false, message: "Cookie is required" });
         }
-    });
+        res.json(await qqMusicService.verifyCookie(cookie));
+    }));
 
-    router.post("/room-cookie", async (req, res) => {
-        try {
-            const { roomId, cookie } = req.body;
-            if (!roomId) {
-                return res.status(400).json({ success: false, message: "roomId is required" });
-            }
+    router.post("/room-cookie", asyncHandler(async (req, res) => {
+        const { roomId, cookie } = req.body;
+        if (!roomId) return badRequest(res, "roomId is required");
 
-            const room = roomService.getRoom(String(roomId));
-            if (!room) {
-                return res.status(404).json({ success: false, message: "Room not found" });
-            }
+        const room = roomService.getRoom(String(roomId));
+        if (!room) return notFound(res, "Room not found");
 
-            const normalizedCookie = String(cookie || "").trim();
-            if (normalizedCookie) {
-                const result = await qqMusicService.verifyCookie(normalizedCookie);
-                if (!result.success) {
-                    return res.status(400).json({ success: false, message: result.message || "Invalid cookie" });
-                }
-            }
-
-            roomService.setRoomCookie(room, normalizedCookie);
-            return res.json({
-                success: true,
-                room: roomService.getSafeRoomState(room),
-            });
-        } catch (err: any) {
-            handleError(res, err);
+        const normalizedCookie = String(cookie || "").trim();
+        if (normalizedCookie) {
+            const result = await qqMusicService.verifyCookie(normalizedCookie);
+            if (!result.success) return badRequest(res, result.message || "Invalid cookie");
         }
-    });
 
-    router.get("/search", async (req, res) => {
-        try {
-            const { key, pageNo = 1, pageSize = 20 } = req.query;
-            if (!key) {
-                return badRequest(res, "Search keyword is required");
+        roomService.setRoomCookie(room, normalizedCookie);
+        return res.json({
+            success: true,
+            room: roomService.getSafeRoomState(room),
+        });
+    }));
+
+    router.get("/search", asyncHandler(async (req, res) => {
+        const { key, pageNo = 1, pageSize = 20 } = req.query;
+        if (!key) return badRequest(res, "Search keyword is required");
+        res.json(await qqMusicService.searchSongs(key as string, Number(pageNo), Number(pageSize)));
+    }));
+
+    router.get("/user/songlist", asyncHandler(async (req, res) => {
+        const { id, roomId } = req.query;
+        if (!id) return badRequest(res, "User ID is required");
+        const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+        if (roomId && !room) return notFound(res, "Room not found");
+        const cookie = room?.hostCookie ?? null;
+        if (roomId && !cookie) return badRequest(res, "Host QQMusic cookie is required for user playlists");
+
+        const result = await qqMusicService.getUserSonglist(id as string, cookie);
+        res.json({ ...result, list: extractPlaylistList(result) });
+    }));
+
+    router.get("/recommend/playlist/u", asyncHandler(async (req, res) => {
+        const { roomId } = req.query;
+        const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+        if (roomId && !room) return notFound(res, "Room not found");
+        res.json(await qqMusicService.getRecommendPlaylist(room?.hostCookie ?? null));
+    }));
+
+    router.get("/lyric", asyncHandler(async (req, res) => {
+        const { songmid } = req.query;
+        if (!songmid) return badRequest(res, "songmid is required");
+        res.json(await qqMusicService.getLyric(songmid as string));
+    }));
+
+    router.get("/songlist", asyncHandler(async (req, res) => {
+        const { id, roomId } = req.query;
+        if (!id) return badRequest(res, "Songlist ID is required");
+        const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+        if (roomId && !room) return notFound(res, "Room not found");
+        res.json(await qqMusicService.getSonglistDetail(id as string, room?.hostCookie ?? null));
+    }));
+
+    router.get("/radio/categories", asyncHandler(async (_req, res) => {
+        res.json(await qqMusicService.getRadioCategories());
+    }));
+
+    router.get("/radio/songs", asyncHandler(async (req, res) => {
+        const { roomId, id = "99" } = req.query;
+        const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+        if (roomId && !room) return notFound(res, "Room not found");
+        const cookie = room?.hostCookie ?? null;
+        if (!cookie) return badRequest(res, "Host QQMusic cookie is required for radio songs");
+
+        const result = await qqMusicService.getRadioSongs(cookie, String(id));
+        const tracks = Array.isArray(result) ? result : extractRadioTracks(result);
+        const stations = Array.isArray(result?.stations) ? result.stations : extractRadioStations(result);
+
+        res.json({
+            tracks,
+            stations,
+            data: Array.isArray(result) ? { tracks, stations } : result,
+        });
+    }));
+
+    router.get("/hot", asyncHandler(async (_req, res) => {
+        res.json(await qqMusicService.getHotSearch());
+    }));
+
+    router.get("/qrcode", asyncHandler(async (_req, res) => {
+        res.json({ success: true, ...await qqMusicService.getLoginQrCode() });
+    }));
+
+    router.get("/qrcode/status", asyncHandler(async (req, res) => {
+        const { qrsig, roomId } = req.query;
+        if (!qrsig) return badRequest(res, "Missing qrsig");
+
+        const result = await qqMusicService.checkQrStatus(qrsig as string);
+        let roomState;
+
+        if (result.status === 0 && roomId && result.cookie) {
+            const room = roomService.getRoom(roomId as string);
+            if (room) {
+                roomService.setRoomCookie(room, result.cookie);
+                roomState = roomService.getSafeRoomState(room);
+                io.to(roomId as string).emit("room_state", roomState);
+                logInfo(TAG, "Auto-updated room cookie after QR login", { roomId });
             }
-            const result = await qqMusicService.searchSongs(key as string, Number(pageNo), Number(pageSize));
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
         }
-    });
-
-    router.get("/song/url", async (req, res) => {
-        try {
-            const { id, roomId } = req.query;
-            if (!id) {
-                return badRequest(res, "Song ID is required");
-            }
-            const room = roomId ? roomService.getRoom(roomId as string) : undefined;
-            const cookie = room?.hostCookie ?? null;
-            const { result, playableUrl, quality, cacheHit } = await qqMusicService.resolveSongPlayback(id as string, cookie);
-
-            if (room?.currentSong?.songmid === String(id)) {
-                const changed = await playbackService.setCurrentSongPlaybackInfo(
-                    room,
-                    String(roomId || room.id),
-                    io,
-                    String(id),
-                    playableUrl,
-                    quality,
-                );
-                if (changed && roomId) {
-                    logInfo(TAG, "Filled room current song playback info", {
-                        roomId,
-                        songmid: id,
-                        quality: quality ?? null,
-                        cacheHit,
-                    });
-                }
-            }
-
-            if (playableUrl && room?.currentSong?.songmid === String(id)) {
-                playbackService.cacheCurrentSong(room, roomId as string | undefined, playableUrl);
-            }
-
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/user/songlist", async (req, res) => {
-        try {
-            const { id, roomId } = req.query;
-            if (!id) {
-                return badRequest(res, "User ID is required");
-            }
-            const room = roomId ? roomService.getRoom(roomId as string) : undefined;
-            if (roomId && !room) {
-                return notFound(res, "Room not found");
-            }
-            const cookie = room?.hostCookie ?? null;
-            if (roomId && !cookie) {
-                return badRequest(res, "Host QQMusic cookie is required for user playlists");
-            }
-            const result = await qqMusicService.getUserSonglist(id as string, cookie);
-            const list = extractPlaylistList(result);
-            res.json({ ...result, list });
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/recommend/playlist/u", async (req, res) => {
-        try {
-            const { roomId } = req.query;
-            const room = roomId ? roomService.getRoom(roomId as string) : undefined;
-            if (roomId && !room) {
-                return notFound(res, "Room not found");
-            }
-            const cookie = room?.hostCookie ?? null;
-            const result = await qqMusicService.getRecommendPlaylist(cookie);
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/lyric", async (req, res) => {
-        try {
-            const { songmid } = req.query;
-            if (!songmid) {
-                return badRequest(res, "songmid is required");
-            }
-            const result = await qqMusicService.getLyric(songmid as string);
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/songlist", async (req, res) => {
-        try {
-            const { id, roomId } = req.query;
-            if (!id) {
-                return badRequest(res, "Songlist ID is required");
-            }
-            const room = roomId ? roomService.getRoom(roomId as string) : undefined;
-            if (roomId && !room) {
-                return notFound(res, "Room not found");
-            }
-            const cookie = room?.hostCookie ?? null;
-            const result = await qqMusicService.getSonglistDetail(id as string, cookie);
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/radio/categories", async (_req, res) => {
-        try {
-            const result = await qqMusicService.getRadioCategories();
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/radio/songs", async (req, res) => {
-        try {
-            const { roomId, id = "99" } = req.query;
-            const room = roomId ? roomService.getRoom(roomId as string) : undefined;
-            if (roomId && !room) {
-                return notFound(res, "Room not found");
-            }
-            const cookie = room?.hostCookie ?? null;
-            if (!cookie) {
-                return badRequest(res, "Host QQMusic cookie is required for radio songs");
-            }
-
-            const result = await qqMusicService.getRadioSongs(cookie, String(id));
-            const tracks = Array.isArray(result) ? result : extractRadioTracks(result);
-            const stations = Array.isArray(result?.stations)
-                ? result.stations
-                : extractRadioStations(result);
-
-            res.json({
-                tracks,
-                stations,
-                data: Array.isArray(result) ? { tracks, stations } : result,
-            });
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/hot", async (_req, res) => {
-        try {
-            const result = await qqMusicService.getHotSearch();
-            res.json(result);
-        } catch (err: any) {
-            handleError(res, err);
-        }
-    });
-
-    router.get("/qrcode", async (_req, res) => {
-        try {
-            const result = await qqMusicService.getLoginQrCode();
-            res.json({ success: true, ...result });
-        } catch (err: any) {
-            logError(TAG, "Get QR code failed", err);
-            res.status(500).json({ success: false, message: err.message });
-        }
-    });
-
-    router.get("/qrcode/status", async (req, res) => {
-        try {
-            const { qrsig, roomId } = req.query;
-            if (!qrsig) {
-                return res.status(400).json({ success: false, message: "Missing qrsig" });
-            }
-
-            const result = await qqMusicService.checkQrStatus(qrsig as string);
-            let roomState;
-
-            if (result.status === 0 && roomId && result.cookie) {
-                const room = roomService.getRoom(roomId as string);
-                if (room) {
-                    roomService.setRoomCookie(room, result.cookie);
-                    roomState = roomService.getSafeRoomState(room);
-                    io.to(roomId as string).emit("room_state", roomState);
-                    logInfo(TAG, "Auto-updated room cookie after QR login", { roomId });
-                }
-            }
-
-            res.json({ success: true, ...result, room: roomState });
-        } catch (err: any) {
-            logError(TAG, "Check QR status failed", err);
-            res.status(500).json({ success: false, message: err.message });
-        }
-    });
+        res.json({ success: true, ...result, room: roomState });
+    }));
 
     return router;
 }

@@ -7,7 +7,7 @@ export interface SongMeta {
     id: string;
     songmid: string;
     songname: string;
-    singer: string | { name: string }[];
+    singer: string;
     albumname: string;
     albummid: string;
     album?: {

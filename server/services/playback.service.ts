@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { logError, logInfo, logWarn } from "../logger.js";
-import { Room, Song } from "../types.js";
+import { Room, RoomPlaybackSong, Song } from "../types.js";
 import * as musicCacheService from "./music-cache.service.js";
 import * as qqMusicService from "./qqmusic.service.js";
 import * as roomService from "./room.service.js";
@@ -45,8 +45,20 @@ export function normalizeIncomingSong(song: any, requestedBy: string): Song {
         albumname: song.albumname || song.album?.title || song.album?.name || "Unknown Album",
         albummid,
         requestedBy,
-        playUrl: undefined,
-        playQuality: undefined,
+    };
+}
+
+function createLocalCachedSong(track: any): RoomPlaybackSong {
+    return {
+        id: track.songmid,
+        songmid: track.songmid,
+        songname: track.songname,
+        singer: track.singer || "Unknown Artist",
+        albumname: track.albumname || "Local Cache",
+        albummid: track.albummid || "",
+        requestedBy: "LocalCache",
+        playUrl: track.audioUrl,
+        playQuality: "local-cache",
     };
 }
 
@@ -105,6 +117,8 @@ export async function warmCurrentSongPlayback(room: Room, roomId: string, io: Se
             songmid: currentSong.songmid,
             message: error instanceof Error ? error.message : String(error),
         });
+        appendSystemMessage(room, roomId, io, `System: Failed to resolve playback for ${currentSong.songname}, skipping...`, true);
+        void skipCurrentSong(room, roomId, io, "System", true);
     }
 }
 
@@ -136,6 +150,15 @@ async function fetchRecommendedSong(room: Room): Promise<Song | null> {
         logError(TAG, "Failed to fetch recommended song", error, { roomId: room.id });
         return null;
     }
+}
+
+function fetchRandomLocalCachedSong(): RoomPlaybackSong | null {
+    const track = musicCacheService.getRandomCachedTrack();
+    if (!track?.songmid || !track?.audioUrl) {
+        return null;
+    }
+
+    return createLocalCachedSong(track);
 }
 
 export async function playNextSong(room: Room, roomId: string, io: Server, isAuto = false): Promise<void> {
@@ -188,6 +211,23 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
             void warmCurrentSongPlayback(room, roomId, io);
             return;
         }
+    }
+
+    const localSong = fetchRandomLocalCachedSong();
+    if (localSong) {
+        room.currentSong = localSong;
+        room.currentTime = 0;
+        room.isPlaying = true;
+        roomService.bumpSyncVersion(room);
+
+        logInfo(TAG, "Local cached random playback started", {
+            roomId,
+            songName: localSong.songname,
+            singer: localSong.singer,
+        });
+
+        broadcastRoomState(room, roomId, io, true);
+        return;
     }
 
     room.currentSong = null;

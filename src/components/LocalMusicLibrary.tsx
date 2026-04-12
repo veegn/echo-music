@@ -31,6 +31,9 @@ type LocalMusicStats = {
   totalCoverSize: number;
   totalSize: number;
   latestCachedAt: string;
+  cacheWritesPaused: boolean;
+  cacheWriteError: string;
+  cacheWriteUpdatedAt: string;
 };
 
 type LocalTrackListResponse = {
@@ -43,7 +46,7 @@ type LocalTrackListResponse = {
 type CacheJobInfo = {
   id: string;
   songmid: string;
-  type: "cache" | "recache";
+  type: "cache" | "recache" | "delete" | "deleteMany";
   status: "pending" | "running" | "succeeded" | "failed";
   error?: string;
   updatedAt: string;
@@ -357,6 +360,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<"refresh" | "delete" | null>(null);
   const [selectedSongmid, setSelectedSongmid] = useState<string | null>(() => getSongmidFromPathname(window.location.pathname));
+  const [selectedSongmids, setSelectedSongmids] = useState<string[]>([]);
 
   const endpoint = useMemo(() => (
     query.trim()
@@ -415,6 +419,10 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
   }, [endpoint, selectedSongmid]);
 
   useEffect(() => {
+    setSelectedSongmids((current) => current.filter((songmid) => tracks.some((track) => track.songmid === songmid)));
+  }, [tracks]);
+
+  useEffect(() => {
     setPage(1);
   }, [query]);
 
@@ -444,6 +452,14 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
     setSelectedTrack(null);
     setSelectedSongmid(null);
     window.history.pushState({}, "", "/local-music");
+  };
+
+  const toggleTrackSelection = (songmid: string) => {
+    setSelectedSongmids((current) => (
+      current.includes(songmid)
+        ? current.filter((item) => item !== songmid)
+        : [...current, songmid]
+    ));
   };
 
   const handleRecache = async () => {
@@ -487,13 +503,58 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
       const res = await fetch(`/api/local-music/tracks/${encodeURIComponent(selectedTrack.songmid)}`, {
         method: "DELETE",
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "删除缓存失败");
+      const data: { error?: string; job?: CacheJobInfo } = await res.json();
+      if (!res.ok || !data?.job?.id) {
+        throw new Error(data?.error || "删除缓存失败");
+      }
+
+      const job = await waitForCacheJob(data.job.id);
+      if (job.status === "failed") {
+        throw new Error(job.error || "删除缓存失败");
+      }
+
+      setSelectedSongmids((current) => current.filter((songmid) => songmid !== selectedTrack.songmid));
       closeTrackModal();
       await loadTracks();
       await loadStats();
     } catch (error) {
       window.alert((error as Error).message || "删除缓存失败");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedSongmids.length === 0) return;
+    if (!window.confirm(`确认删除选中的 ${selectedSongmids.length} 首本地缓存音乐吗？`)) return;
+
+    setBusy("delete");
+    try {
+      const res = await fetch("/api/local-music/tracks/bulk-delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ songmids: selectedSongmids }),
+      });
+      const data: { error?: string; job?: CacheJobInfo } = await res.json();
+      if (!res.ok || !data?.job?.id) {
+        throw new Error(data?.error || "批量删除缓存失败");
+      }
+
+      const job = await waitForCacheJob(data.job.id);
+      if (job.status === "failed") {
+        throw new Error(job.error || "批量删除缓存失败");
+      }
+
+      if (selectedTrack && selectedSongmids.includes(selectedTrack.songmid)) {
+        closeTrackModal();
+      }
+      setSelectedSongmids([]);
+      await loadTracks();
+      await loadStats();
+    } catch (error) {
+      window.alert((error as Error).message || "批量删除缓存失败");
     } finally {
       setBusy(null);
     }
@@ -521,7 +582,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
                 </div>
                 <h1 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">本地音乐曲库</h1>
                 <p className="mt-1 text-sm text-zinc-400">
-                  查看缓存统计、管理曲库，并在弹窗中播放本地音乐。
+                  查看缓存统计，管理本地缓存，并在弹窗中直接播放本地音乐。
                 </p>
               </div>
             </div>
@@ -585,13 +646,25 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
                   <div className="text-sm font-semibold text-zinc-200">最近缓存时间</div>
                   <div className="mt-1 text-sm text-zinc-500">{formatTime(stats?.latestCachedAt || "")}</div>
                 </div>
+
+                {stats?.cacheWritesPaused && (
+                  <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3">
+                    <div className="text-sm font-semibold text-amber-200">缓存写入已暂停</div>
+                    <div className="mt-1 text-sm text-amber-100/90">
+                      {stats.cacheWriteError || "存储空间不足，新的缓存写入已暂停。"}
+                    </div>
+                    <div className="mt-1 text-xs text-amber-200/70">
+                      更新时间 {formatTime(stats?.cacheWriteUpdatedAt || "")}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         <section className="glass-card min-h-[640px] rounded-[28px] p-4 sm:p-5">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold">曲库列表</h2>
               <p className="mt-1 text-xs text-zinc-500">
@@ -600,32 +673,54 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
                   : `共 ${total} 首缓存歌曲，当前第 ${page}/${totalPages} 页`}
               </p>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-zinc-500">已选 {selectedSongmids.length} 首</div>
+              <button
+                onClick={() => void handleBulkDelete()}
+                disabled={busy !== null || selectedSongmids.length === 0}
+                className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-sm text-red-300 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                批量删除
+              </button>
+            </div>
           </div>
 
           <div className="custom-scrollbar grid max-h-[720px] gap-2.5 overflow-y-auto pr-1">
             {tracks.map((track) => (
-              <button
+              <div
                 key={track.songmid}
-                onClick={() => selectTrack(track)}
-                className="w-full rounded-[24px] border border-zinc-800/60 bg-zinc-900/45 px-4 py-3 text-left transition-all hover:border-emerald-500/25 hover:bg-zinc-900/85"
+                className="flex items-center gap-3 rounded-[24px] border border-zinc-800/60 bg-zinc-900/45 px-4 py-3 transition-all hover:border-emerald-500/25 hover:bg-zinc-900/85"
               >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={track.coverUrl}
-                    alt={track.songname}
-                    className="h-16 w-16 rounded-2xl bg-zinc-900 object-cover shadow-lg"
+                <label className="flex shrink-0 items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedSongmids.includes(track.songmid)}
+                    onChange={() => toggleTrackSelection(track.songmid)}
+                    className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 text-emerald-500 focus:ring-emerald-500/40"
                   />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-bold text-zinc-100">{track.songname}</div>
-                    <div className="mt-1 truncate text-xs text-zinc-400">{track.singer}</div>
-                    <div className="mt-1 truncate text-[11px] text-zinc-500">{track.albumname}</div>
+                </label>
+                <button
+                  onClick={() => selectTrack(track)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={track.coverUrl}
+                      alt={track.songname}
+                      className="h-16 w-16 rounded-2xl bg-zinc-900 object-cover shadow-lg"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-bold text-zinc-100">{track.songname}</div>
+                      <div className="mt-1 truncate text-xs text-zinc-400">{track.singer}</div>
+                      <div className="mt-1 truncate text-[11px] text-zinc-500">{track.albumname}</div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-xs font-semibold text-zinc-300">{formatSize(track.audioSize)}</div>
+                      <div className="mt-1 text-[11px] text-zinc-500">点击播放</div>
+                    </div>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <div className="text-xs font-semibold text-zinc-300">{formatSize(track.audioSize)}</div>
-                    <div className="mt-1 text-[11px] text-zinc-500">点击播放</div>
-                  </div>
-                </div>
-              </button>
+                </button>
+              </div>
             ))}
 
             {!loading && tracks.length === 0 && (

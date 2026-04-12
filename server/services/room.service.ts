@@ -4,14 +4,11 @@ import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import * as qqMusicService from "./qqmusic.service.js";
+import { config } from "../config.js";
 
 const TAG = "RoomService";
-const STORAGE_DIR = process.env.ECHO_MUSIC_STORAGE_DIR
-    ? path.resolve(process.env.ECHO_MUSIC_STORAGE_DIR)
-    : path.join(process.cwd(), "server", "storage");
-const ROOMS_DIR = path.join(STORAGE_DIR, "rooms");
-const LEGACY_ROOMS_FILE = path.join(STORAGE_DIR, "rooms.json");
-export const SYNC_LEASE_MS = 5000;
+const ROOMS_DIR = config.storage.roomsDir;
+export const SYNC_LEASE_MS = config.room.syncLeaseMs;
 
 const rooms = new Map<string, Room>();
 const destructionTimers = new Map<string, NodeJS.Timeout>();
@@ -34,6 +31,9 @@ function persistableRoom(room: Room): Room {
         users: [],
         isPlaying: false,
         currentTime: 0,
+        chat: [],
+        syncLeaderId: "",
+        syncLeaderName: ""
     };
 }
 
@@ -82,7 +82,7 @@ function scheduleFlush(roomIds?: string | string[]): void {
     flushTimer = setTimeout(() => {
         flushTimer = null;
         flushDirtyRooms();
-    }, 250);
+    }, config.storage.roomFlushDebounceMs);
 }
 
 function generateRoomId(): string {
@@ -134,32 +134,8 @@ export function ensureSyncLeader(room: Room): boolean {
     return assignSyncLeader(room, nextLeader);
 }
 
-function migrateLegacyRoomsIfNeeded(): void {
-    ensureRoomsDir();
-    const hasRoomFiles = fs.readdirSync(ROOMS_DIR).some((file) => file.endsWith(".json"));
-    if (hasRoomFiles || !fs.existsSync(LEGACY_ROOMS_FILE)) {
-        return;
-    }
-
-    try {
-        const data = JSON.parse(fs.readFileSync(LEGACY_ROOMS_FILE, "utf-8"));
-        for (const [id, room] of Object.entries(data)) {
-            const filePath = getRoomFilePath(id);
-            fs.writeFileSync(filePath, JSON.stringify(room, null, 2));
-        }
-        fs.renameSync(LEGACY_ROOMS_FILE, `${LEGACY_ROOMS_FILE}.migrated`);
-        logInfo(TAG, "Migrated legacy rooms.json to per-room files", {
-            count: Object.keys(data).length,
-            dirPath: ROOMS_DIR,
-        });
-    } catch (error) {
-        logError(TAG, "Failed to migrate legacy rooms.json", error);
-    }
-}
-
 function loadRoomsFromDisk(): void {
     ensureRoomsDir();
-    migrateLegacyRoomsIfNeeded();
 
     try {
         const files = fs.readdirSync(ROOMS_DIR).filter((file) => file.endsWith(".json"));
@@ -179,7 +155,7 @@ function loadRoomsFromDisk(): void {
                 hostCookie: room.hostCookie || null,
                 hostQQId: room.hostQQId || "",
             });
-            scheduleRoomDestruction(room.id, 60 * 60 * 1000);
+            scheduleRoomDestruction(room.id, config.room.loadedRoomDestructionMs);
         }
         logInfo(TAG, "Rooms loaded from storage", { count: rooms.size, dirPath: ROOMS_DIR });
     } catch (error) {
@@ -233,7 +209,7 @@ export function createRoom(name: string, password: string, hostName: string): { 
 
     rooms.set(id, room);
     saveRooms(id);
-    scheduleRoomDestruction(id);
+    scheduleRoomDestruction(id, config.room.idleDestructionMs);
     logInfo(TAG, "Room created", { roomId: id, roomName: name, host: hostName });
     return { id, existing: false };
 }
@@ -252,7 +228,7 @@ export function deleteRoom(roomId: string): void {
     }
 }
 
-export function scheduleRoomDestruction(roomId: string, limitMs: number = 5 * 60 * 1000): void {
+export function scheduleRoomDestruction(roomId: string, limitMs: number = config.room.idleDestructionMs): void {
     if (destructionTimers.has(roomId)) {
         clearTimeout(destructionTimers.get(roomId)!);
     }

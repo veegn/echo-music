@@ -172,12 +172,14 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const isLobbyPage = pathname === '/';
+
   useEffect(() => {
-    if (room) return;
+    if (room || !isLobbyPage) return;
     fetchRooms();
     const interval = setInterval(fetchRooms, 5000);
     return () => clearInterval(interval);
-  }, [room]);
+  }, [room, isLobbyPage]);
 
   const fetchRooms = async () => {
     try {
@@ -190,6 +192,7 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (!isLobbyPage) return;
     if (userName && pendingRoomId && rooms.length > 0) {
       const targetRoom = rooms.find((item) => item.id === pendingRoomId);
       if (targetRoom) {
@@ -200,7 +203,7 @@ export default function App() {
       }
       setPendingRoomId(null);
     }
-  }, [userName, pendingRoomId, rooms]);
+  }, [userName, pendingRoomId, rooms, isLobbyPage]);
 
   const handleJoinRoom = async (targetRoom: any) => {
     if (!userName) {
