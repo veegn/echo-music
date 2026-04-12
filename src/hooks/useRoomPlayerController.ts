@@ -1,23 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store';
 
-function findFirstHttpUrl(obj: unknown): string | null {
-  if (!obj || typeof obj !== 'object') return null;
-  for (const val of Object.values(obj as Record<string, unknown>)) {
-    if (typeof val === 'string' && val.startsWith('http')) return val;
-    const nested = findFirstHttpUrl(val);
-    if (nested) return nested;
-  }
-  return null;
-}
-
 export function useRoomPlayerController() {
-  const { room, skipSong, syncPlayer, controlPlayback, seekPlayer, showToast, socket } = useStore();
+  const { room, skipSong, syncPlayer, controlPlayback, seekPlayer, socket } = useStore();
   const [audioUrl, setAudioUrl] = useState('');
   const [localCurrentTime, setLocalCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [songLoading, setSongLoading] = useState(false);
-  const [autoPlayFailed, setAutoPlayFailed] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastSyncRef = useRef(0);
   const suppressSyncRef = useRef(false);
@@ -35,7 +24,6 @@ export function useRoomPlayerController() {
       if (room.currentSong.playUrl) {
         setAudioUrl(room.currentSong.playUrl);
         setSongLoading(false);
-        setAutoPlayFailed(false);
       } else {
         setAudioUrl('');
         setSongLoading(true);
@@ -43,7 +31,6 @@ export function useRoomPlayerController() {
     } else {
       setAudioUrl('');
       setSongLoading(false);
-      setAutoPlayFailed(false);
     }
   }, [room?.currentSong?.songmid, room?.currentSong?.playUrl]);
 
@@ -92,7 +79,7 @@ export function useRoomPlayerController() {
       takeoverTimeoutRef.current = Date.now() + 1500;
       suppressSyncRef.current = true;
       if (nextIsPlaying) {
-        audioRef.current.play().catch(() => setAutoPlayFailed(true));
+        audioRef.current.play().catch(() => { });
       } else {
         audioRef.current.pause();
       }
@@ -122,12 +109,9 @@ export function useRoomPlayerController() {
       if (diff > 0.8) audioRef.current.currentTime = room.currentTime;
 
       if (room.isPlaying && audioRef.current.paused && !audioRef.current.ended) {
-        audioRef.current.play()
-          .then(() => setAutoPlayFailed(false))
-          .catch(() => setAutoPlayFailed(true));
+        audioRef.current.play().catch(() => { });
       } else if (!room.isPlaying && !audioRef.current.paused) {
         audioRef.current.pause();
-        setAutoPlayFailed(false);
       }
       window.setTimeout(() => {
         suppressSyncRef.current = false;
@@ -141,15 +125,12 @@ export function useRoomPlayerController() {
       audioRef.current.play()
         .then(() => {
           setSongLoading(false);
-          setAutoPlayFailed(false);
         })
         .catch(() => {
           setSongLoading(false);
-          setAutoPlayFailed(true);
-          showToast('浏览器拦截了自动播放，请手动点击播放。', 'error');
         });
     }
-  }, [audioUrl, isSyncLeader, room?.currentSong, showToast]);
+  }, [audioUrl, isSyncLeader, room?.currentSong]);
 
   const handleSeek = (nextTime: number) => {
     if (!audioRef.current) return;
@@ -163,19 +144,12 @@ export function useRoomPlayerController() {
     skipSong(isAuto);
   };
 
-  const retryAutoplay = () => {
-    audioRef.current?.play()
-      .then(() => setAutoPlayFailed(false))
-      .catch(() => { });
-  };
-
   return {
     room,
     audioUrl,
     localCurrentTime,
     duration,
     songLoading,
-    autoPlayFailed,
     audioRef,
     isSyncLeader,
     handleTimeUpdate,
@@ -184,6 +158,5 @@ export function useRoomPlayerController() {
     togglePlay,
     handleSeek,
     handleSkip,
-    retryAutoplay,
   };
 }

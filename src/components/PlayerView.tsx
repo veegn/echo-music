@@ -17,12 +17,10 @@ interface PlayerViewProps {
   audioRef: React.RefObject<HTMLAudioElement | null>;
   localCurrentTime: number;
   duration: number;
-  autoPlayFailed: boolean;
   isSyncLeader: boolean;
   onTogglePlay: () => void;
   onSkip: (isAuto?: boolean) => void;
   onOpenCookieDialog: () => void;
-  onRetryAutoplay: () => void;
   onTimeUpdate: () => void;
   onLoadedMetadata: () => void;
   onPlayPause: () => void;
@@ -36,12 +34,10 @@ export default function PlayerView({
   audioRef,
   localCurrentTime,
   duration,
-  autoPlayFailed,
   isSyncLeader,
   onTogglePlay,
   onSkip,
   onOpenCookieDialog,
-  onRetryAutoplay,
   onTimeUpdate,
   onLoadedMetadata,
   onPlayPause,
@@ -103,24 +99,6 @@ export default function PlayerView({
 
       <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 sm:p-8 relative z-10 custom-scrollbar">
         <div className="w-full max-w-5xl flex flex-col items-center gap-8 relative z-10 my-auto py-4">
-          <AnimatePresence>
-            {autoPlayFailed && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md rounded-3xl cursor-pointer shadow-2xl"
-                onClick={onRetryAutoplay}
-              >
-                <div className="flex flex-col items-center bg-zinc-900/90 border border-emerald-500/50 p-6 rounded-2xl">
-                  <Play className="w-12 h-12 text-emerald-400 mb-4 animate-pulse" />
-                  <p className="text-white font-bold text-lg">点击这里继续播放音乐</p>
-                  <p className="text-zinc-400 text-sm mt-2">浏览器限制了自动播放，需要你手动授权一次。</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           <div className="w-full flex flex-col-reverse md:flex-row items-center md:items-stretch bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/50 rounded-3xl overflow-hidden shadow-2xl md:h-[320px]">
             <div className="flex-1 p-6 md:p-8 flex flex-col justify-between w-full h-full">
               {audioUrl && (

@@ -18,7 +18,7 @@ export default function RoomView() {
 
         const requestWakeLock = async () => {
             try {
-                if ('wakeLock' in navigator) {
+                if ('wakeLock' in navigator && document.visibilityState === 'visible') {
                     wakeLock = await (navigator as any).wakeLock.request('screen');
                 }
             } catch (err) {
