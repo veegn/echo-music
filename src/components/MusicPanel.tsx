@@ -225,7 +225,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
   const loadLocalTracks = async () => {
     setDiscoveryLoading(true);
     try {
-      const res = await fetch('/api/local-music/tracks?page=1&pageSize=50');
+      const res = await fetch('/api/offline-library/tracks?page=1&pageSize=50');
       const data = await res.json();
       const list = Array.isArray(data?.list) ? data.list : [];
       setLocalTracks(list.map((track: any) => ({

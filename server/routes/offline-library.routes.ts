@@ -4,7 +4,7 @@ import { Router, RequestHandler, Request, Response, NextFunction } from "express
 import * as musicCacheService from "../services/music-cache.service.js";
 import { logError } from "../logger.js";
 
-const TAG = "LocalMusicRoutes";
+const TAG = "OfflineLibraryRoutes";
 
 function streamFile(res: any, filePath: string, inline = true) {
     res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
@@ -27,7 +27,7 @@ function asyncHandler(fn: RequestHandler): RequestHandler {
     };
 }
 
-export default function createLocalMusicRouter(): Router {
+export default function createOfflineLibraryRouter(): Router {
     const router = Router();
 
     router.get("/stats", asyncHandler(async (_req, res) => {

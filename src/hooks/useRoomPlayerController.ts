@@ -121,7 +121,7 @@ export function useRoomPlayerController() {
       suppressSyncRef.current = true;
       if (diff > 0.8) audioRef.current.currentTime = room.currentTime;
 
-      if (room.isPlaying && audioRef.current.paused) {
+      if (room.isPlaying && audioRef.current.paused && !audioRef.current.ended) {
         audioRef.current.play()
           .then(() => setAutoPlayFailed(false))
           .catch(() => setAutoPlayFailed(true));
@@ -158,9 +158,9 @@ export function useRoomPlayerController() {
     seekPlayer(nextTime);
   };
 
-  const handleSkip = () => {
+  const handleSkip = (isAuto: boolean = false) => {
     takeoverTimeoutRef.current = Date.now() + 500;
-    skipSong();
+    skipSong(isAuto);
   };
 
   const retryAutoplay = () => {

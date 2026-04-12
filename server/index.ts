@@ -5,7 +5,7 @@ import path from "path";
 import { Server } from "socket.io";
 
 import { logError, logInfo } from "./logger.js";
-import createLocalMusicRouter from "./routes/local-music.routes.js";
+import createOfflineLibraryRouter from "./routes/offline-library.routes.js";
 import createQQMusicRouter from "./routes/qqmusic.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import * as musicCacheService from "./services/music-cache.service.js";
@@ -51,21 +51,21 @@ function buildAbsoluteUrl(req: express.Request, pathname: string): string {
 
 function renderSeoHtml(req: express.Request, baseHtml: string): string {
     const pathname = req.path;
-    const songmidMatch = pathname.match(/^\/local-music\/([^/?#]+)/);
+    const songmidMatch = pathname.match(/^\/offline-library\/([^/?#]+)/);
     const track = songmidMatch
         ? musicCacheService.getCachedTrack(decodeURIComponent(songmidMatch[1]))
         : null;
 
     const title = track
-        ? `${track.songname} - ${track.singer} | Echo Music 本地音乐`
-        : pathname.startsWith("/local-music")
-            ? "Echo Music 本地音乐库 - 免登录搜索和播放缓存音乐"
-            : "Echo Music - 在线一起听歌与本地音乐库";
+        ? `${track.songname} - ${track.singer} | Echo Music 离线曲库`
+        : pathname.startsWith("/offline-library")
+            ? "Echo Music 离线曲库 - 免登录搜索和播放缓存音乐"
+            : "Echo Music - 在线一起听歌与离线曲库";
     const description = track
-        ? `${track.songname}，歌手 ${track.singer}，专辑 ${track.albumname}。${track.intro || "本地缓存音乐详情与播放页。"}`
-        : pathname.startsWith("/local-music")
-            ? "Echo Music 本地音乐库，支持免登录搜索、浏览、播放已缓存到本地的歌曲、封面和简介。"
-            : "Echo Music，支持多人一起听歌，也支持免登录浏览和播放本地缓存音乐。";
+        ? `${track.songname}，歌手 ${track.singer}，专辑 ${track.albumname}。${track.intro || "离线曲库详情与播放页。"}`
+        : pathname.startsWith("/offline-library")
+            ? "Echo Music 离线曲库，支持免登录搜索、浏览、播放已缓存到本地的歌曲、封面和简介。"
+            : "Echo Music，支持多人一起听歌，也支持免登录浏览和播放离线缓存音乐。";
     const canonical = buildAbsoluteUrl(req, pathname);
     const image = track?.coverUrl
         ? buildAbsoluteUrl(req, track.coverUrl)
@@ -88,7 +88,7 @@ function renderSeoHtml(req: express.Request, baseHtml: string): string {
 app.use(express.json());
 app.use("/api/rooms", roomRoutes);
 app.use("/api/qqmusic", createQQMusicRouter(io));
-app.use("/api/local-music", createLocalMusicRouter());
+app.use("/api/offline-library", createOfflineLibraryRouter());
 
 registerSocketHandlers(io);
 

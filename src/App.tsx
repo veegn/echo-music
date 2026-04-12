@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Music, Lock, Users, Plus, Edit2, Library } from 'lucide-react';
 import { useStore } from './store';
-import LocalMusicLibrary from './components/LocalMusicLibrary';
+import OfflineLibrary from './components/OfflineLibrary';
 import RoomView from './components/RoomView';
 import {
   WelcomeDialog,
@@ -16,8 +16,8 @@ const LobbyHeader: React.FC<{
   userName: string;
   onEditName: () => void;
   onCreateRoom: () => void;
-  onOpenLocalLibrary: () => void;
-}> = ({ userName, onEditName, onCreateRoom, onOpenLocalLibrary }) => (
+  onOpenOfflineLibrary: () => void;
+}> = ({ userName, onEditName, onCreateRoom, onOpenOfflineLibrary }) => (
   <header className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 sm:mb-20 glass-panel px-6 py-4 sm:px-8 sm:py-5 rounded-[32px] shadow-2xl shadow-black/40">
     <div className="flex items-center gap-4">
       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 border border-emerald-400/20">
@@ -37,7 +37,7 @@ const LobbyHeader: React.FC<{
     </div>
     <div className="flex items-center gap-3 sm:gap-5 w-full sm:w-auto justify-between sm:justify-end">
       <button
-        onClick={onOpenLocalLibrary}
+        onClick={onOpenOfflineLibrary}
         className="flex items-center gap-2 px-4 h-12 rounded-2xl bg-zinc-900/55 border border-zinc-800/80 text-zinc-200 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors"
       >
         <Library className="w-4 h-4" />
@@ -251,8 +251,8 @@ export default function App() {
     );
   }
 
-  if (pathname === '/local-music') {
-    return <LocalMusicLibrary onBack={() => {
+  if (pathname === '/offline-library') {
+    return <OfflineLibrary onBack={() => {
       window.history.pushState({}, '', '/');
       setPathname('/');
     }} />;
@@ -274,9 +274,9 @@ export default function App() {
             setShowWelcome(true);
           }}
           onCreateRoom={() => setShowCreate(true)}
-          onOpenLocalLibrary={() => {
-            window.history.pushState({}, '', '/local-music');
-            setPathname('/local-music');
+          onOpenOfflineLibrary={() => {
+            window.history.pushState({}, '', '/offline-library');
+            setPathname('/offline-library');
           }}
         />
 

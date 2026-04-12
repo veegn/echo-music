@@ -20,7 +20,7 @@ interface PlayerViewProps {
   autoPlayFailed: boolean;
   isSyncLeader: boolean;
   onTogglePlay: () => void;
-  onSkip: () => void;
+  onSkip: (isAuto?: boolean) => void;
   onOpenCookieDialog: () => void;
   onRetryAutoplay: () => void;
   onTimeUpdate: () => void;
@@ -131,7 +131,7 @@ export default function PlayerView({
                   onLoadedMetadata={onLoadedMetadata}
                   onPlay={onPlayPause}
                   onPause={onPlayPause}
-                  onEnded={() => isSyncLeader && onSkip()}
+                  onEnded={() => isSyncLeader && onSkip(true)}
                   className="hidden"
                 />
               )}

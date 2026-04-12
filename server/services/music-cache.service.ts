@@ -41,6 +41,9 @@ export interface CachedTrackStats {
     totalCoverSize: number;
     totalSize: number;
     latestCachedAt: string;
+    cacheWritesPaused: boolean;
+    cacheWriteError: string;
+    cacheWriteUpdatedAt: string;
 }
 
 export interface CachedTrackQueryResult {
@@ -53,11 +56,17 @@ export interface CachedTrackQueryResult {
 export interface CacheJobInfo {
     id: string;
     songmid: string;
-    type: "cache" | "recache";
+    type: "cache" | "recache" | "delete" | "deleteMany";
     status: "pending" | "running" | "succeeded" | "failed";
     error?: string;
     updatedAt: string;
 }
+
+type CacheWriteState = {
+    writesPaused: boolean;
+    error: string;
+    updatedAt: string;
+};
 
 const streamPipeline = promisify(pipeline);
 
@@ -67,6 +76,11 @@ const cacheJobs = new Map<string, CacheJobInfo>();
 const jobKeys = new Map<string, string>();
 const jobQueue: string[] = [];
 let jobRunning = false;
+let cacheWriteState: CacheWriteState = {
+    writesPaused: false,
+    error: "",
+    updatedAt: "",
+};
 
 function ensureCacheDirs(): void {
     for (const dir of [CACHE_ROOT, AUDIO_DIR, COVER_DIR]) {
@@ -83,7 +97,15 @@ function scheduleFlush(): void {
 
     flushTimer = setTimeout(() => {
         flushTimer = null;
-        flushDb();
+        try {
+            flushDb();
+        } catch (error) {
+            if (isNoSpaceError(error)) {
+                pauseCacheWrites(error);
+            } else {
+                logError(TAG, "Failed to flush sqlite cache", error, { dbFile: DB_FILE });
+            }
+        }
     }, 250);
 }
 
@@ -131,13 +153,13 @@ function getCoverFilePath(songmid: string, sourceUrl: string): string {
     return path.join(COVER_DIR, `${sanitizeFileSegment(songmid)}.${getCoverExtension(sourceUrl)}`);
 }
 
-function safeUnlink(filePath: string): void {
+async function safeUnlink(filePath: string): Promise<void> {
     if (!fileExists(filePath)) {
         return;
     }
 
     try {
-        fs.unlinkSync(filePath);
+        await fs.promises.unlink(filePath);
     } catch (error) {
         logWarn(TAG, "Failed to remove cached file", {
             filePath,
@@ -197,15 +219,43 @@ function getCoverSourceUrl(song: Pick<Song, "albummid" | "album">): string {
 function toPublicRecord(record: CachedTrackRecord) {
     return {
         ...record,
-        audioUrl: `/api/local-music/audio/${encodeURIComponent(record.songmid)}`,
+        audioUrl: `/api/offline-library/audio/${encodeURIComponent(record.songmid)}`,
         coverUrl: record.coverLocalPath
-            ? `/api/local-music/cover/${encodeURIComponent(record.songmid)}`
+            ? `/api/offline-library/cover/${encodeURIComponent(record.songmid)}`
             : record.coverSourceUrl,
     };
 }
 
 function nowIso(): string {
     return new Date().toISOString();
+}
+
+function isNoSpaceError(error: unknown): boolean {
+    const code = (error as NodeJS.ErrnoException | undefined)?.code;
+    return code === "ENOSPC";
+}
+
+function pauseCacheWrites(error: unknown): void {
+    const message = (error as Error)?.message || "No space left on device";
+    cacheWriteState = {
+        writesPaused: true,
+        error: message,
+        updatedAt: nowIso(),
+    };
+    logError(TAG, "Paused cache writes because storage is full", error, { dbFile: DB_FILE });
+}
+
+function resumeCacheWrites(reason: string): void {
+    if (!cacheWriteState.writesPaused) {
+        return;
+    }
+
+    cacheWriteState = {
+        writesPaused: false,
+        error: "",
+        updatedAt: nowIso(),
+    };
+    logInfo(TAG, "Resumed cache writes", { reason });
 }
 
 function updateJob(jobId: string, patch: Partial<CacheJobInfo>): CacheJobInfo | null {
@@ -291,6 +341,10 @@ async function performCacheSong(song: Song, audioUrl: string): Promise<void> {
         return;
     }
 
+    if (cacheWriteState.writesPaused) {
+        throw new Error(cacheWriteState.error || "Cache writes are paused because storage is full");
+    }
+
     ensureCacheDirs();
     const existing = getOne("SELECT * FROM cached_tracks WHERE songmid = ?", [song.songmid]);
     const now = nowIso();
@@ -302,7 +356,14 @@ async function performCacheSong(song: Song, audioUrl: string): Promise<void> {
 
     let audioSize = 0;
     if (!fileExists(audioPath)) {
-        audioSize = await downloadFile(audioUrl, audioPath);
+        try {
+            audioSize = await downloadFile(audioUrl, audioPath);
+        } catch (error) {
+            if (isNoSpaceError(error)) {
+                pauseCacheWrites(error);
+            }
+            throw error;
+        }
         logInfo(TAG, "Cached audio file", { songmid: song.songmid, audioPath, audioSize });
     } else {
         audioSize = fs.statSync(audioPath).size;
@@ -313,6 +374,9 @@ async function performCacheSong(song: Song, audioUrl: string): Promise<void> {
             await downloadFile(coverSourceUrl, coverPath);
             logInfo(TAG, "Cached cover file", { songmid: song.songmid, coverPath });
         } catch (error) {
+            if (isNoSpaceError(error)) {
+                pauseCacheWrites(error);
+            }
             logWarn(TAG, "Failed to cache cover file", {
                 songmid: song.songmid,
                 coverSourceUrl,
@@ -440,6 +504,9 @@ async function runNextJob(): Promise<void> {
     updateJob(jobId, { status: "running", error: undefined });
 
     try {
+        if ((job.type === "cache" || job.type === "recache") && cacheWriteState.writesPaused) {
+            throw new Error(cacheWriteState.error || "Cache writes are paused because storage is full");
+        }
         await worker();
         updateJob(jobId, { status: "succeeded" });
     } catch (error) {
@@ -531,13 +598,25 @@ db = fs.existsSync(DB_FILE)
     ? new SQL.Database(fs.readFileSync(DB_FILE))
     : new SQL.Database();
 createSchema();
-flushDb();
+try {
+    flushDb();
+} catch (error) {
+    if (isNoSpaceError(error)) {
+        pauseCacheWrites(error);
+    } else {
+        logError(TAG, "Failed to initialize sqlite cache file", error, { dbFile: DB_FILE });
+    }
+}
 
 process.on("beforeExit", () => {
     try {
         flushDb();
     } catch (error) {
-        logError(TAG, "Failed to flush sqlite cache before exit", error);
+        if (isNoSpaceError(error)) {
+            pauseCacheWrites(error);
+        } else {
+            logError(TAG, "Failed to flush sqlite cache before exit", error);
+        }
     }
 });
 
@@ -558,8 +637,8 @@ export function enqueueRecacheTrack(songmid: string): CacheJobInfo | null {
     }
 
     return enqueueJob("recache", songmid, async () => {
-        safeUnlink(record.audioLocalPath);
-        safeUnlink(record.coverLocalPath);
+        await safeUnlink(record.audioLocalPath);
+        await safeUnlink(record.coverLocalPath);
 
         const song: Song = {
             id: songmid,
@@ -580,17 +659,60 @@ export function getCacheJob(jobId: string): CacheJobInfo | null {
     return cacheJobs.get(jobId) || null;
 }
 
-export function removeCachedTrack(songmid: string): boolean {
-    const record = getOne("SELECT * FROM cached_tracks WHERE songmid = ?", [songmid]);
-    if (!record) {
-        return false;
+async function deleteTracks(songmids: string[]): Promise<number> {
+    const uniqueSongmids = Array.from(new Set(songmids.filter(Boolean)));
+    let removedCount = 0;
+
+    for (const songmid of uniqueSongmids) {
+        const record = getOne("SELECT * FROM cached_tracks WHERE songmid = ?", [songmid]);
+        if (!record) {
+            continue;
+        }
+
+        await safeUnlink(record.audioLocalPath);
+        await safeUnlink(record.coverLocalPath);
+        db.run("DELETE FROM cached_tracks WHERE songmid = ?", [songmid]);
+        removedCount += 1;
     }
 
-    safeUnlink(record.audioLocalPath);
-    safeUnlink(record.coverLocalPath);
-    db.run("DELETE FROM cached_tracks WHERE songmid = ?", [songmid]);
-    scheduleFlush();
-    return true;
+    if (removedCount > 0) {
+        scheduleFlush();
+        resumeCacheWrites("cache files deleted");
+    }
+
+    return removedCount;
+}
+
+export function enqueueDeleteTrack(songmid: string): CacheJobInfo | null {
+    const record = getOne("SELECT * FROM cached_tracks WHERE songmid = ?", [songmid]);
+    if (!record) {
+        return null;
+    }
+
+    return enqueueJob("delete", songmid, async () => {
+        await deleteTracks([songmid]);
+    });
+}
+
+export function enqueueDeleteTracks(songmids: string[]): CacheJobInfo | null {
+    const uniqueSongmids = Array.from(new Set(songmids.filter(Boolean)));
+    if (uniqueSongmids.length === 0) {
+        return null;
+    }
+
+    const existingCount = uniqueSongmids
+        .map((songmid) => getOne("SELECT * FROM cached_tracks WHERE songmid = ?", [songmid]))
+        .filter(Boolean)
+        .length;
+
+    if (existingCount === 0) {
+        return null;
+    }
+
+    const syntheticSongmid = uniqueSongmids.join(",");
+    return enqueueJob("deleteMany", syntheticSongmid, async () => {
+        await deleteTracks(uniqueSongmids);
+    });
 }
 
 export function getCachedTrackStats(): CachedTrackStats {
@@ -623,6 +745,9 @@ export function getCachedTrackStats(): CachedTrackStats {
         totalCoverSize,
         totalSize: totalAudioSize + totalCoverSize,
         latestCachedAt,
+        cacheWritesPaused: cacheWriteState.writesPaused,
+        cacheWriteError: cacheWriteState.error,
+        cacheWriteUpdatedAt: cacheWriteState.updatedAt,
     };
 }
 
@@ -676,6 +801,25 @@ export function getCachedTrack(songmid: string) {
     if (!record || !fileExists(record.audioLocalPath)) {
         return null;
     }
+    return toPublicRecord(record);
+}
+
+export function getRandomCachedTrack() {
+    const result = db.exec(`
+        SELECT * FROM cached_tracks
+        ORDER BY RANDOM()
+        LIMIT 1
+    `);
+    const row = result[0]?.values?.[0];
+    if (!row) {
+        return null;
+    }
+
+    const record = rowToRecord(row);
+    if (!fileExists(record.audioLocalPath)) {
+        return null;
+    }
+
     return toPublicRecord(record);
 }
 

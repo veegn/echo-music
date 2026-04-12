@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 
-type LocalTrack = {
+type OfflineTrack = {
   songmid: string;
   songname: string;
   singer: string;
@@ -25,7 +25,7 @@ type LocalTrack = {
   coverUrl: string;
 };
 
-type LocalMusicStats = {
+type OfflineLibraryStats = {
   totalTracks: number;
   totalAudioSize: number;
   totalCoverSize: number;
@@ -36,8 +36,8 @@ type LocalMusicStats = {
   cacheWriteUpdatedAt: string;
 };
 
-type LocalTrackListResponse = {
-  list: LocalTrack[];
+type OfflineTrackListResponse = {
+  list: OfflineTrack[];
   total: number;
   page: number;
   pageSize: number;
@@ -77,20 +77,20 @@ const formatDuration = (seconds: number) => {
 };
 
 const getSongmidFromPathname = (pathname: string) => {
-  const match = pathname.match(/^\/local-music\/([^/?#]+)/);
+  const match = pathname.match(/^\/offline-library\/([^/?#]+)/);
   return match ? decodeURIComponent(match[1]) : null;
 };
 
-function updateSeoMeta(selectedTrack: LocalTrack | null) {
+function updateSeoMeta(selectedTrack: OfflineTrack | null) {
   const title = selectedTrack
-    ? `${selectedTrack.songname} - ${selectedTrack.singer} | Echo Music 本地音乐`
-    : "Echo Music 本地音乐库 - 免登录搜索和播放缓存音乐";
+    ? `${selectedTrack.songname} - ${selectedTrack.singer} | Echo Music 离线曲库`
+    : "Echo Music 离线曲库 - 免登录搜索和播放缓存音乐";
   const description = selectedTrack
-    ? `${selectedTrack.songname}，歌手 ${selectedTrack.singer}，专辑 ${selectedTrack.albumname}。${selectedTrack.intro || "本地缓存音乐详情与播放器页面。"}`
-    : "Echo Music 本地音乐库，支持免登录搜索、浏览和播放已缓存到本地的歌曲、封面与简介。";
+    ? `${selectedTrack.songname}，歌手 ${selectedTrack.singer}，专辑 ${selectedTrack.albumname}。${selectedTrack.intro || "离线曲库详情与播放器页面。"}`
+    : "Echo Music 离线曲库，支持免登录搜索、浏览和播放已缓存到本地的歌曲、封面与简介。";
   const canonical = selectedTrack
-    ? `${window.location.origin}/local-music/${encodeURIComponent(selectedTrack.songmid)}`
-    : `${window.location.origin}/local-music`;
+    ? `${window.location.origin}/offline-library/${encodeURIComponent(selectedTrack.songmid)}`
+    : `${window.location.origin}/offline-library`;
   const image = selectedTrack?.coverUrl
     ? `${window.location.origin}${selectedTrack.coverUrl}`
     : `${window.location.origin}/favicon.ico`;
@@ -113,14 +113,14 @@ function updateSeoMeta(selectedTrack: LocalTrack | null) {
   setMeta('link[rel="canonical"]', "href", canonical);
 }
 
-function LocalPlayerModal({
+function OfflinePlayerModal({
   track,
   busy,
   onClose,
   onRecache,
   onDelete,
 }: {
-  track: LocalTrack | null;
+  track: OfflineTrack | null;
   busy: "refresh" | "delete" | null;
   onClose: () => void;
   onRecache: () => void;
@@ -202,7 +202,7 @@ function LocalPlayerModal({
               <div className="flex flex-1 flex-col justify-between p-6 sm:p-8">
                 <div>
                   <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-400">
-                    Local Player
+                    Offline Library
                   </div>
                   <h2 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl">
                     {track.songname}
@@ -261,7 +261,7 @@ function LocalPlayerModal({
                         )}
                       </button>
                       <div className="text-xs text-zinc-500">
-                        本地缓存大小 {formatSize(track.audioSize)}
+                        离线缓存大小 {formatSize(track.audioSize)}
                       </div>
                     </div>
 
@@ -317,10 +317,10 @@ function LocalPlayerModal({
             <div className="mt-6 rounded-[28px] border border-zinc-800/50 bg-zinc-900/45 p-5 sm:p-6">
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-emerald-400">
                 <Disc3 className="h-4 w-4" />
-                本地简介
+                离线简介
               </div>
               <p className="text-sm leading-7 text-zinc-300">
-                {track.intro || "暂无本地简介。"}
+                {track.intro || "暂无离线简介。"}
               </p>
               <div className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/60 p-4">
@@ -350,13 +350,13 @@ function LocalPlayerModal({
   );
 }
 
-export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
+export default function OfflineLibrary({ onBack }: { onBack: () => void }) {
   const [query, setQuery] = useState("");
-  const [tracks, setTracks] = useState<LocalTrack[]>([]);
+  const [tracks, setTracks] = useState<OfflineTrack[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [selectedTrack, setSelectedTrack] = useState<LocalTrack | null>(null);
-  const [stats, setStats] = useState<LocalMusicStats | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<OfflineTrack | null>(null);
+  const [stats, setStats] = useState<OfflineLibraryStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<"refresh" | "delete" | null>(null);
   const [selectedSongmid, setSelectedSongmid] = useState<string | null>(() => getSongmidFromPathname(window.location.pathname));
@@ -364,25 +364,25 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
 
   const endpoint = useMemo(() => (
     query.trim()
-      ? `/api/local-music/search?q=${encodeURIComponent(query.trim())}&page=${page}&pageSize=${PAGE_SIZE}`
-      : `/api/local-music/tracks?page=${page}&pageSize=${PAGE_SIZE}`
+      ? `/api/offline-library/search?q=${encodeURIComponent(query.trim())}&page=${page}&pageSize=${PAGE_SIZE}`
+      : `/api/offline-library/tracks?page=${page}&pageSize=${PAGE_SIZE}`
   ), [page, query]);
 
   const loadStats = async () => {
-    const res = await fetch("/api/local-music/stats");
+    const res = await fetch("/api/offline-library/stats");
     const data = await res.json();
     setStats(data);
   };
 
-  const loadTrackDetail = async (songmid: string): Promise<LocalTrack | null> => {
-    const res = await fetch(`/api/local-music/tracks/${encodeURIComponent(songmid)}`);
+  const loadTrackDetail = async (songmid: string): Promise<OfflineTrack | null> => {
+    const res = await fetch(`/api/offline-library/tracks/${encodeURIComponent(songmid)}`);
     if (!res.ok) return null;
     return res.json();
   };
 
   const waitForCacheJob = async (jobId: string): Promise<CacheJobInfo> => {
     for (let attempt = 0; attempt < 120; attempt += 1) {
-      const res = await fetch(`/api/local-music/jobs/${encodeURIComponent(jobId)}`);
+      const res = await fetch(`/api/offline-library/jobs/${encodeURIComponent(jobId)}`);
       const data: CacheJobInfo & { error?: string } = await res.json();
       if (!res.ok) throw new Error(data?.error || "缓存任务查询失败");
       if (data.status === "succeeded" || data.status === "failed") {
@@ -397,7 +397,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
     setLoading(true);
     try {
       const res = await fetch(endpoint);
-      const data: LocalTrackListResponse = await res.json();
+      const data: OfflineTrackListResponse = await res.json();
       const nextList = Array.isArray(data?.list) ? data.list : [];
       setTracks(nextList);
       setTotal(Number(data?.total || 0));
@@ -442,16 +442,16 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const selectTrack = (track: LocalTrack) => {
+  const selectTrack = (track: OfflineTrack) => {
     setSelectedTrack(track);
     setSelectedSongmid(track.songmid);
-    window.history.pushState({}, "", `/local-music/${encodeURIComponent(track.songmid)}`);
+    window.history.pushState({}, "", `/offline-library/${encodeURIComponent(track.songmid)}`);
   };
 
   const closeTrackModal = () => {
     setSelectedTrack(null);
     setSelectedSongmid(null);
-    window.history.pushState({}, "", "/local-music");
+    window.history.pushState({}, "", "/offline-library");
   };
 
   const toggleTrackSelection = (songmid: string) => {
@@ -467,7 +467,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
     setBusy("refresh");
 
     try {
-      const res = await fetch(`/api/local-music/tracks/${encodeURIComponent(selectedTrack.songmid)}/recache`, {
+      const res = await fetch(`/api/offline-library/tracks/${encodeURIComponent(selectedTrack.songmid)}/recache`, {
         method: "POST",
       });
       const data: { error?: string; job?: CacheJobInfo } = await res.json();
@@ -496,17 +496,15 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
 
   const handleDelete = async () => {
     if (!selectedTrack) return;
-    if (!window.confirm(`确认删除本地缓存《${selectedTrack.songname}》吗？`)) return;
+    if (!window.confirm(`确认删除离线缓存《${selectedTrack.songname}》吗？`)) return;
 
     setBusy("delete");
     try {
-      const res = await fetch(`/api/local-music/tracks/${encodeURIComponent(selectedTrack.songmid)}`, {
+      const res = await fetch(`/api/offline-library/tracks/${encodeURIComponent(selectedTrack.songmid)}`, {
         method: "DELETE",
       });
       const data: { error?: string; job?: CacheJobInfo } = await res.json();
-      if (!res.ok || !data?.job?.id) {
-        throw new Error(data?.error || "删除缓存失败");
-      }
+      if (!res.ok || !data?.job?.id) throw new Error(data?.error || "删除缓存失败");
 
       const job = await waitForCacheJob(data.job.id);
       if (job.status === "failed") {
@@ -526,11 +524,11 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
 
   const handleBulkDelete = async () => {
     if (selectedSongmids.length === 0) return;
-    if (!window.confirm(`确认删除选中的 ${selectedSongmids.length} 首本地缓存音乐吗？`)) return;
+    if (!window.confirm(`确认删除选中的 ${selectedSongmids.length} 首离线缓存音乐吗？`)) return;
 
     setBusy("delete");
     try {
-      const res = await fetch("/api/local-music/tracks/bulk-delete", {
+      const res = await fetch("/api/offline-library/tracks/bulk-delete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -538,9 +536,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
         body: JSON.stringify({ songmids: selectedSongmids }),
       });
       const data: { error?: string; job?: CacheJobInfo } = await res.json();
-      if (!res.ok || !data?.job?.id) {
-        throw new Error(data?.error || "批量删除缓存失败");
-      }
+      if (!res.ok || !data?.job?.id) throw new Error(data?.error || "批量删除缓存失败");
 
       const job = await waitForCacheJob(data.job.id);
       if (job.status === "failed") {
@@ -578,11 +574,11 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-emerald-400">
                   <Library className="h-4 w-4" />
-                  Local Music
+                  Offline Library
                 </div>
-                <h1 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">本地音乐曲库</h1>
+                <h1 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">离线曲库</h1>
                 <p className="mt-1 text-sm text-zinc-400">
-                  查看缓存统计，管理本地缓存，并在弹窗中直接播放本地音乐。
+                  查看缓存统计，管理离线缓存，并在弹窗中直接播放离线音乐。
                 </p>
               </div>
             </div>
@@ -605,7 +601,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
               </div>
               <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                 <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/70 p-4">
-                  <div className="text-[11px] uppercase tracking-widest text-zinc-500">缓存歌曲</div>
+                  <div className="text-[11px] uppercase tracking-widest text-zinc-500">离线歌曲</div>
                   <div className="mt-2 text-xl font-black">{stats?.totalTracks ?? 0}</div>
                 </div>
                 <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/70 p-4">
@@ -639,7 +635,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
                     <RefreshCw className="h-4 w-4" />
                     刷新曲库索引
                   </div>
-                  <div className="mt-1 text-sm text-zinc-400">重新读取本地缓存目录和统计信息。</div>
+                  <div className="mt-1 text-sm text-zinc-400">重新读取离线缓存目录和统计信息。</div>
                 </button>
 
                 <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/70 px-4 py-3">
@@ -651,7 +647,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
                   <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3">
                     <div className="text-sm font-semibold text-amber-200">缓存写入已暂停</div>
                     <div className="mt-1 text-sm text-amber-100/90">
-                      {stats.cacheWriteError || "存储空间不足，新的缓存写入已暂停。"}
+                      {stats.cacheWriteError || "存储空间不足，新的离线缓存写入已暂停。"}
                     </div>
                     <div className="mt-1 text-xs text-amber-200/70">
                       更新时间 {formatTime(stats?.cacheWriteUpdatedAt || "")}
@@ -666,11 +662,11 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
         <section className="glass-card min-h-[640px] rounded-[28px] p-4 sm:p-5">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold">曲库列表</h2>
+              <h2 className="text-lg font-bold">离线曲库列表</h2>
               <p className="mt-1 text-xs text-zinc-500">
                 {loading
-                  ? "正在读取缓存..."
-                  : `共 ${total} 首缓存歌曲，当前第 ${page}/${totalPages} 页`}
+                  ? "正在读取离线缓存..."
+                  : `共 ${total} 首离线歌曲，当前第 ${page}/${totalPages} 页`}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -724,7 +720,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
             ))}
 
             {!loading && tracks.length === 0 && (
-              <div className="py-16 text-center text-sm text-zinc-500">当前还没有本地缓存音乐。</div>
+              <div className="py-16 text-center text-sm text-zinc-500">当前还没有离线缓存音乐。</div>
             )}
           </div>
 
@@ -752,7 +748,7 @@ export default function LocalMusicLibrary({ onBack }: { onBack: () => void }) {
         </section>
       </div>
 
-      <LocalPlayerModal
+      <OfflinePlayerModal
         track={selectedTrack}
         busy={busy}
         onClose={closeTrackModal}
