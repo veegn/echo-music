@@ -192,7 +192,7 @@ export default function PlayerView({
                       </AnimatePresence>
                     </button>
                     <button
-                      onClick={onSkip}
+                      onClick={() => onSkip()}
                       disabled={!room?.currentSong}
                       title="下一首 / 切歌"
                       className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 active:scale-75 cursor-pointer flex items-center justify-center"
