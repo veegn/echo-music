@@ -53,7 +53,7 @@ export async function getSearchByKey({ method = 'get', params = {}, option = {} 
 
 	return handleApi(
 		y_common({
-			url: '/soso/fcgi-bin/client_search_cp',
+			url: '/soso/fcgi-bin/search_for_qq_cp',
 			method,
 			options
 		})

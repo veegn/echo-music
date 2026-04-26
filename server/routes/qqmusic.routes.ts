@@ -98,7 +98,9 @@ export default function createQQMusicRouter(io: Server): Router {
         const normalizedCookie = String(cookie || "").trim();
         if (normalizedCookie) {
             const result = await qqMusicService.verifyCookie(normalizedCookie);
-            if (!result.success) return badRequest(res, result.message || "Invalid cookie");
+            if (!result.success) {
+                return res.status(400).json({ success: false, message: result.message || "Invalid cookie" });
+            }
         }
 
         roomService.setRoomCookie(room, normalizedCookie);
@@ -112,6 +114,14 @@ export default function createQQMusicRouter(io: Server): Router {
         const { key, pageNo = 1, pageSize = 20 } = req.query;
         if (!key) return badRequest(res, "Search keyword is required");
         res.json(await qqMusicService.searchSongs(key as string, Number(pageNo), Number(pageSize)));
+    }));
+
+    router.get("/song/url", asyncHandler(async (req, res) => {
+        const { id, roomId } = req.query;
+        if (!id) return badRequest(res, "Song ID is required");
+        const room = roomId ? roomService.getRoom(roomId as string) : undefined;
+        const cookie = room?.hostCookie ?? null;
+        res.json(await qqMusicService.getSongUrl(id as string, cookie));
     }));
 
     router.get("/user/songlist", asyncHandler(async (req, res) => {
