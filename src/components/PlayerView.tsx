@@ -122,20 +122,18 @@ export default function PlayerView({
 
           <div className="w-full flex flex-col-reverse md:flex-row items-center md:items-stretch bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/50 rounded-3xl overflow-hidden shadow-2xl md:h-[320px]">
             <div className="flex-1 p-5 sm:p-6 md:p-8 flex flex-col justify-between w-full h-full">
-              {audioUrl && (
-                <audio
-                  ref={audioRef}
-                  src={audioUrl}
-                  playsInline
-                  preload="metadata"
-                  onTimeUpdate={onTimeUpdate}
-                  onLoadedMetadata={onLoadedMetadata}
-                  onPlay={onPlayPause}
-                  onPause={onPlayPause}
-                  onEnded={() => isSyncLeader && onSkip(true)}
-                  className="absolute h-0 w-0 opacity-0 pointer-events-none"
-                />
-              )}
+              <audio
+                ref={audioRef}
+                src={audioUrl || undefined}
+                playsInline
+                preload="metadata"
+                onTimeUpdate={onTimeUpdate}
+                onLoadedMetadata={onLoadedMetadata}
+                onPlay={onPlayPause}
+                onPause={onPlayPause}
+                onEnded={() => isSyncLeader && onSkip(true)}
+                className="absolute h-0 w-0 opacity-0 pointer-events-none"
+              />
 
               <div className="mb-6 mt-2 md:mt-0 min-h-[80px] flex flex-col justify-center">
                 <h2 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight text-white line-clamp-2 leading-tight text-center md:text-left">

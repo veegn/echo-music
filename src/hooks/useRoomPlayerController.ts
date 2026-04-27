@@ -39,7 +39,15 @@ export function useRoomPlayerController() {
   useEffect(() => {
     const unlockAudio = () => {
       if (audioRef.current && !audioRef.current.src) {
-        audioRef.current.play().catch(() => {});
+        const originalSrc = audioRef.current.src;
+        // Tiny 0.1s silent MP3 base64 to forcefully unlock Safari audio engine
+        audioRef.current.src = 'data:audio/mp3;base64,//OExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+        audioRef.current.play().then(() => {
+          audioRef.current?.pause();
+          if (audioRef.current) audioRef.current.src = originalSrc;
+        }).catch(() => {
+          if (audioRef.current) audioRef.current.src = originalSrc;
+        });
       }
       document.removeEventListener('click', unlockAudio);
       document.removeEventListener('touchstart', unlockAudio);
@@ -107,9 +115,6 @@ export function useRoomPlayerController() {
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
-      if (!isSyncLeader && room?.currentTime && room.currentTime > 1) {
-        audioRef.current.currentTime = room.currentTime;
-      }
     }
   };
 
@@ -147,7 +152,7 @@ export function useRoomPlayerController() {
       if (Date.now() < takeoverTimeoutRef.current) return;
       const diff = Math.abs(audioRef.current.currentTime - room.currentTime);
       suppressSyncRef.current = true;
-      if (diff > 0.8 && audioRef.current.readyState >= 1) {
+      if (diff > 0.8 && audioRef.current.readyState >= 2) {
         audioRef.current.currentTime = room.currentTime;
       }
 
