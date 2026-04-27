@@ -41,14 +41,14 @@ export default function ChatBox() {
                 {chat.map((msg, i) => (
                     <div key={msg.id || i} className={`flex flex-col ${msg.type === 'system' ? 'items-center py-2' : 'items-start'} transition-opacity`}>
                         {msg.type === 'user' ? (
-                            <div className="max-w-[85%]">
-                                <span className="text-[11px] font-bold text-zinc-500 mb-1 ml-1 tracking-wide">{msg.userName}</span>
-                                <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-[14px] leading-relaxed text-zinc-200 shadow-sm backdrop-blur-sm">
+                            <div className="max-w-[90%]">
+                                <span className="text-[10px] font-bold text-zinc-500 mb-0.5 ml-1 tracking-wide">{msg.userName}</span>
+                                <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-xl sm:rounded-2xl rounded-tl-sm px-3 py-2 sm:px-3.5 sm:py-2.5 text-[13px] sm:text-[14px] leading-relaxed text-zinc-200 shadow-sm backdrop-blur-sm">
                                     {msg.text}
                                 </div>
                             </div>
                         ) : (
-                            <div className="px-3.5 py-1 rounded-full bg-zinc-900/50 border border-zinc-800 text-[11px] font-medium tracking-wide text-zinc-500">
+                            <div className="px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full bg-zinc-900/50 border border-zinc-800 text-[10px] sm:text-[11px] font-medium tracking-wide text-zinc-500">
                                 {msg.text}
                             </div>
                         )}

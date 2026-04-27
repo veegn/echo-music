@@ -63,20 +63,20 @@ export default function RoomView() {
 
     return (
         <div className="flex h-dvh flex-col bg-zinc-950 text-zinc-50 overflow-hidden font-sans relative">
-            <header className="shrink-0 h-16 glass-panel z-40 px-6 flex items-center justify-between shadow-xl">
+            <header className="shrink-0 h-14 sm:h-16 glass-panel z-40 px-3 sm:px-6 flex items-center justify-between shadow-xl">
                 <div className="flex items-center gap-4 min-w-0">
                     <div className="flex flex-col flex-1 min-w-0">
-                        <h2 className="font-extrabold text-xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 truncate leading-tight">
+                        <h2 className="font-extrabold text-lg sm:text-xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 truncate leading-tight">
                             {room?.name}
                         </h2>
                         <div className="flex items-center gap-2 mt-0.5 text-xs text-zinc-400">
-                            <span className="flex items-center gap-1.5 bg-zinc-800/40 px-2 py-0.5 rounded border border-zinc-700/30">
-                                <span className="text-zinc-500">{'\u623f\u4e3b'}</span>
-                                <span className="text-zinc-300 font-medium truncate max-w-[120px]">{room?.hostName}</span>
+                            <span className="flex items-center gap-1.5 bg-zinc-800/40 px-1.5 py-0.5 rounded border border-zinc-700/30">
+                                <span className="text-zinc-500 text-[10px] sm:text-xs tracking-tighter">房主</span>
+                                <span className="text-zinc-300 font-medium truncate max-w-[80px] sm:max-w-[120px]">{room?.hostName}</span>
                             </span>
                             {room?.hostQQId && (
-                                <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                                <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 max-w-[100px] sm:max-w-none truncate">
+                                    <span className="inline-block w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                                     QQ: {room.hostQQId}
                                 </span>
                             )}
@@ -121,18 +121,18 @@ export default function RoomView() {
 
                     <button
                         onClick={leaveRoom}
-                        className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all shrink-0"
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all shrink-0 text-red-400"
                     >
-                        <LogOut className="w-4 h-4" />
-                        <span className="hidden sm:inline">{'\u79bb\u5f00\u623f\u95f4'}</span>
+                        <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline text-xs sm:text-sm font-medium">{'\u79bb\u5f00\u623f\u95f4'}</span>
                     </button>
                     {isHost && (
                         <button
                             onClick={() => { void handleDeleteRoom(); }}
-                            className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-red-300 hover:text-red-200 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 transition-all shrink-0"
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 transition-all shrink-0 text-red-300"
                         >
-                            <Trash2 className="w-4 h-4" />
-                            <span className="hidden sm:inline">{'\u5220\u9664\u623f\u95f4'}</span>
+                            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <span className="hidden sm:inline text-xs sm:text-sm font-medium">{'\u5220\u9664\u623f\u95f4'}</span>
                         </button>
                     )}
                 </div>

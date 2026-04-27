@@ -112,8 +112,8 @@ export default function PlayerView({
         />
       </div>
 
-      <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 pb-[calc(env(safe-area-inset-bottom)_+_1rem)] sm:p-8 relative z-10 custom-scrollbar">
-        <div className="w-full max-w-5xl flex flex-col items-center gap-6 sm:gap-8 relative z-10 my-auto py-4">
+      <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-3 sm:p-8 relative z-10 custom-scrollbar">
+        <div className="w-full max-w-5xl flex flex-col items-center gap-4 sm:gap-8 relative z-10 my-auto py-2 sm:py-4">
           {needsAudioActivation && room?.currentSong && (
             <button
               onClick={onActivateAudio}
@@ -145,11 +145,11 @@ export default function PlayerView({
                 className="absolute h-0 w-0 opacity-0 pointer-events-none"
               />
 
-              <div className="mb-6 mt-2 md:mt-0 min-h-[80px] flex flex-col justify-center">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight text-white line-clamp-2 leading-tight text-center md:text-left">
+              <div className="mb-4 md:mb-6 mt-1 md:mt-0 min-h-[60px] md:min-h-[80px] flex flex-col justify-center">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 tracking-tight text-white line-clamp-2 leading-tight text-center md:text-left">
                   {room?.currentSong ? room.currentSong.songname : '还没有开始播放'}
                 </h2>
-                <p className="text-zinc-400 text-sm font-medium line-clamp-2 text-center md:text-left">
+                <p className="text-zinc-400 text-[13px] md:text-sm font-medium line-clamp-1 text-center md:text-left">
                   {room?.currentSong ? formatSinger(room.currentSong.singer) : '去右侧搜索歌曲，或者从歌单里挑一首开始吧。'}
                 </p>
               </div>
@@ -244,7 +244,7 @@ export default function PlayerView({
             </div>
 
             <motion.div
-              className="w-full max-w-xs mx-auto md:max-w-none md:mx-0 md:w-72 lg:w-80 aspect-square md:aspect-auto md:h-full shrink-0 bg-zinc-950 relative overflow-hidden flex-none"
+              className="w-full max-w-[280px] sm:max-w-xs mx-auto md:max-w-none md:mx-0 md:w-72 lg:w-80 aspect-square md:aspect-auto md:h-full shrink-0 bg-zinc-950 relative overflow-hidden flex-none"
               animate={{ opacity: room?.isPlaying ? 1 : 0.9 }}
             >
               {room?.currentSong ? (
@@ -267,7 +267,7 @@ export default function PlayerView({
             </motion.div>
           </div>
 
-          <div className="w-full max-w-2xl px-2 sm:px-4 text-center h-44 sm:h-48 flex flex-col justify-center">
+          <div className="w-full max-w-2xl px-1 sm:px-4 text-center h-36 sm:h-48 flex flex-col justify-center">
             {room?.currentSong ? (
               <Lyrics songmid={room.currentSong.songmid} currentTime={localCurrentTime} />
             ) : (
