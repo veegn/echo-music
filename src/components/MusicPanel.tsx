@@ -552,7 +552,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
                       <div className="text-[10px] text-zinc-500 shrink-0 flex flex-col items-end gap-1">
                         <span>点歌人: {song.requestedBy}</span>
                         {isHost && (
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                             <button onClick={() => reorderQueue(index, Math.max(0, index - 1))} disabled={index === 0} className="p-1 hover:bg-zinc-700 rounded disabled:opacity-30">
                               <ArrowUp className="w-3 h-3" />
                             </button>

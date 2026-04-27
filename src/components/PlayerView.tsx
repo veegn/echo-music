@@ -160,7 +160,7 @@ export default function PlayerView({
                     {Math.floor(localCurrentTime / 60)}:{(Math.floor(localCurrentTime) % 60).toString().padStart(2, '0')}
                   </span>
                   <div
-                    className="flex-1 h-3 bg-zinc-800 rounded-full overflow-hidden relative cursor-pointer touch-none"
+                    className="flex-1 h-3 bg-zinc-800 rounded-full overflow-hidden relative cursor-pointer touch-none my-4"
                     onPointerDown={(e) => {
                       e.currentTarget.setPointerCapture(e.pointerId);
                       seekFromPointer(e);
@@ -244,7 +244,7 @@ export default function PlayerView({
             </div>
 
             <motion.div
-              className="w-full md:w-72 lg:w-80 aspect-square md:aspect-auto md:h-full shrink-0 bg-zinc-950 relative overflow-hidden flex-none"
+              className="w-full max-w-xs mx-auto md:max-w-none md:mx-0 md:w-72 lg:w-80 aspect-square md:aspect-auto md:h-full shrink-0 bg-zinc-950 relative overflow-hidden flex-none"
               animate={{ opacity: room?.isPlaying ? 1 : 0.9 }}
             >
               {room?.currentSong ? (

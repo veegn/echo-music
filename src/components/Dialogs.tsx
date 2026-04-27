@@ -382,7 +382,7 @@ export const SystemNotificationBubbles: React.FC = () => {
     const visibleMsgs = chat.filter((m) => activeIds.includes(m.id));
 
     return (
-        <div className="fixed top-24 right-6 flex flex-col gap-2 z-40 pointer-events-none items-end">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-6 flex flex-col gap-2 z-40 pointer-events-none items-center md:items-end w-[calc(100%-2rem)] md:w-auto">
             <AnimatePresence mode="popLayout">
                 {visibleMsgs.map((msg) => (
                     <motion.div

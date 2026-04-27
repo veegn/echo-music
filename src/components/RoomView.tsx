@@ -30,13 +30,14 @@ export default function RoomView() {
 
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                if (wakeLock !== null) requestWakeLock();
-                const { socket } = useStore.getState();
-                if (socket) {
-                    socket.disconnect();
-                    setTimeout(() => socket.connect(), 100);
-                }
                 requestWakeLock();
+                // Only reconnect if the socket is actually disconnected.
+                // Socket.io has built-in reconnection; forcing disconnect/connect
+                // disrupts active playback and causes member list flicker.
+                const { socket } = useStore.getState();
+                if (socket && socket.disconnected) {
+                    socket.connect();
+                }
             }
         };
 

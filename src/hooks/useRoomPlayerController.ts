@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store';
 
+// Tiny 0.1s silent MP3 base64 for Safari audio-context unlock
+const SILENT_MP3 = 'data:audio/mp3;base64,//OExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+
 export function useRoomPlayerController() {
   const { room, skipSong, syncPlayer, controlPlayback, seekPlayer, socket } = useStore();
   const [audioUrl, setAudioUrl] = useState('');
@@ -12,6 +15,7 @@ export function useRoomPlayerController() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioNextRef = useRef<HTMLAudioElement>(null);
   const preloadedNextMidRef = useRef<string | null>(null);
+  const audioUnlockedRef = useRef(false);
 
   const lastSyncRef = useRef(0);
   const suppressSyncRef = useRef(false);
@@ -24,8 +28,48 @@ export function useRoomPlayerController() {
     }, 250);
   };
 
+  /**
+   * Unlock the audio element in the context of a user gesture.
+   * Must be called synchronously from a click/touch handler.
+   * After this, the audio element is "blessed" by the browser
+   * and subsequent programmatic play() calls will succeed.
+   */
+  const unlockAudioElement = async (audio: HTMLAudioElement): Promise<void> => {
+    if (audioUnlockedRef.current) return;
+
+    const hadSrc = audio.src;
+    const hadCurrentTime = audio.currentTime;
+
+    // Force a play of silence to unlock the audio context
+    audio.src = SILENT_MP3;
+    audio.volume = 0;
+    try {
+      await audio.play();
+      audio.pause();
+    } catch {
+      // Silence any errors, some browsers may still block
+    }
+
+    // Restore original state
+    audio.volume = 1;
+    if (hadSrc && hadSrc !== SILENT_MP3) {
+      audio.src = hadSrc;
+      audio.currentTime = hadCurrentTime;
+    } else {
+      audio.removeAttribute('src');
+      audio.load();
+    }
+
+    audioUnlockedRef.current = true;
+  };
+
   const playWithActivationTracking = async () => {
     if (!audioRef.current) return false;
+
+    // Cannot play without a source
+    if (!audioRef.current.src || audioRef.current.src === window.location.href) {
+      return false;
+    }
 
     try {
       await audioRef.current.play();
@@ -40,29 +84,36 @@ export function useRoomPlayerController() {
     }
   };
 
+  // Passive unlock: attempt to unlock audio on first user interaction anywhere
   useEffect(() => {
-    const unlockAudio = () => {
-      if (audioRef.current && !audioRef.current.src) {
-        const originalSrc = audioRef.current.src;
-        // Tiny 0.1s silent MP3 base64 to forcefully unlock Safari audio engine
-        audioRef.current.src = 'data:audio/mp3;base64,//OExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
-        audioRef.current.play().then(() => {
-          audioRef.current?.pause();
-          if (audioRef.current) audioRef.current.src = originalSrc;
-        }).catch(() => {
-          if (audioRef.current) audioRef.current.src = originalSrc;
-        });
+    const handleFirstInteraction = () => {
+      if (audioRef.current && !audioUnlockedRef.current) {
+        void unlockAudioElement(audioRef.current);
       }
-      document.removeEventListener('click', unlockAudio);
-      document.removeEventListener('touchstart', unlockAudio);
     };
-    document.addEventListener('click', unlockAudio, { once: true });
-    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('click', handleFirstInteraction, { once: true });
+    document.addEventListener('touchend', handleFirstInteraction, { once: true });
     return () => {
-      document.removeEventListener('click', unlockAudio);
-      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchend', handleFirstInteraction);
     };
   }, []);
+
+  // Fix #3: Resume audio after iOS suspends the process in background.
+  // When Safari freezes a tab, the AudioContext becomes 'suspended'.
+  // On return, we need to attempt to resume playback.
+  useEffect(() => {
+    const handleResume = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!audioRef.current || !room?.isPlaying) return;
+      // If audio was playing but got paused by OS freeze, resume it
+      if (audioRef.current.paused && audioRef.current.src && audioRef.current.readyState >= 2) {
+        void playWithActivationTracking();
+      }
+    };
+    document.addEventListener('visibilitychange', handleResume);
+    return () => document.removeEventListener('visibilitychange', handleResume);
+  }, [room?.isPlaying]);
 
   useEffect(() => {
     if (room) {
@@ -238,9 +289,51 @@ export function useRoomPlayerController() {
     }
   };
 
-  const activateAudio = () => {
+  /**
+   * Called from the "点击启用音频播放" button.
+   * This runs synchronously within a user gesture (click/tap),
+   * which is critical for Safari/iOS to permit audio playback.
+   *
+   * Key insight: Safari's gesture token is consumed by the first `play()` call.
+   * If we unlock with silent MP3 first, the second play() for real audio
+   * crosses an await boundary and may be rejected. So we go directly to
+   * the real source if available, falling back to silent unlock only if needed.
+   */
+  const activateAudio = async () => {
     if (!audioRef.current) return;
-    void playWithActivationTracking();
+    const audio = audioRef.current;
+
+    if (audioUrl) {
+      // Best path: play the real audio directly within the user gesture.
+      // This both unlocks the audio context AND starts playback in one step.
+      audio.src = audioUrl;
+      try {
+        await audio.play();
+        audioUnlockedRef.current = true;
+        setNeedsAudioActivation(false);
+        return;
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.warn('[Player] activateAudio direct play failed:', error);
+        }
+      }
+    }
+
+    // Fallback: no audioUrl yet, or direct play failed.
+    // Unlock with silent MP3 so future programmatic play() calls work.
+    if (!audioUnlockedRef.current) {
+      audio.src = SILENT_MP3;
+      audio.volume = 0;
+      try {
+        await audio.play();
+        audio.pause();
+      } catch {}
+      audio.volume = 1;
+      audio.removeAttribute('src');
+      audio.load();
+      audioUnlockedRef.current = true;
+    }
+    setNeedsAudioActivation(false);
   };
 
   useEffect(() => {

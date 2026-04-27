@@ -112,3 +112,29 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #10b981;
 }
+
+/* ===== Performance: GPU layer hints for heavy blur elements ===== */
+[class*="blur-"] {
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* ===== Reduced Motion: disable heavy animations for accessibility/low-end devices ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [class*="blur-"] {
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
