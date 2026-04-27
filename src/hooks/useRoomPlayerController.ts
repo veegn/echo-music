@@ -37,24 +37,26 @@ export function useRoomPlayerController() {
   const unlockAudioElement = async (audio: HTMLAudioElement): Promise<void> => {
     if (audioUnlockedRef.current) return;
 
-    const hadSrc = audio.src;
-    const hadCurrentTime = audio.currentTime;
+    // Save the current src so we can restore it without re-triggering a load
+    const hadSrc = audio.getAttribute('src');
 
-    // Force a play of silence to unlock the audio context
+    // Play a tiny silent MP3 to "bless" this audio element.
+    // Use muted instead of volume=0 to avoid iOS volume state issues.
+    audio.muted = true;
     audio.src = SILENT_MP3;
-    audio.volume = 0;
     try {
       await audio.play();
       audio.pause();
     } catch {
-      // Silence any errors, some browsers may still block
+      // Some browsers may still block; that's OK
     }
+    audio.muted = false;
 
-    // Restore original state
-    audio.volume = 1;
-    if (hadSrc && hadSrc !== SILENT_MP3) {
-      audio.src = hadSrc;
-      audio.currentTime = hadCurrentTime;
+    // Restore the original src attribute (not the resolved property).
+    // Setting via attribute avoids triggering a network reload if the
+    // value hasn't changed, preventing the decoder pop/glitch.
+    if (hadSrc) {
+      audio.setAttribute('src', hadSrc);
     } else {
       audio.removeAttribute('src');
       audio.load();
@@ -275,12 +277,32 @@ export function useRoomPlayerController() {
 
   const handleEnded = () => {
     if (isSyncLeader) {
-      // Dual-audio: If we have a preloaded next song, try to switch immediately
+      // Dual-audio: If we have a preloaded next song, switch to it.
       if (room?.nextSong && audioNextRef.current && audioNextRef.current.src && audioRef.current) {
         const nextUrl = audioNextRef.current.src;
-        // Instant switch!
-        audioRef.current.src = nextUrl;
-        void audioRef.current.play();
+        const mainAudio = audioRef.current;
+
+        // Reset position to avoid residual seek noise
+        mainAudio.currentTime = 0;
+        mainAudio.src = nextUrl;
+
+        // Wait for enough data to be decoded before starting playback.
+        // This prevents the decoder from outputting garbage frames during
+        // the transition, which manifests as a "pop" or distortion.
+        const onCanPlay = () => {
+          mainAudio.removeEventListener('canplay', onCanPlay);
+          void mainAudio.play();
+        };
+        mainAudio.addEventListener('canplay', onCanPlay, { once: true });
+        // Fallback: if canplay doesn't fire within 500ms, force play anyway
+        // to avoid infinite silence on slow networks
+        setTimeout(() => {
+          mainAudio.removeEventListener('canplay', onCanPlay);
+          if (mainAudio.paused && mainAudio.src) {
+            void mainAudio.play();
+          }
+        }, 500);
+
         // Clear preload
         audioNextRef.current.src = '';
         preloadedNextMidRef.current = null;
@@ -322,13 +344,13 @@ export function useRoomPlayerController() {
     // Fallback: no audioUrl yet, or direct play failed.
     // Unlock with silent MP3 so future programmatic play() calls work.
     if (!audioUnlockedRef.current) {
+      audio.muted = true;
       audio.src = SILENT_MP3;
-      audio.volume = 0;
       try {
         await audio.play();
         audio.pause();
       } catch {}
-      audio.volume = 1;
+      audio.muted = false;
       audio.removeAttribute('src');
       audio.load();
       audioUnlockedRef.current = true;
