@@ -80,6 +80,30 @@ export const useStore = create<AppState>((set, get) => ({
         }
       });
 
+      socket.on('users_changed', ({
+        users,
+        syncLeaderId,
+        syncLeaderName,
+        syncTerm,
+        syncVersion,
+        syncLeaseUntil,
+      }: Pick<RoomState, 'users' | 'syncLeaderId' | 'syncLeaderName' | 'syncTerm' | 'syncVersion' | 'syncLeaseUntil'>) => {
+        set((state) => {
+          if (!state.room) return state;
+          return {
+            room: {
+              ...state.room,
+              users,
+              syncLeaderId,
+              syncLeaderName,
+              syncTerm,
+              syncVersion,
+              syncLeaseUntil,
+            },
+          };
+        });
+      });
+
       socket.on('chat_message', (msg: ChatMessage) => {
         set((state) => {
           if (state.chat.some((item) => item.id === msg.id)) return state;
@@ -110,10 +134,9 @@ export const useStore = create<AppState>((set, get) => ({
             return state; // Ignore stale sync events
           }
 
-          let estimatedLatency = 0.150;
           let timeSinceServerEmitted = syncedAt ? (Date.now() - syncedAt) / 1000 : 0;
           let validOffset = Math.max(0, timeSinceServerEmitted);
-          let finalTime = isPlaying ? currentTime + validOffset + estimatedLatency : currentTime;
+          let finalTime = isPlaying ? currentTime + validOffset : currentTime;
 
           return {
             room: {
@@ -229,6 +252,12 @@ export const useStore = create<AppState>((set, get) => ({
   controlPlayback: (currentTime, isPlaying) => {
     const room = get().room;
     get().socket?.emit('control_playback', { currentTime, isPlaying, version: room?.syncVersion ?? 0 });
+    set((state) => {
+      if (state.room) {
+        return { room: { ...state.room, currentTime, isPlaying } };
+      }
+      return state;
+    });
   },
   seekPlayer: (currentTime) => {
     const room = get().room;

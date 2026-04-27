@@ -40,6 +40,7 @@ function createRoom(overrides: Partial<Room> = {}): Room {
         },
         isPlaying: false,
         currentTime: 0,
+        playbackUpdatedAt: 0,
         syncLeaderId: "",
         syncLeaderName: "",
         syncTerm: 0,
@@ -120,7 +121,7 @@ test("applyPlaybackControl promotes leader, updates playback and emits sync", ()
     assert.equal(room.syncLeaderId, "socket-guest");
     assert.equal(room.syncLeaderName, "Guest");
     assert.ok(room.syncVersion > 0);
-    assert.ok(events.some((event) => event.event === "room_state"));
+    assert.ok(!events.some((event) => event.event === "room_state"));
     assert.ok(events.some((event) => event.event === "player_sync"));
 });
 
@@ -132,6 +133,8 @@ test("applyPlaybackSeek updates position and emits sync without changing play st
 
     assert.equal(room.currentTime, 88);
     assert.equal(room.isPlaying, true);
-    assert.ok(events.some((event) => event.event === "room_state"));
-    assert.ok(events.some((event) => event.event === "player_sync" && event.payload.currentTime === 88));
+    assert.ok(!events.some((event) => event.event === "room_state"));
+    const syncEvent = events.find((event) => event.event === "player_sync");
+    assert.ok(syncEvent);
+    assert.ok(syncEvent.payload.currentTime >= 88);
 });

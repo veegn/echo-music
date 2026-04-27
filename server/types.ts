@@ -44,6 +44,7 @@ export interface Room {
     currentSong: RoomPlaybackSong | null;
     isPlaying: boolean;
     currentTime: number;
+    playbackUpdatedAt: number;
     syncLeaderId: string;
     syncLeaderName: string;
     syncTerm: number;

@@ -3,8 +3,20 @@ import * as playbackService from "../services/playback.service.js";
 import * as roomService from "../services/room.service.js";
 import { logInfo, logWarn, logDebug } from "../logger.js";
 import { config } from "../config.js";
+import type { Room } from "../types.js";
 
 const TAG = "SocketHandler";
+
+function emitUsersChanged(io: Server, roomId: string, room: Room): void {
+    io.to(roomId).emit("users_changed", {
+        users: room.users,
+        syncLeaderId: room.syncLeaderId,
+        syncLeaderName: room.syncLeaderName,
+        syncTerm: room.syncTerm,
+        syncVersion: room.syncVersion,
+        syncLeaseUntil: room.syncLeaseUntil,
+    });
+}
 
 export function registerSocketHandlers(io: Server): void {
     io.on("connection", (socket: Socket) => {
@@ -42,7 +54,18 @@ export function registerSocketHandlers(io: Server): void {
                 currentUsers: getRoom()?.users.length,
             });
 
-            playbackService.broadcastRoomState(getRoom()!, roomId, io);
+            {
+                const room = getRoom()!;
+                socket.emit("room_state", roomService.getSafeRoomState(room));
+                socket.to(roomId).emit("users_changed", {
+                    users: room.users,
+                    syncLeaderId: room.syncLeaderId,
+                    syncLeaderName: room.syncLeaderName,
+                    syncTerm: room.syncTerm,
+                    syncVersion: room.syncVersion,
+                    syncLeaseUntil: room.syncLeaseUntil,
+                });
+            }
 
             {
                 const room = getRoom()!;
@@ -69,6 +92,7 @@ export function registerSocketHandlers(io: Server): void {
                 const room = getRoom();
                 if (!room) return;
 
+                roomService.refreshPlaybackClock(room);
                 room.users = room.users.filter((u) => u.id !== socket.id);
                 if (room.syncLeaderId === socket.id) {
                     roomService.assignSyncLeader(
@@ -86,7 +110,7 @@ export function registerSocketHandlers(io: Server): void {
                     syncLeaderId: room.syncLeaderId || "(none)",
                 });
 
-                playbackService.broadcastRoomState(room, roomId, io);
+                emitUsersChanged(io, roomId, room);
                 playbackService.appendSystemMessage(room, roomId, io, `${userName} left the room`, true);
 
             });
@@ -206,7 +230,7 @@ export function registerSocketHandlers(io: Server): void {
                             syncTerm: room.syncTerm,
                             reason: leaderExpired ? "expired" : "missing",
                         });
-                        io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
+                        emitUsersChanged(io, roomId, room);
                     }
                 }
 
@@ -216,8 +240,7 @@ export function registerSocketHandlers(io: Server): void {
 
                 // 仅允许房主同步播放状态，防止非房主伪造进度
                 const wasPlaying = room.isPlaying;
-                room.currentTime = currentTime;
-                room.isPlaying = isPlaying;
+                roomService.setPlaybackClock(room, currentTime, isPlaying);
                 roomService.renewSyncLeaderLease(room);
 
                 if (wasPlaying !== isPlaying) {
@@ -226,7 +249,7 @@ export function registerSocketHandlers(io: Server): void {
 
                 // ✅ 修复④：附加服务端时间戳，客户端可据此补偿网络延迟
                 io.to(roomId).emit("player_sync", {
-                    currentTime,
+                    currentTime: roomService.getEffectivePlaybackTime(room),
                     isPlaying,
                     syncedAt: Date.now(),
                     syncLeaderId: room.syncLeaderId,

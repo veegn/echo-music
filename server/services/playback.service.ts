@@ -14,6 +14,18 @@ export function broadcastRoomState(room: Room, roomId: string, io: Server, persi
     io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
 }
 
+function emitPlayerSync(room: Room, roomId: string, io: Server): void {
+    io.to(roomId).emit("player_sync", {
+        currentTime: roomService.getEffectivePlaybackTime(room),
+        isPlaying: room.isPlaying,
+        syncedAt: Date.now(),
+        syncLeaderId: room.syncLeaderId,
+        syncLeaderName: room.syncLeaderName,
+        syncTerm: room.syncTerm,
+        syncVersion: room.syncVersion,
+    });
+}
+
 export function appendSystemMessage(
     room: Room,
     roomId: string,
@@ -166,8 +178,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
         room.currentSong = room.queue.shift()!;
         room.currentSong.playUrl = undefined;
         room.currentSong.playQuality = undefined;
-        room.currentTime = 0;
-        room.isPlaying = true;
+        roomService.setPlaybackClock(room, 0, true);
         roomService.bumpSyncVersion(room);
 
         logInfo(TAG, "Play next song from queue", {
@@ -197,8 +208,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
         const autoSong = await fetchRecommendedSong(room);
         if (autoSong) {
             room.currentSong = autoSong;
-            room.currentTime = 0;
-            room.isPlaying = true;
+            roomService.setPlaybackClock(room, 0, true);
             roomService.bumpSyncVersion(room);
 
             logInfo(TAG, "Auto recommendation started", {
@@ -216,8 +226,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
     const localSong = fetchRandomLocalCachedSong();
     if (localSong) {
         room.currentSong = localSong;
-        room.currentTime = 0;
-        room.isPlaying = true;
+        roomService.setPlaybackClock(room, 0, true);
         roomService.bumpSyncVersion(room);
 
         logInfo(TAG, "Local cached random playback started", {
@@ -231,8 +240,7 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
     }
 
     room.currentSong = null;
-    room.isPlaying = false;
-    room.currentTime = 0;
+    roomService.setPlaybackClock(room, 0, false);
     roomService.bumpSyncVersion(room);
     roomService.saveRooms(room.id);
     logInfo(TAG, "Queue ended", { roomId });
@@ -308,21 +316,11 @@ export function applyPlaybackControl(
 
     roomService.assignSyncLeader(room, { id: socketId, name: requestedBy });
     const wasPlaying = room.isPlaying;
-    room.currentTime = Number(currentTime) || 0;
-    room.isPlaying = !!isPlaying;
+    roomService.setPlaybackClock(room, currentTime, isPlaying);
     roomService.bumpSyncVersion(room);
     roomService.renewSyncLeaderLease(room);
-    broadcastRoomState(room, roomId, io, true);
-
-    io.to(roomId).emit("player_sync", {
-        currentTime: room.currentTime,
-        isPlaying: room.isPlaying,
-        syncedAt: Date.now(),
-        syncLeaderId: room.syncLeaderId,
-        syncLeaderName: room.syncLeaderName,
-        syncTerm: room.syncTerm,
-        syncVersion: room.syncVersion,
-    });
+    roomService.saveRooms(room.id);
+    emitPlayerSync(room, roomId, io);
 
     const isRecentlySkipped = room.lastSkipTime && Date.now() - room.lastSkipTime < 3000;
     if (wasPlaying !== room.isPlaying && !isRecentlySkipped) {
@@ -346,20 +344,11 @@ export function applyPlaybackSeek(
     if (!room.currentSong) return;
 
     roomService.assignSyncLeader(room, { id: socketId, name: requestedBy });
-    room.currentTime = Math.max(0, Number(currentTime) || 0);
+    roomService.setPlaybackClock(room, currentTime, room.isPlaying);
     roomService.bumpSyncVersion(room);
     roomService.renewSyncLeaderLease(room);
-    broadcastRoomState(room, roomId, io, true);
-
-    io.to(roomId).emit("player_sync", {
-        currentTime: room.currentTime,
-        isPlaying: room.isPlaying,
-        syncedAt: Date.now(),
-        syncLeaderId: room.syncLeaderId,
-        syncLeaderName: room.syncLeaderName,
-        syncTerm: room.syncTerm,
-        syncVersion: room.syncVersion,
-    });
+    roomService.saveRooms(room.id);
+    emitPlayerSync(room, roomId, io);
 }
 
 export async function startBatchPlayback(

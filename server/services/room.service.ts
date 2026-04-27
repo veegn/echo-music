@@ -30,6 +30,7 @@ function persistableRoom(room: Room): Room {
         users: [],
         isPlaying: false,
         currentTime: 0,
+        playbackUpdatedAt: 0,
         chat: [],
         syncLeaderId: "",
         syncLeaderName: ""
@@ -97,6 +98,25 @@ export function bumpSyncVersion(room: Room): number {
     return room.syncVersion;
 }
 
+export function getEffectivePlaybackTime(room: Room, now = Date.now()): number {
+    const baseTime = Math.max(0, Number(room.currentTime) || 0);
+    if (!room.isPlaying || !room.playbackUpdatedAt) {
+        return baseTime;
+    }
+
+    return baseTime + Math.max(0, now - room.playbackUpdatedAt) / 1000;
+}
+
+export function setPlaybackClock(room: Room, currentTime: number, isPlaying = room.isPlaying, now = Date.now()): void {
+    room.currentTime = Math.max(0, Number(currentTime) || 0);
+    room.isPlaying = !!isPlaying;
+    room.playbackUpdatedAt = now;
+}
+
+export function refreshPlaybackClock(room: Room, now = Date.now()): void {
+    setPlaybackClock(room, getEffectivePlaybackTime(room, now), room.isPlaying, now);
+}
+
 export function isSyncLeaderActive(room: Room): boolean {
     return !!room.syncLeaderId
         && room.users.some((user) => user.id === room.syncLeaderId)
@@ -146,6 +166,7 @@ function loadRoomsFromDisk(): void {
                 users: [],
                 isPlaying: false,
                 currentTime: 0,
+                playbackUpdatedAt: Number(room.playbackUpdatedAt || 0),
                 syncLeaderId: room.syncLeaderId || "",
                 syncLeaderName: room.syncLeaderName || "",
                 syncTerm: Number(room.syncTerm || 0),
@@ -197,6 +218,7 @@ export function createRoom(name: string, password: string, hostName: string): { 
         currentSong: null,
         isPlaying: false,
         currentTime: 0,
+        playbackUpdatedAt: 0,
         syncLeaderId: "",
         syncLeaderName: "",
         syncTerm: 0,
@@ -262,7 +284,7 @@ export function getSafeRoomState(room: Room): SafeRoomState {
         queue: room.queue,
         currentSong: room.currentSong,
         isPlaying: room.isPlaying,
-        currentTime: room.currentTime,
+        currentTime: getEffectivePlaybackTime(room),
         syncLeaderId: room.syncLeaderId,
         syncLeaderName: room.syncLeaderName,
         syncTerm: room.syncTerm,
