@@ -25,7 +25,9 @@ export default function Player({ isHost }: { isHost: boolean }) {
         onTimeUpdate={controller.handleTimeUpdate}
         onLoadedMetadata={controller.handleLoadedMetadata}
         onPlayPause={controller.handlePlayPause}
+        onEnded={controller.handleEnded}
         onSeek={controller.handleSeek}
+        audioNextRef={controller.audioNextRef}
       />
       <CookieDialog isOpen={showCookieDialog} onClose={() => setShowCookieDialog(false)} />
     </>

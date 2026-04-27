@@ -37,8 +37,9 @@ export interface RoomState {
     name: string;
     hostName: string;
     users: User[];
-    queue: SongMeta[];
+    queue: RoomPlaybackSong[];
     currentSong: RoomPlaybackSong | null;
+    nextSong: RoomPlaybackSong | null;
     isPlaying: boolean;
     currentTime: number;
     syncLeaderId: string;

@@ -40,7 +40,7 @@ export interface Room {
     hostCookie: string | null;
     hostQQId: string;
     users: User[];
-    queue: SongMeta[];
+    queue: RoomPlaybackSong[];
     currentSong: RoomPlaybackSong | null;
     isPlaying: boolean;
     currentTime: number;
@@ -61,6 +61,7 @@ export interface SafeRoomState {
     users: User[];
     queue: SongMeta[];
     currentSong: RoomPlaybackSong | null;
+    nextSong: RoomPlaybackSong | null;
     isPlaying: boolean;
     currentTime: number;
     syncLeaderId: string;

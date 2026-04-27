@@ -8,7 +8,11 @@ export function useRoomPlayerController() {
   const [duration, setDuration] = useState(0);
   const [songLoading, setSongLoading] = useState(false);
   const [needsAudioActivation, setNeedsAudioActivation] = useState(false);
+  
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioNextRef = useRef<HTMLAudioElement>(null);
+  const preloadedNextMidRef = useRef<string | null>(null);
+
   const lastSyncRef = useRef(0);
   const suppressSyncRef = useRef(false);
   const takeoverTimeoutRef = useRef(0);
@@ -82,6 +86,20 @@ export function useRoomPlayerController() {
     }
   }, [room?.currentSong?.songmid, room?.currentSong?.playUrl]);
 
+  // Preload next song
+  useEffect(() => {
+    if (room?.nextSong?.playUrl && audioNextRef.current) {
+      if (preloadedNextMidRef.current !== room.nextSong.songmid) {
+        audioNextRef.current.src = room.nextSong.playUrl;
+        audioNextRef.current.load();
+        preloadedNextMidRef.current = room.nextSong.songmid;
+      }
+    } else if (!room?.nextSong && audioNextRef.current) {
+      audioNextRef.current.src = '';
+      preloadedNextMidRef.current = null;
+    }
+  }, [room?.nextSong?.songmid, room?.nextSong?.playUrl]);
+
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setLocalCurrentTime(audioRef.current.currentTime);
@@ -112,9 +130,22 @@ export function useRoomPlayerController() {
     return () => window.clearInterval(timer);
   }, [isSyncLeader, syncPlayer]);
 
+  const updatePositionState = () => {
+    if ('mediaSession' in navigator && audioRef.current && !isNaN(audioRef.current.duration)) {
+      try {
+        navigator.mediaSession.setPositionState({
+          duration: audioRef.current.duration,
+          playbackRate: audioRef.current.playbackRate || 1,
+          position: audioRef.current.currentTime || 0,
+        });
+      } catch (e) {}
+    }
+  };
+
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
+      updatePositionState();
     }
   };
 
@@ -137,6 +168,7 @@ export function useRoomPlayerController() {
   };
 
   const handlePlayPause = () => {
+    updatePositionState();
     if (audioRef.current && !suppressSyncRef.current) {
       if (!isSyncLeader) {
         takeoverTimeoutRef.current = Date.now() + 1500;
@@ -182,6 +214,7 @@ export function useRoomPlayerController() {
     audioRef.current.currentTime = nextTime;
     takeoverTimeoutRef.current = Date.now() + 500;
     seekPlayer(nextTime);
+    updatePositionState();
   };
 
   const handleSkip = (isAuto: boolean = false) => {
@@ -189,10 +222,74 @@ export function useRoomPlayerController() {
     skipSong(isAuto);
   };
 
+  const handleEnded = () => {
+    if (isSyncLeader) {
+      // Dual-audio: If we have a preloaded next song, try to switch immediately
+      if (room?.nextSong && audioNextRef.current && audioNextRef.current.src && audioRef.current) {
+        const nextUrl = audioNextRef.current.src;
+        // Instant switch!
+        audioRef.current.src = nextUrl;
+        void audioRef.current.play();
+        // Clear preload
+        audioNextRef.current.src = '';
+        preloadedNextMidRef.current = null;
+      }
+      handleSkip(true);
+    }
+  };
+
   const activateAudio = () => {
     if (!audioRef.current) return;
     void playWithActivationTracking();
   };
+
+  useEffect(() => {
+    if ('mediaSession' in navigator && room?.currentSong) {
+      const song = room.currentSong;
+      let singerName = '未知歌手';
+      if (Array.isArray(song.singer)) {
+        singerName = song.singer.map((s: any) => s.name).join(' / ');
+      } else if (typeof song.singer === 'string') {
+        singerName = song.singer;
+      }
+
+      const albummid = song.albummid || (song.album as any)?.mid || '';
+      const artwork = albummid
+        ? [{ src: `https://y.qq.com/music/photo_new/T002R300x300M000${albummid}.jpg`, sizes: '300x300', type: 'image/jpeg' }]
+        : [];
+
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: song.songname,
+        artist: singerName,
+        album: song.albumname || (song.album as any)?.name || 'Echo Music',
+        artwork,
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        if (!room.isPlaying) togglePlay();
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        if (room.isPlaying) togglePlay();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        handleSkip(false);
+      });
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.seekTime !== undefined) {
+          handleSeek(details.seekTime);
+        }
+      });
+    }
+
+    return () => {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+        navigator.mediaSession.setActionHandler('seekto', null);
+      }
+    };
+  }, [room?.currentSong, room?.isPlaying]);
 
   return {
     room,
@@ -202,10 +299,12 @@ export function useRoomPlayerController() {
     songLoading,
     needsAudioActivation,
     audioRef,
+    audioNextRef,
     isSyncLeader,
     handleTimeUpdate,
     handleLoadedMetadata,
     handlePlayPause,
+    handleEnded,
     togglePlay,
     handleSeek,
     handleSkip,

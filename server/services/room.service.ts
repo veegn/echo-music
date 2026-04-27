@@ -283,6 +283,7 @@ export function getSafeRoomState(room: Room): SafeRoomState {
         users: room.users,
         queue: room.queue,
         currentSong: room.currentSong,
+        nextSong: room.queue[0] || null,
         isPlaying: room.isPlaying,
         currentTime: getEffectivePlaybackTime(room),
         syncLeaderId: room.syncLeaderId,

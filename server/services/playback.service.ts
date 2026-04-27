@@ -134,6 +134,36 @@ export async function warmCurrentSongPlayback(room: Room, roomId: string, io: Se
     }
 }
 
+export async function warmNextSongPlayback(room: Room, roomId: string, io: Server): Promise<void> {
+    const nextSong = room.queue[0];
+    const hostCookie = room.hostCookie;
+
+    if (!nextSong?.songmid || nextSong.playUrl) {
+        return;
+    }
+
+    try {
+        const { playableUrl, quality } = await qqMusicService.resolveSongPlayback(nextSong.songmid, hostCookie);
+        // Check if the song is still at the front of the queue
+        if (room.queue[0] && nextSong.songmid === room.queue[0].songmid) {
+            room.queue[0].playUrl = playableUrl;
+            room.queue[0].playQuality = quality ?? undefined;
+            broadcastRoomState(room, roomId, io, true);
+            logInfo(TAG, "Warmed next song playback URL", {
+                roomId,
+                songmid: nextSong.songmid,
+                quality: quality ?? null,
+            });
+        }
+    } catch (error) {
+        logWarn(TAG, "Failed to warm next song playback URL", {
+            roomId,
+            songmid: nextSong.songmid,
+            message: error instanceof Error ? error.message : String(error),
+        });
+    }
+}
+
 async function fetchRecommendedSong(room: Room): Promise<Song | null> {
     try {
         const result: any = await qqMusicService.getRadioSongs(room.hostCookie);
@@ -191,7 +221,9 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
         });
 
         broadcastRoomState(room, roomId, io, true);
-        void warmCurrentSongPlayback(room, roomId, io);
+        void warmCurrentSongPlayback(room, roomId, io).then(() => {
+            void warmNextSongPlayback(room, roomId, io);
+        });
 
         if (!isAuto) {
             appendSystemMessage(
@@ -218,7 +250,9 @@ export async function playNextSong(room: Room, roomId: string, io: Server, isAut
             });
 
             broadcastRoomState(room, roomId, io, true);
-            void warmCurrentSongPlayback(room, roomId, io);
+            void warmCurrentSongPlayback(room, roomId, io).then(() => {
+                void warmNextSongPlayback(room, roomId, io);
+            });
             return;
         }
     }
@@ -264,6 +298,7 @@ export async function queueSong(room: Room, roomId: string, io: Server, song: an
         return;
     }
 
+    void warmNextSongPlayback(room, roomId, io);
     appendSystemMessage(room, roomId, io, `${requestedBy} queued: ${newSong.songname}`, true);
     io.to(roomId).emit("room_state", roomService.getSafeRoomState(room));
 }

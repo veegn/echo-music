@@ -26,7 +26,9 @@ interface PlayerViewProps {
   onTimeUpdate: () => void;
   onLoadedMetadata: () => void;
   onPlayPause: () => void;
+  onEnded: () => void;
   onSeek: (nextTime: number) => void;
+  audioNextRef: React.RefObject<HTMLAudioElement | null>;
 }
 
 export default function PlayerView({
@@ -45,7 +47,9 @@ export default function PlayerView({
   onTimeUpdate,
   onLoadedMetadata,
   onPlayPause,
+  onEnded,
   onSeek,
+  audioNextRef,
 }: PlayerViewProps) {
   const seekFromPointer = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!duration) return;
@@ -131,7 +135,13 @@ export default function PlayerView({
                 onLoadedMetadata={onLoadedMetadata}
                 onPlay={onPlayPause}
                 onPause={onPlayPause}
-                onEnded={() => isSyncLeader && onSkip(true)}
+                onEnded={onEnded}
+                className="absolute h-0 w-0 opacity-0 pointer-events-none"
+              />
+              <audio
+                ref={audioNextRef}
+                playsInline
+                preload="auto"
                 className="absolute h-0 w-0 opacity-0 pointer-events-none"
               />
 
