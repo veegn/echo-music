@@ -12,3 +12,4 @@ server/test-storage/
 .vscode/
 .codex/
 .playwright-cli/
+output/

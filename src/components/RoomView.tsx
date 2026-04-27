@@ -29,7 +29,13 @@ export default function RoomView() {
         requestWakeLock();
 
         const handleVisibilityChange = () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
+            if (document.visibilityState === 'visible') {
+                if (wakeLock !== null) requestWakeLock();
+                const { socket } = useStore.getState();
+                if (socket) {
+                    socket.disconnect();
+                    setTimeout(() => socket.connect(), 100);
+                }
                 requestWakeLock();
             }
         };

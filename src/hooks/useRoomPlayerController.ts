@@ -37,6 +37,22 @@ export function useRoomPlayerController() {
   };
 
   useEffect(() => {
+    const unlockAudio = () => {
+      if (audioRef.current && !audioRef.current.src) {
+        audioRef.current.play().catch(() => {});
+      }
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+    };
+    document.addEventListener('click', unlockAudio, { once: true });
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+    return () => {
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+    };
+  }, []);
+
+  useEffect(() => {
     if (room) {
       setLocalCurrentTime(room.currentTime);
     }
@@ -131,7 +147,9 @@ export function useRoomPlayerController() {
       if (Date.now() < takeoverTimeoutRef.current) return;
       const diff = Math.abs(audioRef.current.currentTime - room.currentTime);
       suppressSyncRef.current = true;
-      if (diff > 0.8) audioRef.current.currentTime = room.currentTime;
+      if (diff > 0.8 && audioRef.current.readyState >= 1) {
+        audioRef.current.currentTime = room.currentTime;
+      }
 
       if (room.isPlaying && audioRef.current.paused && !audioRef.current.ended) {
         void playWithActivationTracking();

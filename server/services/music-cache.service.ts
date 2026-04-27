@@ -3,7 +3,7 @@ import path from "path";
 import { pipeline } from "stream";
 import { promisify } from "util";
 import axios from "axios";
-import initSqlJs, { Database } from "sql.js";
+import Database, { Database as DBType } from "better-sqlite3";
 import { Song } from "../types.js";
 import { logError, logInfo, logWarn } from "../logger.js";
 import * as qqMusicService from "./qqmusic.service.js";
@@ -16,7 +16,6 @@ const CACHE_ROOT = path.join(STORAGE_DIR, "music-cache");
 const AUDIO_DIR = path.join(CACHE_ROOT, "audio");
 const COVER_DIR = path.join(CACHE_ROOT, "cover");
 const DB_FILE = path.join(CACHE_ROOT, "index.sqlite");
-const SQL_WASM_DIR = path.join(process.cwd(), "node_modules", "sql.js", "dist");
 
 export interface CachedTrackRecord {
     songmid: string;
@@ -70,8 +69,7 @@ type CacheWriteState = {
 
 const streamPipeline = promisify(pipeline);
 
-let db: Database;
-let flushTimer: NodeJS.Timeout | null = null;
+let db: DBType;
 const cacheJobs = new Map<string, CacheJobInfo>();
 const jobKeys = new Map<string, string>();
 const jobQueue: string[] = [];
@@ -90,32 +88,9 @@ function ensureCacheDirs(): void {
     }
 }
 
-function scheduleFlush(): void {
-    if (flushTimer) {
-        clearTimeout(flushTimer);
-    }
+function scheduleFlush(): void {}
 
-    flushTimer = setTimeout(() => {
-        flushTimer = null;
-        try {
-            flushDb();
-        } catch (error) {
-            if (isNoSpaceError(error)) {
-                pauseCacheWrites(error);
-            } else {
-                logError(TAG, "Failed to flush sqlite cache", error, { dbFile: DB_FILE });
-            }
-        }
-    }, 250);
-}
-
-function flushDb(): void {
-    ensureCacheDirs();
-    const data = db.export();
-    const tmpFile = `${DB_FILE}.tmp`;
-    fs.writeFileSync(tmpFile, Buffer.from(data));
-    fs.renameSync(tmpFile, DB_FILE);
-}
+function flushDb(): void {}
 
 function fileExists(filePath: string): boolean {
     return !!filePath && fs.existsSync(filePath);
@@ -290,11 +265,13 @@ function rowToRecord(row: any[]): CachedTrackRecord {
 }
 
 function queryRows(sql: string, params: unknown[] = []): CachedTrackRecord[] {
-    const result = db.exec(sql, params);
-    if (!result[0]) {
+    try {
+        const stmt = db.prepare(sql).raw(true);
+        const result = Array.isArray(params) ? stmt.all(...params) : stmt.all(params);
+        return (result as any[][]).map(rowToRecord);
+    } catch (e) {
         return [];
     }
-    return result[0].values.map(rowToRecord);
 }
 
 function getOne(sql: string, params: unknown[] = []): CachedTrackRecord | null {
@@ -523,7 +500,7 @@ async function runNextJob(): Promise<void> {
 }
 
 function upsertRecord(record: CachedTrackRecord): void {
-    db.run(
+    db.prepare(
         `INSERT INTO cached_tracks (
             songmid, songname, singer, albumname, albummid, intro,
             audio_source_url, audio_local_path, audio_size,
@@ -543,29 +520,27 @@ function upsertRecord(record: CachedTrackRecord): void {
             cover_local_path=excluded.cover_local_path,
             requested_by=excluded.requested_by,
             cached_at=excluded.cached_at,
-            last_played_at=excluded.last_played_at`,
-        [
-            record.songmid ?? "",
-            record.songname ?? "",
-            record.singer ?? "",
-            record.albumname ?? "",
-            record.albummid ?? "",
-            record.intro ?? "",
-            record.audioSourceUrl ?? "",
-            record.audioLocalPath ?? "",
-            record.audioSize ?? 0,
-            record.coverSourceUrl ?? "",
-            record.coverLocalPath ?? "",
-            record.requestedBy ?? "",
-            record.cachedAt ?? "",
-            record.lastPlayedAt ?? "",
-        ],
+            last_played_at=excluded.last_played_at`
+    ).run(
+        record.songmid ?? "",
+        record.songname ?? "",
+        record.singer ?? "",
+        record.albumname ?? "",
+        record.albummid ?? "",
+        record.intro ?? "",
+        record.audioSourceUrl ?? "",
+        record.audioLocalPath ?? "",
+        record.audioSize ?? 0,
+        record.coverSourceUrl ?? "",
+        record.coverLocalPath ?? "",
+        record.requestedBy ?? "",
+        record.cachedAt ?? "",
+        record.lastPlayedAt ?? ""
     );
-    scheduleFlush();
 }
 
 function createSchema(): void {
-    db.run(`
+    db.exec(`
         CREATE TABLE IF NOT EXISTS cached_tracks (
             songmid TEXT PRIMARY KEY,
             songname TEXT NOT NULL,
@@ -589,24 +564,11 @@ function createSchema(): void {
     `);
 }
 
-const SQL = await initSqlJs({
-    locateFile: (file) => path.join(SQL_WASM_DIR, file),
-});
-
 ensureCacheDirs();
-db = fs.existsSync(DB_FILE)
-    ? new SQL.Database(fs.readFileSync(DB_FILE))
-    : new SQL.Database();
+// @ts-ignore
+db = new Database(DB_FILE);
+db.pragma('journal_mode = WAL');
 createSchema();
-try {
-    flushDb();
-} catch (error) {
-    if (isNoSpaceError(error)) {
-        pauseCacheWrites(error);
-    } else {
-        logError(TAG, "Failed to initialize sqlite cache file", error, { dbFile: DB_FILE });
-    }
-}
 
 process.on("beforeExit", () => {
     try {
@@ -671,7 +633,7 @@ async function deleteTracks(songmids: string[]): Promise<number> {
 
         await safeUnlink(record.audioLocalPath);
         await safeUnlink(record.coverLocalPath);
-        db.run("DELETE FROM cached_tracks WHERE songmid = ?", [songmid]);
+        db.prepare("DELETE FROM cached_tracks WHERE songmid = ?").run(songmid);
         removedCount += 1;
     }
 
@@ -716,15 +678,13 @@ export function enqueueDeleteTracks(songmids: string[]): CacheJobInfo | null {
 }
 
 export function getCachedTrackStats(): CachedTrackStats {
-    const result = db.exec(`
+    const row = db.prepare(`
         SELECT
             COUNT(*) AS total_tracks,
             COALESCE(SUM(audio_size), 0) AS total_audio_size,
             COALESCE(MAX(cached_at), '') AS latest_cached_at
         FROM cached_tracks
-    `);
-
-    const row = result[0]?.values?.[0] || [0, 0, ""];
+    `).raw(true).get() as any[] || [0, 0, ""];
     const totalTracks = Number(row[0] || 0);
     const totalAudioSize = Number(row[1] || 0);
     const latestCachedAt = String(row[2] || "");
@@ -770,11 +730,8 @@ export function searchCachedTracksPage(query = "", page = 1, pageSize = 20): Cac
                 OR lower(intro) LIKE ?`
         : "";
 
-    const totalResult = db.exec(
-        `SELECT COUNT(*) FROM cached_tracks ${whereClause}`,
-        filters,
-    );
-    const total = Number(totalResult[0]?.values?.[0]?.[0] || 0);
+    const totalResult = db.prepare(`SELECT COUNT(*) FROM cached_tracks ${whereClause}`).raw(true).get(...filters) as any[];
+    const total = Number(totalResult?.[0] || 0);
 
     const records = queryRows(
         `SELECT * FROM cached_tracks
@@ -805,12 +762,11 @@ export function getCachedTrack(songmid: string) {
 }
 
 export function getRandomCachedTrack() {
-    const result = db.exec(`
+    const row = db.prepare(`
         SELECT * FROM cached_tracks
         ORDER BY RANDOM()
         LIMIT 1
-    `);
-    const row = result[0]?.values?.[0];
+    `).raw(true).get() as any[];
     if (!row) {
         return null;
     }

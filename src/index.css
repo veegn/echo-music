@@ -49,10 +49,12 @@ body {
   /* --- Glass Panels --- */
   .glass-panel {
     @apply bg-zinc-950/60 backdrop-blur-2xl border border-zinc-800/60;
+    -webkit-backdrop-filter: blur(40px);
   }
 
   .glass-card {
     @apply bg-zinc-900/40 backdrop-blur-3xl border border-zinc-800/50 shadow-2xl;
+    -webkit-backdrop-filter: blur(64px);
   }
 
   /* --- Buttons --- */

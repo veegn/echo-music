@@ -41,25 +41,22 @@
     "test": "npm run test:all"
   },
   "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "axios": "^1.13.6",
-    "chalk": "^4.1.2",
+    "better-sqlite3": "^12.9.0",
     "cross-env": "^10.1.0",
     "express": "^5.2.1",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",
-    "puppeteer-core": "^24.7.1",
     "qq-music-api": "file:packages/qq-music-api",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
-    "sql.js": "^1.14.1",
     "tsx": "^4.21.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.5",
     "@vitejs/plugin-react": "^5.1.4",
