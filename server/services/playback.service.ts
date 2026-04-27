@@ -134,31 +134,56 @@ export async function warmCurrentSongPlayback(room: Room, roomId: string, io: Se
     }
 }
 
+export function setNextSongPlaybackInfo(
+    room: Room,
+    roomId: string,
+    io: Server,
+    expectedId: string,
+    expectedSongmid: string,
+    playableUrl: string,
+    quality: string | number | null,
+): boolean {
+    const nextSong = room.queue[0];
+    if (!nextSong || nextSong.id !== expectedId || nextSong.songmid !== expectedSongmid || !playableUrl) {
+        return false;
+    }
+
+    const nextQuality = quality ?? undefined;
+    const changed = nextSong.playUrl !== playableUrl || nextSong.playQuality !== nextQuality;
+    if (!changed) {
+        return false;
+    }
+
+    nextSong.playUrl = playableUrl;
+    nextSong.playQuality = nextQuality;
+    broadcastRoomState(room, roomId, io, true);
+    return true;
+}
+
 export async function warmNextSongPlayback(room: Room, roomId: string, io: Server): Promise<void> {
     const nextSong = room.queue[0];
     const hostCookie = room.hostCookie;
+    const expectedId = nextSong?.id;
+    const expectedSongmid = nextSong?.songmid;
 
-    if (!nextSong?.songmid || nextSong.playUrl) {
+    if (!expectedSongmid || nextSong.playUrl) {
         return;
     }
 
     try {
-        const { playableUrl, quality } = await qqMusicService.resolveSongPlayback(nextSong.songmid, hostCookie);
-        // Check if the song is still at the front of the queue
-        if (room.queue[0] && nextSong.songmid === room.queue[0].songmid) {
-            room.queue[0].playUrl = playableUrl;
-            room.queue[0].playQuality = quality ?? undefined;
-            broadcastRoomState(room, roomId, io, true);
+        const { playableUrl, quality } = await qqMusicService.resolveSongPlayback(expectedSongmid, hostCookie);
+        const changed = setNextSongPlaybackInfo(room, roomId, io, expectedId, expectedSongmid, playableUrl, quality);
+        if (changed) {
             logInfo(TAG, "Warmed next song playback URL", {
                 roomId,
-                songmid: nextSong.songmid,
+                songmid: expectedSongmid,
                 quality: quality ?? null,
             });
         }
     } catch (error) {
         logWarn(TAG, "Failed to warm next song playback URL", {
             roomId,
-            songmid: nextSong.songmid,
+            songmid: expectedSongmid,
             message: error instanceof Error ? error.message : String(error),
         });
     }
@@ -206,8 +231,6 @@ function fetchRandomLocalCachedSong(): RoomPlaybackSong | null {
 export async function playNextSong(room: Room, roomId: string, io: Server, isAuto = false): Promise<void> {
     if (room.queue.length > 0) {
         room.currentSong = room.queue.shift()!;
-        room.currentSong.playUrl = undefined;
-        room.currentSong.playQuality = undefined;
         roomService.setPlaybackClock(room, 0, true);
         roomService.bumpSyncVersion(room);
 

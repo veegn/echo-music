@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyPlaybackControl, applyPlaybackSeek, appendSystemMessage, normalizeIncomingSong, setCurrentSongPlaybackInfo } from "../services/playback.service.js";
+import {
+    applyPlaybackControl,
+    applyPlaybackSeek,
+    appendSystemMessage,
+    normalizeIncomingSong,
+    playNextSong,
+    setNextSongPlaybackInfo,
+    setCurrentSongPlaybackInfo,
+} from "../services/playback.service.js";
 import type { Room } from "../types.js";
 
 function createMockIo() {
@@ -137,4 +145,67 @@ test("applyPlaybackSeek updates position and emits sync without changing play st
     const syncEvent = events.find((event) => event.event === "player_sync");
     assert.ok(syncEvent);
     assert.ok(syncEvent.payload.currentTime >= 88);
+});
+
+test("playNextSong preserves prewarmed playback url from queue item", async () => {
+    const room = createRoom({
+        currentSong: null,
+        queue: [{
+            id: "queued-1",
+            songmid: "mid-next",
+            songname: "Next",
+            singer: "Singer",
+            albumname: "Album",
+            albummid: "album-mid",
+            requestedBy: "Guest",
+            playUrl: "https://example.com/prewarmed.mp3",
+            playQuality: "320",
+        }],
+    });
+    const { io } = createMockIo();
+
+    await playNextSong(room, room.id, io);
+
+    assert.equal(room.currentSong?.id, "queued-1");
+    assert.equal(room.currentSong?.playUrl, "https://example.com/prewarmed.mp3");
+    assert.equal(room.currentSong?.playQuality, "320");
+});
+
+test("setNextSongPlaybackInfo ignores stale result when same songmid belongs to a different queue item", () => {
+    const room = createRoom({
+        queue: [{
+            id: "queued-original",
+            songmid: "same-mid",
+            songname: "Original",
+            singer: "Singer",
+            albumname: "Album",
+            albummid: "album-mid",
+            requestedBy: "Guest",
+        }],
+    });
+    const { io, events } = createMockIo();
+    room.queue[0] = {
+        id: "queued-replacement",
+        songmid: "same-mid",
+        songname: "Replacement",
+        singer: "Singer",
+        albumname: "Album",
+        albummid: "album-mid",
+        requestedBy: "Guest",
+    };
+
+    const changed = setNextSongPlaybackInfo(
+        room,
+        room.id,
+        io,
+        "queued-original",
+        "same-mid",
+        "https://example.com/stale.mp3",
+        "320",
+    );
+
+    assert.equal(changed, false);
+    assert.equal(room.queue[0].id, "queued-replacement");
+    assert.equal(room.queue[0].playUrl, undefined);
+    assert.equal(events.length, 0);
 });
