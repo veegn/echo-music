@@ -55,7 +55,7 @@ export default function RoomView() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-zinc-950 text-zinc-50 overflow-hidden font-sans relative">
+        <div className="flex h-dvh flex-col bg-zinc-950 text-zinc-50 overflow-hidden font-sans relative">
             <header className="shrink-0 h-16 glass-panel z-40 px-6 flex items-center justify-between shadow-xl">
                 <div className="flex items-center gap-4 min-w-0">
                     <div className="flex flex-col flex-1 min-w-0">
@@ -233,7 +233,7 @@ export default function RoomView() {
                 </div>
             </div>
 
-            <div className="md:hidden shrink-0 h-14 bg-zinc-900 border-t border-zinc-800/50 flex items-center justify-around px-2 z-40 relative">
+            <div className="md:hidden shrink-0 min-h-[calc(3.5rem_+_env(safe-area-inset-bottom))] pb-safe bg-zinc-900 border-t border-zinc-800/50 flex items-center justify-around px-2 z-40 relative">
                 <button
                     onClick={() => setActiveMobileTab(activeMobileTab === 'users' ? 'none' : 'users')}
                     className={`flex flex-col items-center gap-1 p-2 w-16 transition-colors ${activeMobileTab === 'users' ? 'text-emerald-400' : 'text-zinc-500 hover:text-zinc-300'}`}
@@ -274,8 +274,8 @@ export default function RoomView() {
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="bg-zinc-950/95 backdrop-blur-2xl flex flex-col rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-zinc-800/60"
-                            style={{ height: '80vh' }}
+                            className="bg-zinc-950/95 backdrop-blur-2xl flex flex-col rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-zinc-800/60 pb-[env(safe-area-inset-bottom)]"
+                            style={{ height: 'min(80dvh, calc(100dvh - 4rem))' }}
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between p-4 border-b border-zinc-800/50">

@@ -16,10 +16,12 @@ export default function Player({ isHost }: { isHost: boolean }) {
         audioRef={controller.audioRef}
         localCurrentTime={controller.localCurrentTime}
         duration={controller.duration}
+        needsAudioActivation={controller.needsAudioActivation}
         isSyncLeader={controller.isSyncLeader}
         onTogglePlay={controller.togglePlay}
         onSkip={controller.handleSkip}
         onOpenCookieDialog={() => setShowCookieDialog(true)}
+        onActivateAudio={controller.activateAudio}
         onTimeUpdate={controller.handleTimeUpdate}
         onLoadedMetadata={controller.handleLoadedMetadata}
         onPlayPause={controller.handlePlayPause}

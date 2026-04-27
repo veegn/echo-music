@@ -11,3 +11,4 @@ server/test-storage/
 .qq_cookies.json
 .vscode/
 .codex/
+.playwright-cli/

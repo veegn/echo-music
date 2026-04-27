@@ -531,7 +531,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar pb-20">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar pb-[calc(5.5rem_+_env(safe-area-inset-bottom))]">
         <AnimatePresence mode="wait">
           {showQueue ? (
             <motion.div key="queue" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="h-full">
@@ -593,7 +593,7 @@ export default function MusicPanel({ isHost }: { isHost: boolean }) {
         </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800/50 backdrop-blur-md z-10">
+      <div className="absolute bottom-0 left-0 right-0 bg-zinc-900 p-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))] border-t border-zinc-800/50 backdrop-blur-md z-10">
         <button
           onClick={() => setShowQueue(!showQueue)}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${showQueue ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-transparent'}`}

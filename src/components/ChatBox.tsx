@@ -57,7 +57,7 @@ export default function ChatBox() {
             </div>
 
             {/* Input at Bottom */}
-            <form onSubmit={handleSend} className="p-3 border-t border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md">
+            <form onSubmit={handleSend} className="p-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))] border-t border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md">
                 <div className="relative flex items-center gap-2">
                     <input
                         value={input}

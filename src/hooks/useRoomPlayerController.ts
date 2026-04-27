@@ -7,11 +7,28 @@ export function useRoomPlayerController() {
   const [localCurrentTime, setLocalCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [songLoading, setSongLoading] = useState(false);
+  const [needsAudioActivation, setNeedsAudioActivation] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastSyncRef = useRef(0);
   const suppressSyncRef = useRef(false);
   const takeoverTimeoutRef = useRef(0);
   const isSyncLeader = !!room?.syncLeaderId && room.syncLeaderId === socket?.id;
+
+  const playWithActivationTracking = async () => {
+    if (!audioRef.current) return false;
+
+    try {
+      await audioRef.current.play();
+      setNeedsAudioActivation(false);
+      return true;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[Player] audio playback requires user activation or failed to start:', error);
+      }
+      setNeedsAudioActivation(true);
+      return false;
+    }
+  };
 
   useEffect(() => {
     if (room) {
@@ -31,6 +48,7 @@ export function useRoomPlayerController() {
     } else {
       setAudioUrl('');
       setSongLoading(false);
+      setNeedsAudioActivation(false);
     }
   }, [room?.currentSong?.songmid, room?.currentSong?.playUrl]);
 
@@ -74,20 +92,23 @@ export function useRoomPlayerController() {
   };
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      const nextIsPlaying = audioRef.current.paused;
-      takeoverTimeoutRef.current = Date.now() + 1500;
-      suppressSyncRef.current = true;
-      if (nextIsPlaying) {
-        audioRef.current.play().catch(() => { });
-      } else {
-        audioRef.current.pause();
-      }
-      controlPlayback(audioRef.current.currentTime, nextIsPlaying);
-      window.setTimeout(() => {
-        suppressSyncRef.current = false;
-      }, 0);
+    if (!audioRef.current) return;
+
+    const nextIsPlaying = audioRef.current.paused;
+    takeoverTimeoutRef.current = Date.now() + 1500;
+    suppressSyncRef.current = true;
+
+    if (nextIsPlaying) {
+      void playWithActivationTracking();
+    } else {
+      audioRef.current.pause();
+      setNeedsAudioActivation(false);
     }
+
+    controlPlayback(audioRef.current.currentTime, nextIsPlaying);
+    window.setTimeout(() => {
+      suppressSyncRef.current = false;
+    }, 0);
   };
 
   const handlePlayPause = () => {
@@ -109,10 +130,12 @@ export function useRoomPlayerController() {
       if (diff > 0.8) audioRef.current.currentTime = room.currentTime;
 
       if (room.isPlaying && audioRef.current.paused && !audioRef.current.ended) {
-        audioRef.current.play().catch(() => { });
+        void playWithActivationTracking();
       } else if (!room.isPlaying && !audioRef.current.paused) {
         audioRef.current.pause();
+        setNeedsAudioActivation(false);
       }
+
       window.setTimeout(() => {
         suppressSyncRef.current = false;
       }, 0);
@@ -122,11 +145,8 @@ export function useRoomPlayerController() {
   useEffect(() => {
     if (audioRef.current && room?.currentSong && isSyncLeader) {
       setSongLoading(true);
-      audioRef.current.play()
-        .then(() => {
-          setSongLoading(false);
-        })
-        .catch(() => {
+      playWithActivationTracking()
+        .finally(() => {
           setSongLoading(false);
         });
     }
@@ -144,12 +164,18 @@ export function useRoomPlayerController() {
     skipSong(isAuto);
   };
 
+  const activateAudio = () => {
+    if (!audioRef.current) return;
+    void playWithActivationTracking();
+  };
+
   return {
     room,
     audioUrl,
     localCurrentTime,
     duration,
     songLoading,
+    needsAudioActivation,
     audioRef,
     isSyncLeader,
     handleTimeUpdate,
@@ -158,5 +184,6 @@ export function useRoomPlayerController() {
     togglePlay,
     handleSeek,
     handleSkip,
+    activateAudio,
   };
 }

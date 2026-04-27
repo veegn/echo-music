@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #09090b;
+}
+
 @theme {
   --color-emerald-500: #10b981;
   --color-emerald-400: #34d399;
@@ -13,6 +24,24 @@
   --color-zinc-300: #d4d4d8;
   --color-zinc-200: #e4e4e7;
   --color-zinc-100: #f4f4f5;
+}
+
+@layer utilities {
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+
+  .h-dvh {
+    height: 100dvh;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 @layer components {

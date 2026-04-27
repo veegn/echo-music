@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Music, Pause, Play, Settings, SkipForward } from 'lucide-react';
+import { Music, Pause, Play, Settings, SkipForward, Volume2 } from 'lucide-react';
 import Lyrics from './Lyrics';
 import { RoomState } from '../types';
 
@@ -17,10 +17,12 @@ interface PlayerViewProps {
   audioRef: React.RefObject<HTMLAudioElement | null>;
   localCurrentTime: number;
   duration: number;
+  needsAudioActivation: boolean;
   isSyncLeader: boolean;
   onTogglePlay: () => void;
   onSkip: (isAuto?: boolean) => void;
   onOpenCookieDialog: () => void;
+  onActivateAudio: () => void;
   onTimeUpdate: () => void;
   onLoadedMetadata: () => void;
   onPlayPause: () => void;
@@ -34,15 +36,24 @@ export default function PlayerView({
   audioRef,
   localCurrentTime,
   duration,
+  needsAudioActivation,
   isSyncLeader,
   onTogglePlay,
   onSkip,
   onOpenCookieDialog,
+  onActivateAudio,
   onTimeUpdate,
   onLoadedMetadata,
   onPlayPause,
   onSeek,
 }: PlayerViewProps) {
+  const seekFromPointer = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const pos = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    onSeek(pos * duration);
+  };
+
   return (
     <div className="w-full h-full relative z-10 flex flex-col min-h-0 overflow-hidden">
       <div className="absolute -inset-40 pointer-events-none -z-20 overflow-hidden">
@@ -97,28 +108,40 @@ export default function PlayerView({
         />
       </div>
 
-      <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 sm:p-8 relative z-10 custom-scrollbar">
-        <div className="w-full max-w-5xl flex flex-col items-center gap-8 relative z-10 my-auto py-4">
+      <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col items-center p-4 pb-[calc(env(safe-area-inset-bottom)_+_1rem)] sm:p-8 relative z-10 custom-scrollbar">
+        <div className="w-full max-w-5xl flex flex-col items-center gap-6 sm:gap-8 relative z-10 my-auto py-4">
+          {needsAudioActivation && room?.currentSong && (
+            <button
+              onClick={onActivateAudio}
+              className="min-h-11 w-full max-w-xl flex items-center justify-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-100 shadow-lg shadow-black/20 active:scale-[0.99]"
+            >
+              <Volume2 className="h-5 w-5" />
+              <span>点击启用音频播放</span>
+            </button>
+          )}
+
           <div className="w-full flex flex-col-reverse md:flex-row items-center md:items-stretch bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/50 rounded-3xl overflow-hidden shadow-2xl md:h-[320px]">
-            <div className="flex-1 p-6 md:p-8 flex flex-col justify-between w-full h-full">
+            <div className="flex-1 p-5 sm:p-6 md:p-8 flex flex-col justify-between w-full h-full">
               {audioUrl && (
                 <audio
                   ref={audioRef}
                   src={audioUrl}
+                  playsInline
+                  preload="metadata"
                   onTimeUpdate={onTimeUpdate}
                   onLoadedMetadata={onLoadedMetadata}
                   onPlay={onPlayPause}
                   onPause={onPlayPause}
                   onEnded={() => isSyncLeader && onSkip(true)}
-                  className="hidden"
+                  className="absolute h-0 w-0 opacity-0 pointer-events-none"
                 />
               )}
 
               <div className="mb-6 mt-2 md:mt-0 min-h-[80px] flex flex-col justify-center">
-                <h2 className="text-3xl font-bold mb-2 tracking-tight text-white line-clamp-1 leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight text-white line-clamp-2 leading-tight text-center md:text-left">
                   {room?.currentSong ? room.currentSong.songname : '还没有开始播放'}
                 </h2>
-                <p className="text-zinc-400 text-sm font-medium line-clamp-2">
+                <p className="text-zinc-400 text-sm font-medium line-clamp-2 text-center md:text-left">
                   {room?.currentSong ? formatSinger(room.currentSong.singer) : '去右侧搜索歌曲，或者从歌单里挑一首开始吧。'}
                 </p>
               </div>
@@ -129,12 +152,24 @@ export default function PlayerView({
                     {Math.floor(localCurrentTime / 60)}:{(Math.floor(localCurrentTime) % 60).toString().padStart(2, '0')}
                   </span>
                   <div
-                    className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden relative cursor-pointer"
-                    onClick={(e) => {
-                      if (!duration) return;
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const pos = (e.clientX - rect.left) / rect.width;
-                      onSeek(pos * duration);
+                    className="flex-1 h-3 bg-zinc-800 rounded-full overflow-hidden relative cursor-pointer touch-none"
+                    onPointerDown={(e) => {
+                      e.currentTarget.setPointerCapture(e.pointerId);
+                      seekFromPointer(e);
+                    }}
+                    onPointerMove={(e) => {
+                      if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+                      seekFromPointer(e);
+                    }}
+                    onPointerUp={(e) => {
+                      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                        e.currentTarget.releasePointerCapture(e.pointerId);
+                      }
+                    }}
+                    onPointerCancel={(e) => {
+                      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                        e.currentTarget.releasePointerCapture(e.pointerId);
+                      }
                     }}
                   >
                     <motion.div
@@ -148,12 +183,12 @@ export default function PlayerView({
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-6">
                     <button
                       onClick={onTogglePlay}
                       disabled={!room?.currentSong}
-                      className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 relative flex items-center justify-center w-5 h-5 active:scale-75 cursor-pointer"
+                      className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 relative flex items-center justify-center w-11 h-11 active:scale-90 cursor-pointer"
                       title={room?.isPlaying ? '暂停' : '播放'}
                     >
                       <AnimatePresence mode="wait" initial={false}>
@@ -165,7 +200,7 @@ export default function PlayerView({
                           transition={{ duration: 0.15, ease: 'easeInOut' }}
                           className="absolute inset-0 flex items-center justify-center cursor-pointer"
                         >
-                          {room?.isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                          {room?.isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
                         </motion.div>
                       </AnimatePresence>
                     </button>
@@ -173,9 +208,9 @@ export default function PlayerView({
                       onClick={() => onSkip()}
                       disabled={!room?.currentSong}
                       title="下一首 / 切歌"
-                      className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 active:scale-75 cursor-pointer flex items-center justify-center"
+                      className="text-zinc-300 hover:text-white disabled:opacity-30 transition-all bg-transparent border-0 active:scale-90 cursor-pointer flex h-11 w-11 items-center justify-center"
                     >
-                      <SkipForward className="w-5 h-5 fill-current" />
+                      <SkipForward className="w-6 h-6 fill-current" />
                     </button>
                   </div>
 
@@ -224,7 +259,7 @@ export default function PlayerView({
             </motion.div>
           </div>
 
-          <div className="w-full max-w-2xl px-4 text-center h-48 flex flex-col justify-center">
+          <div className="w-full max-w-2xl px-2 sm:px-4 text-center h-44 sm:h-48 flex flex-col justify-center">
             {room?.currentSong ? (
               <Lyrics songmid={room.currentSong.songmid} currentTime={localCurrentTime} />
             ) : (

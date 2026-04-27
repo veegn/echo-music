@@ -557,7 +557,7 @@ export default function OfflineLibrary({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-50">
+    <div className="relative min-h-dvh overflow-hidden bg-zinc-950 text-zinc-50">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.08),transparent_25%)]" />
 
       <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
