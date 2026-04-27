@@ -15,7 +15,15 @@ export function useRoomPlayerController() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioNextRef = useRef<HTMLAudioElement>(null);
   const preloadedNextMidRef = useRef<string | null>(null);
+  // Tracks whether the audio element has been "blessed" by a user gesture.
+  // On iOS Safari, once an <audio> element has successfully called play()
+  // from within a user gesture, subsequent programmatic play() calls on
+  // that same element are permitted — even with different src values.
   const audioUnlockedRef = useRef(false);
+  // Tracks whether we should auto-play once audioUrl becomes available.
+  // This handles the case where the user clicks "activate" but audioUrl
+  // is still empty (server hasn't resolved the play URL yet).
+  const pendingPlayRef = useRef(false);
 
   const lastSyncRef = useRef(0);
   const suppressSyncRef = useRef(false);
@@ -29,42 +37,9 @@ export function useRoomPlayerController() {
   };
 
   /**
-   * Unlock the audio element in the context of a user gesture.
-   * Must be called synchronously from a click/touch handler.
-   * After this, the audio element is "blessed" by the browser
-   * and subsequent programmatic play() calls will succeed.
+   * Try to play the current audio. If the browser rejects the play() call
+   * (autoplay policy), show the activation banner.
    */
-  const unlockAudioElement = async (audio: HTMLAudioElement): Promise<void> => {
-    if (audioUnlockedRef.current) return;
-
-    // Save the current src so we can restore it without re-triggering a load
-    const hadSrc = audio.getAttribute('src');
-
-    // Play a tiny silent MP3 to "bless" this audio element.
-    // Use muted instead of volume=0 to avoid iOS volume state issues.
-    audio.muted = true;
-    audio.src = SILENT_MP3;
-    try {
-      await audio.play();
-      audio.pause();
-    } catch {
-      // Some browsers may still block; that's OK
-    }
-    audio.muted = false;
-
-    // Restore the original src attribute (not the resolved property).
-    // Setting via attribute avoids triggering a network reload if the
-    // value hasn't changed, preventing the decoder pop/glitch.
-    if (hadSrc) {
-      audio.setAttribute('src', hadSrc);
-    } else {
-      audio.removeAttribute('src');
-      audio.load();
-    }
-
-    audioUnlockedRef.current = true;
-  };
-
   const playWithActivationTracking = async () => {
     if (!audioRef.current) return false;
 
@@ -75,7 +50,9 @@ export function useRoomPlayerController() {
 
     try {
       await audioRef.current.play();
+      audioUnlockedRef.current = true;
       setNeedsAudioActivation(false);
+      pendingPlayRef.current = false;
       return true;
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -86,11 +63,24 @@ export function useRoomPlayerController() {
     }
   };
 
-  // Passive unlock: attempt to unlock audio on first user interaction anywhere
+  // Passive unlock: attempt to unlock audio on first user interaction anywhere.
+  // This catches gestures like tapping "add song" or navigating the UI, so the
+  // audio element is blessed before we actually need to play music.
   useEffect(() => {
     const handleFirstInteraction = () => {
       if (audioRef.current && !audioUnlockedRef.current) {
-        void unlockAudioElement(audioRef.current);
+        const audio = audioRef.current;
+        audio.muted = true;
+        audio.src = SILENT_MP3;
+        audio.play().then(() => {
+          audio.pause();
+          audio.muted = false;
+          audio.removeAttribute('src');
+          audio.load();
+          audioUnlockedRef.current = true;
+        }).catch(() => {
+          audio.muted = false;
+        });
       }
     };
     document.addEventListener('click', handleFirstInteraction, { once: true });
@@ -101,14 +91,11 @@ export function useRoomPlayerController() {
     };
   }, []);
 
-  // Fix #3: Resume audio after iOS suspends the process in background.
-  // When Safari freezes a tab, the AudioContext becomes 'suspended'.
-  // On return, we need to attempt to resume playback.
+  // Resume audio after iOS suspends the process in background.
   useEffect(() => {
     const handleResume = () => {
       if (document.visibilityState !== 'visible') return;
       if (!audioRef.current || !room?.isPlaying) return;
-      // If audio was playing but got paused by OS freeze, resume it
       if (audioRef.current.paused && audioRef.current.src && audioRef.current.readyState >= 2) {
         void playWithActivationTracking();
       }
@@ -136,8 +123,19 @@ export function useRoomPlayerController() {
       setAudioUrl('');
       setSongLoading(false);
       setNeedsAudioActivation(false);
+      pendingPlayRef.current = false;
     }
   }, [room?.currentSong?.songmid, room?.currentSong?.playUrl]);
+
+  // When audioUrl arrives and we have a pending play request from activateAudio,
+  // try to play immediately. This handles the case where the user clicked
+  // "activate" before the server had resolved the play URL.
+  useEffect(() => {
+    if (audioUrl && pendingPlayRef.current && audioRef.current) {
+      pendingPlayRef.current = false;
+      void playWithActivationTracking();
+    }
+  }, [audioUrl]);
 
   // Preload next song
   useEffect(() => {
@@ -232,6 +230,7 @@ export function useRoomPlayerController() {
     }
   };
 
+  // Follower sync: align local audio with the room's authoritative state
   useEffect(() => {
     if (!isSyncLeader && audioRef.current && room) {
       if (Date.now() < takeoverTimeoutRef.current) return;
@@ -252,6 +251,8 @@ export function useRoomPlayerController() {
     }
   }, [room?.currentSong?.songmid, room?.currentTime, room?.isPlaying, room?.syncVersion, isSyncLeader]);
 
+  // Leader autoplay: when a new song starts playing and we are the sync leader,
+  // try to start playback automatically.
   useEffect(() => {
     if (audioRef.current && room?.currentSong && isSyncLeader) {
       setSongLoading(true);
@@ -287,15 +288,12 @@ export function useRoomPlayerController() {
         mainAudio.src = nextUrl;
 
         // Wait for enough data to be decoded before starting playback.
-        // This prevents the decoder from outputting garbage frames during
-        // the transition, which manifests as a "pop" or distortion.
         const onCanPlay = () => {
           mainAudio.removeEventListener('canplay', onCanPlay);
           void mainAudio.play();
         };
         mainAudio.addEventListener('canplay', onCanPlay, { once: true });
-        // Fallback: if canplay doesn't fire within 500ms, force play anyway
-        // to avoid infinite silence on slow networks
+        // Fallback: if canplay doesn't fire within 500ms, force play
         setTimeout(() => {
           mainAudio.removeEventListener('canplay', onCanPlay);
           if (mainAudio.paused && mainAudio.src) {
@@ -313,13 +311,12 @@ export function useRoomPlayerController() {
 
   /**
    * Called from the "点击启用音频播放" button.
-   * This runs synchronously within a user gesture (click/tap),
-   * which is critical for Safari/iOS to permit audio playback.
+   * Runs within a user gesture (click/tap), which is critical for Safari/iOS.
    *
-   * Key insight: Safari's gesture token is consumed by the first `play()` call.
-   * If we unlock with silent MP3 first, the second play() for real audio
-   * crosses an await boundary and may be rejected. So we go directly to
-   * the real source if available, falling back to silent unlock only if needed.
+   * Strategy:
+   * - If audioUrl is available, play it directly (single play() = unlock + play).
+   * - If audioUrl is NOT available yet (server still resolving), unlock with
+   *   silent MP3 and set pendingPlayRef so we auto-play when audioUrl arrives.
    */
   const activateAudio = async () => {
     if (!audioRef.current) return;
@@ -327,34 +324,47 @@ export function useRoomPlayerController() {
 
     if (audioUrl) {
       // Best path: play the real audio directly within the user gesture.
-      // This both unlocks the audio context AND starts playback in one step.
       audio.src = audioUrl;
       try {
         await audio.play();
         audioUnlockedRef.current = true;
         setNeedsAudioActivation(false);
+        pendingPlayRef.current = false;
         return;
       } catch (error) {
         if (import.meta.env.DEV) {
           console.warn('[Player] activateAudio direct play failed:', error);
         }
+        // Fall through to silent unlock
       }
     }
 
     // Fallback: no audioUrl yet, or direct play failed.
-    // Unlock with silent MP3 so future programmatic play() calls work.
-    if (!audioUnlockedRef.current) {
-      audio.muted = true;
-      audio.src = SILENT_MP3;
-      try {
-        await audio.play();
-        audio.pause();
-      } catch {}
-      audio.muted = false;
+    // Unlock the audio element with a silent MP3 so future play() calls work.
+    audio.muted = true;
+    audio.src = SILENT_MP3;
+    try {
+      await audio.play();
+      audio.pause();
+      audioUnlockedRef.current = true;
+    } catch {
+      // Even this failed — nothing more we can do
+    }
+    audio.muted = false;
+
+    // If audioUrl wasn't ready, mark as pending so the audioUrl effect
+    // will auto-play when the URL arrives.
+    if (!audioUrl) {
+      pendingPlayRef.current = true;
+    }
+
+    // Always remove the src after unlock to avoid the silent MP3 being
+    // the active media for MediaSession etc.
+    if (!audioUrl) {
       audio.removeAttribute('src');
       audio.load();
-      audioUnlockedRef.current = true;
     }
+
     setNeedsAudioActivation(false);
   };
 
