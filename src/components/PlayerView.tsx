@@ -79,6 +79,7 @@ export default function PlayerView({
                 src={audioUrl || undefined}
                 playsInline
                 preload="metadata"
+                crossOrigin="anonymous"
                 onTimeUpdate={onTimeUpdate}
                 onLoadedMetadata={onLoadedMetadata}
                 onPlay={onPlayPause}
@@ -90,6 +91,7 @@ export default function PlayerView({
                 ref={audioNextRef}
                 playsInline
                 preload="auto"
+                crossOrigin="anonymous"
                 className="absolute h-0 w-0 opacity-0 pointer-events-none"
               />
 

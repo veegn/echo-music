@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store';
 
-// Tiny 0.1s silent MP3 base64 for Safari audio-context unlock
-const SILENT_MP3 = 'data:audio/mp3;base64,//OExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+// Tiny silent WAV base64 for Safari audio-context unlock - more robust than MP3
+const SILENT_AUDIO = 'data:audio/wav;base64,UklGRigAAABXQVZFRm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAP8A/w==';
 
 export function useRoomPlayerController() {
   const { room, skipSong, syncPlayer, controlPlayback, seekPlayer, socket } = useStore();
@@ -68,19 +68,26 @@ export function useRoomPlayerController() {
   // audio element is blessed before we actually need to play music.
   useEffect(() => {
     const handleFirstInteraction = () => {
-      if (audioRef.current && !audioUnlockedRef.current) {
-        const audio = audioRef.current;
-        audio.muted = true;
-        audio.src = SILENT_MP3;
-        audio.play().then(() => {
-          audio.pause();
-          audio.muted = false;
-          audio.removeAttribute('src');
-          audio.load();
-          audioUnlockedRef.current = true;
-        }).catch(() => {
-          audio.muted = false;
+      if (!audioUnlockedRef.current) {
+        // Unlock both main and next audio elements
+        [audioRef.current, audioNextRef.current].forEach(audio => {
+          if (audio) {
+            audio.muted = true;
+            // Only set SILENT_AUDIO if there is no real source yet
+            if (!audio.src || audio.src === window.location.href) {
+              audio.src = SILENT_AUDIO;
+            }
+            audio.play().then(() => {
+              audio.pause();
+              audio.muted = false;
+              // Do NOT call load() or removeAttribute('src') here!
+              // It keeps the element in a "blessed" and "ready" state for Safari.
+            }).catch(() => {
+              audio.muted = false;
+            });
+          }
         });
+        audioUnlockedRef.current = true;
       }
     };
     document.addEventListener('click', handleFirstInteraction, { once: true });
@@ -314,55 +321,49 @@ export function useRoomPlayerController() {
    * Runs within a user gesture (click/tap), which is critical for Safari/iOS.
    *
    * Strategy:
+   * - Unlock both audio elements in one go.
    * - If audioUrl is available, play it directly (single play() = unlock + play).
    * - If audioUrl is NOT available yet (server still resolving), unlock with
-   *   silent MP3 and set pendingPlayRef so we auto-play when audioUrl arrives.
+   *   silent audio and set pendingPlayRef so we auto-play when audioUrl arrives.
    */
   const activateAudio = async () => {
     if (!audioRef.current) return;
-    const audio = audioRef.current;
 
-    if (audioUrl) {
-      // Best path: play the real audio directly within the user gesture.
-      audio.src = audioUrl;
+    // Unlock both elements
+    const elements = [audioRef.current, audioNextRef.current].filter(Boolean) as HTMLAudioElement[];
+
+    for (const audio of elements) {
+      audio.muted = true;
+      const isMain = audio === audioRef.current;
+
+      if (isMain && audioUrl) {
+        audio.src = audioUrl;
+        audio.muted = false;
+      } else if (!audio.src || audio.src === window.location.href) {
+        audio.src = SILENT_AUDIO;
+      }
+
       try {
         await audio.play();
-        audioUnlockedRef.current = true;
-        setNeedsAudioActivation(false);
-        pendingPlayRef.current = false;
-        return;
+        if (isMain && audioUrl) {
+          // Keep playing if it's the real song
+        } else {
+          audio.pause();
+          audio.muted = false;
+        }
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.warn('[Player] activateAudio direct play failed:', error);
+          console.warn('[Player] activateAudio unlock failed:', error);
         }
-        // Fall through to silent unlock
       }
     }
 
-    // Fallback: no audioUrl yet, or direct play failed.
-    // Unlock the audio element with a silent MP3 so future play() calls work.
-    audio.muted = true;
-    audio.src = SILENT_MP3;
-    try {
-      await audio.play();
-      audio.pause();
-      audioUnlockedRef.current = true;
-    } catch {
-      // Even this failed — nothing more we can do
-    }
-    audio.muted = false;
+    audioUnlockedRef.current = true;
 
     // If audioUrl wasn't ready, mark as pending so the audioUrl effect
     // will auto-play when the URL arrives.
     if (!audioUrl) {
       pendingPlayRef.current = true;
-    }
-
-    // Always remove the src after unlock to avoid the silent MP3 being
-    // the active media for MediaSession etc.
-    if (!audioUrl) {
-      audio.removeAttribute('src');
-      audio.load();
     }
 
     setNeedsAudioActivation(false);
