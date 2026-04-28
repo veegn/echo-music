@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CookieDialog } from './Dialogs';
+import CookieDialog from './dialogs/CookieDialog';
 import PlayerView from './PlayerView';
 import { useRoomPlayerController } from '../hooks/useRoomPlayerController';
 
@@ -17,7 +17,6 @@ export default function Player({ isHost }: { isHost: boolean }) {
         localCurrentTime={controller.localCurrentTime}
         duration={controller.duration}
         needsAudioActivation={controller.needsAudioActivation}
-        isSyncLeader={controller.isSyncLeader}
         onTogglePlay={controller.togglePlay}
         onSkip={controller.handleSkip}
         onOpenCookieDialog={() => setShowCookieDialog(true)}

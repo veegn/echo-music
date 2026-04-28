@@ -27,6 +27,7 @@ interface AppState {
   seekPlayer: (currentTime: number) => void;
   playSongs: (songs: any[]) => void;
   clearQueue: () => void;
+  fetchRooms: () => Promise<any[]>;
 }
 
 const USER_NAME_KEY = 'echo_music_username';
@@ -167,7 +168,7 @@ export const useStore = create<AppState>((set, get) => ({
         set({ socket: null, room: null, chat: [], connectionState: 'disconnected' });
         window.history.pushState({}, '', window.location.pathname);
         get().showToast(
-          deletedBySelf ? '\u623f\u95f4\u5df2\u5220\u9664' : '\u623f\u95f4\u5df2\u88ab\u5220\u9664',
+          deletedBySelf ? '房间已删除' : '房间已被删除',
           deletedBySelf ? 'success' : 'info',
         );
       });
@@ -274,5 +275,15 @@ export const useStore = create<AppState>((set, get) => ({
   },
   clearQueue: () => {
     get().socket?.emit('clear_queue');
+  },
+  fetchRooms: async () => {
+    try {
+      const res = await fetch('/api/rooms');
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error('Failed to fetch rooms:', err);
+      return [];
+    }
   },
 }));

@@ -4,13 +4,11 @@ import { Music, Lock, Users, Plus, Edit2, Library } from 'lucide-react';
 import { useStore } from './store';
 import OfflineLibrary from './components/OfflineLibrary';
 import RoomView from './components/RoomView';
-import {
-  WelcomeDialog,
-  CreateRoomDialog,
-  JoinRoomDialog,
-  GlobalToast,
-  SystemNotificationBubbles,
-} from './components/Dialogs';
+import WelcomeDialog from './components/dialogs/WelcomeDialog';
+import CreateRoomDialog from './components/dialogs/CreateRoomDialog';
+import JoinRoomDialog from './components/dialogs/JoinRoomDialog';
+import GlobalToast from './components/notifications/GlobalToast';
+import SystemNotificationBubbles from './components/notifications/SystemNotificationBubbles';
 
 const LobbyHeader: React.FC<{
   userName: string;
@@ -52,259 +50,208 @@ const LobbyHeader: React.FC<{
         </div>
         <button
           onClick={onEditName}
-          className="w-10 h-10 flex items-center justify-center btn-ghost border border-zinc-700/30"
-          title="修改昵称"
+          className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-all shadow-lg"
         >
-          <Edit2 className="w-4 h-4" />
+          <Edit2 className="w-3.5 h-3.5" />
         </button>
       </div>
       <button
         onClick={onCreateRoom}
-        className="group relative btn-primary h-12 px-6 overflow-hidden flex items-center gap-2"
+        className="flex items-center gap-2 px-6 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white shadow-xl shadow-emerald-500/20 transition-all active:scale-95 group"
       >
-        <Plus className="w-4 h-4 relative z-10" />
-        <span className="relative z-10">创建房间</span>
-        <div className="absolute inset-0 bg-white/20 translate-y-12 group-hover:translate-y-0 transition-transform duration-300" />
+        <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+        <span className="text-sm font-bold">创建房间</span>
       </button>
     </div>
   </header>
 );
 
-const RoomCard: React.FC<{ room: any; onClick: () => void }> = ({ room, onClick }) => {
-  const coverUrl = room.currentSong?.albummid
-    ? `https://y.qq.com/music/photo_new/T002R300x300M000${room.currentSong.albummid}.jpg`
-    : 'https://picsum.photos/seed/music/300/300?blur=10';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      onClick={onClick}
-      className="group relative h-[280px] glass-card rounded-[32px] hover:border-emerald-500/40 transition-all duration-500 flex flex-col p-1 active:scale-[0.98]"
-    >
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/30 group-hover:scale-150 transition-all duration-700" />
-      <div className="relative z-10 h-full flex flex-col p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-black tracking-tight text-white group-hover:text-emerald-400 transition-colors truncate">
-              {room.name}
-            </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[10px] font-bold uppercase tracking-tighter text-zinc-500 bg-zinc-800/50 px-2 py-0.5 rounded-full border border-zinc-700/30">
-                {room.hasPassword ? '私密' : '公开'}
-              </span>
-              {room.hasPassword && <Lock className="w-3 h-3 text-amber-500" />}
-            </div>
-          </div>
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+const RoomCard: React.FC<{
+  room: any;
+  onJoin: (room: any) => void;
+}> = ({ room, onJoin }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="group relative bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 rounded-[32px] overflow-hidden hover:border-emerald-500/40 hover:bg-zinc-900/60 transition-all duration-300 shadow-xl hover:shadow-emerald-500/10"
+  >
+    <div className="p-6 sm:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div className="w-12 h-12 rounded-2xl bg-zinc-950 flex items-center justify-center border border-zinc-800 group-hover:border-emerald-500/30 transition-colors">
+          {room.hasPassword ? (
+            <Lock className="w-5 h-5 text-amber-500/80" />
+          ) : (
+            <Music className="w-5 h-5 text-emerald-500/80" />
+          )}
         </div>
-
-        <div className="flex-1 flex items-center gap-4 py-4 px-3 bg-white/5 rounded-2xl shadow-inner">
-          <div className="relative group/album w-20 h-20 rounded-2xl overflow-hidden shadow-2xl">
-            <img
-              src={coverUrl}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover/album:scale-110"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/music/300/300?blur=4';
-              }}
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            {room.currentSong ? (
-              <>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">正在播放</span>
-                </div>
-                <h4 className="text-base font-bold text-zinc-100 truncate mb-0.5">{room.currentSong.songname}</h4>
-                <p className="text-xs font-semibold text-zinc-500 truncate">
-                  {typeof room.currentSong.singer === 'string' ? room.currentSong.singer : '未知歌手'}
-                </p>
-              </>
-            ) : (
-              <div className="flex flex-col opacity-40">
-                <Music className="w-5 h-5 mb-1 text-zinc-400" />
-                <span className="text-xs font-bold text-zinc-400 tracking-tight">暂无播放内容</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center text-[10px] font-black text-zinc-300 border border-white/5">
-              {room.hostName.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter">房主</span>
-              <span className="text-xs font-bold text-zinc-300">{room.hostName}</span>
-            </div>
-          </div>
-          <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2">
-            <Users className="w-3 h-3 text-emerald-400" />
-            <span className="text-xs font-black text-emerald-400">{room.usersCount}</span>
-          </div>
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-950/50 border border-zinc-800/50">
+          <Users className="w-3.5 h-3.5 text-emerald-500" />
+          <span className="text-xs font-bold text-zinc-300">{room.members?.length ?? room.usersCount ?? room.users?.length ?? 0}</span>
         </div>
       </div>
-    </motion.div>
-  );
-};
+
+      <h3 className="text-xl font-bold text-zinc-100 mb-2 truncate group-hover:text-emerald-400 transition-colors">
+        {room.name}
+      </h3>
+      <div className="flex items-center gap-2 mb-8">
+        <div className="w-5 h-5 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-500">
+          {room.hostName.charAt(0).toUpperCase()}
+        </div>
+        <span className="text-xs font-medium text-zinc-500">房主：{room.hostName}</span>
+      </div>
+
+      <button
+        onClick={() => onJoin(room)}
+        className="w-full py-4 rounded-2xl bg-zinc-950 hover:bg-emerald-500 text-zinc-300 hover:text-white font-bold text-sm border border-zinc-800 hover:border-emerald-500 transition-all shadow-lg active:scale-[0.98]"
+      >
+        立即加入
+      </button>
+    </div>
+  </motion.div>
+);
 
 export default function App() {
-  const { userName, room, joinRoom, showToast } = useStore();
-  const [pathname, setPathname] = useState(window.location.pathname);
+  const { room, userName, joinRoom, fetchRooms, showToast } = useStore();
   const [rooms, setRooms] = useState<any[]>([]);
-  const [showCreate, setShowCreate] = useState(false);
-  const [pendingRoomId, setPendingRoomId] = useState<string | null>(
-    new URLSearchParams(window.location.search).get('room')
-  );
-  const [showWelcome, setShowWelcome] = useState(!userName);
-  const [welcomeForceInitial, setWelcomeForceInitial] = useState('');
-  const [joinRoomTarget, setJoinRoomTarget] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
+  const [targetJoinRoom, setTargetJoinRoom] = useState<any>(null);
+  const [showOfflineLibrary, setShowOfflineLibrary] = useState(false);
 
   useEffect(() => {
-    const handlePopState = () => setPathname(window.location.pathname);
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  const isLobbyPage = pathname === '/';
-
-  useEffect(() => {
-    if (room || !isLobbyPage) return;
-    fetchRooms();
-    const interval = setInterval(fetchRooms, 5000);
-    return () => clearInterval(interval);
-  }, [room, isLobbyPage]);
-
-  const fetchRooms = async () => {
-    try {
-      const res = await fetch('/api/rooms');
-      const data = await res.json();
-      setRooms(data);
-    } catch (e) {
-      console.error('[App] 获取房间列表失败:', e);
+    if (!userName) {
+      setShowWelcome(true);
     }
-  };
+  }, [userName]);
 
   useEffect(() => {
-    if (!isLobbyPage) return;
-    if (userName && pendingRoomId && rooms.length > 0) {
-      const targetRoom = rooms.find((item) => item.id === pendingRoomId);
-      if (targetRoom) {
-        handleJoinRoom(targetRoom);
-      } else {
-        showToast('该房间不存在或已解散', 'error');
-        window.history.replaceState({}, '', '/');
+    const loadRooms = async () => {
+      try {
+        const data = await fetchRooms();
+        setRooms(data);
+      } catch {
+        showToast('获取房间列表失败', 'error');
+      } finally {
+        setLoading(false);
       }
-      setPendingRoomId(null);
-    }
-  }, [userName, pendingRoomId, rooms, isLobbyPage]);
+    };
 
-  const handleJoinRoom = async (targetRoom: any) => {
+    loadRooms();
+    const timer = setInterval(loadRooms, 5000);
+    return () => clearInterval(timer);
+  }, [fetchRooms, showToast]);
+
+  const handleJoinRoom = async (roomToJoin: any) => {
     if (!userName) {
       setShowWelcome(true);
       return;
     }
 
-    if (targetRoom.hasPassword) {
-      setJoinRoomTarget(targetRoom);
+    if (roomToJoin.hasPassword) {
+      setTargetJoinRoom(roomToJoin);
       return;
     }
 
-    await executeJoin(targetRoom.id);
-  };
-
-  const executeJoin = async (id: string) => {
     try {
-      await joinRoom(id);
+      await joinRoom(roomToJoin.id);
       showToast('成功加入房间', 'success');
-      setJoinRoomTarget(null);
-    } catch (e: any) {
-      console.error('[App] 加入房间失败:', e.message);
-      showToast('加入房间失败', 'error');
+    } catch (error: any) {
+      showToast(error.message || '加入房间失败', 'error');
     }
   };
-
-  useEffect(() => {
-    if (room?.currentSong) {
-      const singer = typeof room.currentSong.singer === 'string' ? room.currentSong.singer : '未知歌手';
-      document.title = `正在播放：${room.currentSong.songname} - ${singer}`;
-    } else if (room) {
-      document.title = `${room.name} - Echo Music`;
-    } else {
-      document.title = 'Echo Music - 一起听歌';
-    }
-  }, [room?.currentSong, room?.name]);
 
   if (room) {
     return (
       <>
+        <RoomView />
         <GlobalToast />
         <SystemNotificationBubbles />
-        <RoomView />
       </>
     );
   }
 
-  if (pathname === '/offline-library') {
-    return <OfflineLibrary onBack={() => {
-      window.history.pushState({}, '', '/');
-      setPathname('/');
-    }} />;
-  }
-
   return (
-    <div className="min-h-dvh bg-zinc-950 text-zinc-50 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
-      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-60 -left-20 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-
-      <GlobalToast />
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
+    <div className="min-h-dvh bg-zinc-950 text-zinc-50 px-4 pb-4 pt-[calc(1rem_+_env(safe-area-inset-top))] sm:px-8 sm:pb-8 sm:pt-[calc(2rem_+_env(safe-area-inset-top))] md:px-12 md:pb-12 md:pt-[calc(3rem_+_env(safe-area-inset-top))] font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+      <div className="max-w-7xl mx-auto">
         <LobbyHeader
           userName={userName}
-          onEditName={() => {
-            setWelcomeForceInitial(userName);
-            setShowWelcome(true);
-          }}
-          onCreateRoom={() => setShowCreate(true)}
-          onOpenOfflineLibrary={() => {
-            window.history.pushState({}, '', '/offline-library');
-            setPathname('/offline-library');
-          }}
+          onEditName={() => setShowWelcome(true)}
+          onCreateRoom={() => (userName ? setShowCreateRoom(true) : setShowWelcome(true))}
+          onOpenOfflineLibrary={() => setShowOfflineLibrary(true)}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
-          <AnimatePresence>
-            {rooms.map((targetRoom: any) => (
-              <RoomCard key={targetRoom.id} room={targetRoom} onClick={() => handleJoinRoom(targetRoom)} />
-            ))}
-          </AnimatePresence>
-          {rooms.length === 0 && (
-            <div className="col-span-full py-16 sm:py-20 text-center text-zinc-500">
-              当前还没有活跃房间，来创建第一个吧。
+        <main>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-8 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+              <h2 className="text-2xl font-bold tracking-tight">活跃房间</h2>
+              <span className="text-xs font-bold text-zinc-500 ml-2 bg-zinc-900 px-2 py-1 rounded-lg border border-zinc-800">
+                {rooms.length} 个正在运行
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setLoading(true);
+                fetchRooms().then(setRooms).finally(() => setLoading(false));
+              }}
+              className="p-2 hover:bg-zinc-900 rounded-xl text-zinc-500 hover:text-emerald-400 transition-all border border-transparent hover:border-zinc-800"
+            >
+              <motion.div whileTap={{ rotate: 180 }} transition={{ duration: 0.3 }}>
+                <Plus className="w-5 h-5 rotate-45" />
+              </motion.div>
+            </button>
+          </div>
+
+          {loading && rooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-32 bg-zinc-900/20 rounded-[40px] border border-dashed border-zinc-800">
+              <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4" />
+              <p className="text-zinc-500 font-medium">正在寻找音乐房间...</p>
+            </div>
+          ) : rooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-32 bg-zinc-900/20 rounded-[40px] border border-dashed border-zinc-800 text-center px-6">
+              <div className="w-20 h-20 bg-zinc-900 rounded-3xl flex items-center justify-center mb-6 border border-zinc-800 shadow-inner">
+                <Music className="w-10 h-10 text-zinc-700" />
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-zinc-300">暂无活跃房间</h3>
+              <p className="text-zinc-500 max-w-xs mb-8">目前还没有正在播放的房间，快来创建一个属于你的音乐派对吧！</p>
+              <button
+                onClick={() => (userName ? setShowCreateRoom(true) : setShowWelcome(true))}
+                className="px-8 py-3.5 bg-zinc-100 hover:bg-white text-zinc-950 font-bold rounded-2xl shadow-xl transition-all active:scale-95"
+              >
+                立即创建首个房间
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              <AnimatePresence mode="popLayout">
+                {rooms.map((roomItem) => (
+                  <RoomCard key={roomItem.id} room={roomItem} onJoin={handleJoinRoom} />
+                ))}
+              </AnimatePresence>
             </div>
           )}
-        </div>
+        </main>
       </div>
 
-      <CreateRoomDialog isOpen={showCreate} onClose={() => setShowCreate(false)} />
       <WelcomeDialog
         isOpen={showWelcome}
         onClose={() => setShowWelcome(false)}
-        initialName={welcomeForceInitial}
+        initialName={userName}
       />
+      <CreateRoomDialog isOpen={showCreateRoom} onClose={() => setShowCreateRoom(false)} />
       <JoinRoomDialog
-        targetRoom={joinRoomTarget}
-        onClose={() => setJoinRoomTarget(null)}
-        onJoinSuccess={() => setJoinRoomTarget(null)}
+        targetRoom={targetJoinRoom}
+        onClose={() => setTargetJoinRoom(null)}
+        onJoinSuccess={() => setTargetJoinRoom(null)}
       />
+      {showOfflineLibrary && (
+        <OfflineLibrary isOpen={showOfflineLibrary} onClose={() => setShowOfflineLibrary(false)} />
+      )}
+      <GlobalToast />
+      <SystemNotificationBubbles />
     </div>
   );
 }
